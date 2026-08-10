@@ -1,7 +1,6 @@
 import { ArrowDownRight } from "lucide-react";
 import { professionals } from "@/data/content";
 import { RevealTitle } from "@/components/ui/reveal-title";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 interface TeamProps {
   onBook: (professionalId: string) => void;
@@ -9,9 +8,9 @@ interface TeamProps {
 
 export function Team({ onBook }: TeamProps) {
   return (
-    <section id="equipo" className="team-section bg-porcelain pb-[clamp(5rem,10vw,9rem)]">
-      <div className="container-shell border-t border-ink/12 pt-[clamp(5rem,9vw,8rem)]">
-        <div className="mb-12 flex flex-col justify-between gap-6 lg:mb-16 lg:flex-row lg:items-end">
+    <section id="equipo" className="team-section bg-porcelain pb-[clamp(5rem,7vw,6.5rem)]">
+      <div className="container-shell border-t border-ink/12 pt-[clamp(5rem,7vw,6.5rem)]">
+        <div className="mb-12 flex flex-col justify-between gap-6 lg:mb-10 lg:flex-row lg:items-end">
           <div>
             <p className="mb-3 font-semibold text-brass-deep">El equipo detrás de cada resultado</p>
             <RevealTitle
@@ -25,10 +24,10 @@ export function Team({ onBook }: TeamProps) {
           </p>
         </div>
 
-        <ScrollReveal className="team-lineup grid gap-x-4 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="team-lineup grid gap-x-4 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {professionals.map((professional, index) => (
-            <article key={professional.id} className={index % 2 ? "lg:pt-14" : undefined}>
-              <div className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist">
+            <article key={professional.id}>
+              <div className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist lg:aspect-[8/9]">
                 <img
                   src={professional.portraitSrc}
                   alt={professional.portraitAlt}
@@ -62,7 +61,7 @@ export function Team({ onBook }: TeamProps) {
               </button>
             </article>
           ))}
-        </ScrollReveal>
+        </div>
       </div>
     </section>
   );

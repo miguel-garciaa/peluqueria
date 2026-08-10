@@ -36,18 +36,18 @@ export function Services({ onBook }: ServicesProps) {
   return (
     <section id="servicios" className="section-space bg-porcelain">
       <div className="container-shell">
-        <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end lg:mb-8">
           <div><p className="mb-3 font-semibold text-brass-deep">Servicios de autor</p><RevealTitle label="Técnica precisa. Resultado muy tuyo." className="display-title max-w-4xl" lines={[{ content: "Técnica precisa." }, { content: "Resultado muy tuyo.", className: "text-brass-deep" }]} /></div>
           <p className="max-w-md leading-7 text-taupe">Cada cita comienza con una conversación. Adaptamos técnica, tiempo y producto a tu cabello.</p>
         </div>
         <ScrollReveal className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => { const Icon = service.icon; return (
-            <article key={service.id} className="min-h-72">
-              <button type="button" onClick={() => setActiveService(service)} aria-label={`Ver detalles de ${service.title}`} className="group flex h-full w-full flex-col rounded-2xl bg-white p-6 text-left text-ink ring-1 ring-ink/8 outline-none transition-[background-color,color,transform] duration-300 hover:-translate-y-1 hover:bg-ink hover:text-white focus-visible:ring-2 focus-visible:ring-brass-deep focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain active:translate-y-0">
-                <div className="mb-8 grid size-12 place-items-center rounded-full bg-mist text-brass-deep transition-colors group-hover:bg-white/10 group-hover:text-brass"><Icon className="size-5" aria-hidden="true" /></div>
-                <h3 className="font-display text-3xl font-semibold leading-tight tracking-[-0.025em]">{service.title}</h3>
-                <p className="mt-3 flex-1 text-base leading-7 text-taupe group-hover:text-white/65">{service.description}</p>
-                <div className="mt-6 flex w-full items-center justify-between border-t border-ink/10 pt-5 group-hover:border-white/15"><div><strong className="block">Desde {service.priceFrom} €</strong><span className="mt-1 flex items-center gap-1.5 text-xs text-taupe group-hover:text-white/55"><Clock className="size-3.5" />{service.duration}</span></div><span aria-hidden="true" className="grid size-11 place-items-center rounded-full border border-ink/15 transition-[background-color,border-color,transform] group-hover:rotate-45 group-hover:border-brass group-hover:bg-brass group-hover:text-ink"><ArrowUpRight className="size-5" /></span></div>
+            <article key={service.id} className="min-h-72 lg:min-h-64">
+              <button type="button" onClick={() => setActiveService(service)} aria-label={`Ver detalles de ${service.title}`} className="group flex h-full w-full flex-col rounded-2xl bg-white p-6 text-left text-ink ring-1 ring-ink/8 outline-none transition-[background-color,color,transform] duration-300 hover:-translate-y-1 hover:bg-ink hover:text-white focus-visible:ring-2 focus-visible:ring-brass-deep focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain active:translate-y-0 lg:p-5">
+                <div className="mb-8 grid size-12 place-items-center rounded-full bg-mist text-brass-deep transition-colors group-hover:bg-white/10 group-hover:text-brass lg:mb-5 lg:size-11"><Icon className="size-5" aria-hidden="true" /></div>
+                <h3 className="font-display text-3xl font-semibold leading-tight tracking-[-0.025em] lg:text-2xl">{service.title}</h3>
+                <p className="mt-3 flex-1 text-base leading-7 text-taupe group-hover:text-white/65 lg:mt-2 lg:text-sm lg:leading-6">{service.description}</p>
+                <div className="mt-6 flex w-full items-center justify-between border-t border-ink/10 pt-5 group-hover:border-white/15 lg:mt-4 lg:pt-4"><div><strong className="block">Desde {service.priceFrom} €</strong><span className="mt-1 flex items-center gap-1.5 text-xs text-taupe group-hover:text-white/55"><Clock className="size-3.5" />{service.duration}</span></div><span aria-hidden="true" className="grid size-11 place-items-center rounded-full border border-ink/15 transition-[background-color,border-color,transform] group-hover:rotate-45 group-hover:border-brass group-hover:bg-brass group-hover:text-ink lg:size-10"><ArrowUpRight className="size-5" /></span></div>
               </button>
             </article>
           ); })}

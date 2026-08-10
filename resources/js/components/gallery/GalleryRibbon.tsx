@@ -166,7 +166,7 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
   }, [items, onContextLost, onSelectItem]);
 
   return (
-    <div ref={rootRef} className="relative h-[78svh] min-h-[38rem] w-full overflow-hidden md:h-[94svh]">
+    <div ref={rootRef} className="relative h-[78svh] min-h-[38rem] w-full overflow-hidden md:h-[54svh] md:min-h-[32rem]">
       <canvas ref={canvasRef} role="button" tabIndex={0} aria-label="Galería en movimiento. Pasa el cursor sobre una fotografía para ralentizarla y pulsa para ampliarla." className="h-full w-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brass" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,var(--color-ink),transparent_14%,transparent_86%,var(--color-ink))]" />
       <p className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full bg-ink/80 px-4 py-2 text-center text-xs font-semibold text-white/80 ring-1 ring-white/15 backdrop-blur-sm">Pasa el cursor para frenar · pulsa para ampliar</p>

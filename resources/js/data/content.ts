@@ -41,7 +41,7 @@ export const professionals: Professional[] = [
     role: "Especialista en color",
     experience: "+8 años de oficio",
     specialties: ["Colorimetría", "Rubios", "Corrección de color"],
-    portraitSrc: image("photo-1517841905240-472988babdf9", 900),
+    portraitSrc: image("photo-1534528741775-53994a69daeb", 900),
     portraitAlt: "Retrato de Marta Soler, especialista en color",
   },
   {

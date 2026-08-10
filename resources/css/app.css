@@ -130,14 +130,15 @@ img { display: block; }
 
 @media (min-width: 64rem) {
   :root { --navbar-height: 6rem; }
+  .section-space { padding-block: clamp(5rem, 7vw, 6.5rem); }
   .hero-title {
     max-width: 88rem;
     font-size: clamp(9rem, 13vw, 13rem);
     line-height: .76;
   }
   .display-title {
-    font-size: clamp(7rem, 9.5vw, 9.5rem);
-    line-height: .82;
+    font-size: clamp(5rem, 5.8vw, 6rem);
+    line-height: .9;
   }
   .panel-title {
     font-size: clamp(5.5rem, 7vw, 8rem);
@@ -428,7 +429,7 @@ img { display: block; }
 }
 
 @media (min-width: 48rem) and (max-width: 63.999rem) {
-  .display-title { font-size: clamp(5.5rem, 10vw, 6.5rem); }
+  .display-title { font-size: clamp(4.5rem, 8vw, 5.5rem); line-height: .92; }
 }
 
 .skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; transform: translateY(-180%); background: var(--color-brass); color: var(--color-ink); padding: .75rem 1rem; border-radius: .5rem; font-weight: 700; }

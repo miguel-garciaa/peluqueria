@@ -13,6 +13,15 @@ describe("BookingSection", () => {
     expect(screen.getByLabelText("Profesional")).toHaveValue("marta");
   });
 
+  it("keeps the desktop form fields in compact two-column rows", () => {
+    render(<BookingSection selectedServiceId="" bookingEndpoint="/reservas" csrfToken="test-token" />);
+
+    expect(screen.getByLabelText("Nombre completo").closest("label")).not.toHaveClass("sm:col-span-2");
+    expect(screen.getByLabelText("Teléfono").closest("label")).not.toHaveClass("sm:col-span-2");
+    expect(screen.getByLabelText("Servicio").closest(".relative")?.parentElement).not.toHaveClass("sm:col-span-2");
+    expect(screen.getByLabelText("Profesional").closest(".relative")?.parentElement).not.toHaveClass("sm:col-span-2");
+  });
+
   it("shows inline errors for an empty submission", () => {
     render(<BookingSection selectedServiceId="" bookingEndpoint="/reservas" csrfToken="test-token" />);
     fireEvent.click(screen.getByRole("button", { name: /confirmar reserva/i }));
