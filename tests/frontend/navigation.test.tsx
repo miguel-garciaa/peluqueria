@@ -7,8 +7,19 @@ describe("Navbar", () => {
     render(<Navbar />);
 
     expect(screen.getByRole("navigation", { name: "Navegación principal" })).toHaveClass("navbar-shell");
-    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("lg:hidden");
-    expect(screen.getAllByRole("link", { name: "Inicio 01" })[0].parentElement).toHaveClass("lg:flex");
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("xl:hidden");
+    expect(screen.getAllByRole("link", { name: "Inicio 01" })[0].parentElement).toHaveClass("xl:flex");
+    expect(screen.getAllByRole("link", { name: "Iniciar sesión con Google" })[0]).toHaveAttribute("href", "/auth/google");
+  });
+
+  it("shows the authenticated account and a secure logout form", () => {
+    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", avatarUrl: null }} csrfToken="csrf-test" />);
+
+    expect(screen.getByRole("group")).toBeInTheDocument();
+    expect(screen.getAllByText("ana@example.com")[0]).toBeInTheDocument();
+    const logoutButtons = screen.getAllByRole("button", { name: "Cerrar sesión" });
+    expect(logoutButtons[0].closest("form")).toHaveAttribute("action", "/logout");
+    expect(logoutButtons[0].closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
   });
 
   it("scrolls smoothly to the selected section", () => {

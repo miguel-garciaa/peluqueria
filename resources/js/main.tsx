@@ -21,9 +21,12 @@ if (!appRoot) throw new Error("No se encontró el contenedor principal de la apl
 
 const bookingEndpoint = appRoot.dataset.bookingEndpoint ?? "/reservas";
 const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
+const currentUser = JSON.parse(appRoot.dataset.currentUser || "null");
+const authMessage = appRoot.dataset.authMessage || null;
+const authMessageType = appRoot.dataset.authMessageType === "error" ? "error" : "success";
 
 createRoot(appRoot).render(
   <StrictMode>
-    <App bookingEndpoint={bookingEndpoint} csrfToken={csrfToken} />
+    <App bookingEndpoint={bookingEndpoint} csrfToken={csrfToken} currentUser={currentUser} authMessage={authMessage} authMessageType={authMessageType} />
   </StrictMode>,
 );

@@ -20,6 +20,12 @@
     @vite('resources/js/main.tsx')
 </head>
 <body>
-    <div id="root" data-booking-endpoint="{{ route('bookings.store', [], false) }}"></div>
+    <div
+        id="root"
+        data-booking-endpoint="{{ route('bookings.store', [], false) }}"
+        data-current-user="{{ json_encode($currentUser) }}"
+        data-auth-message="{{ $authMessage }}"
+        data-auth-message-type="{{ $authMessageType }}"
+    ></div>
 </body>
 </html>
