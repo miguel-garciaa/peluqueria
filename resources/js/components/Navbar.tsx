@@ -12,7 +12,7 @@ type NavbarProps = { currentUser?: CurrentUser | null; csrfToken?: string };
 
 function AccountControl({ currentUser, csrfToken, mobile = false }: NavbarProps & { mobile?: boolean }) {
   if (!currentUser) {
-    return <a href="/auth/google" aria-label="Iniciar sesión con Google" className={cn("group flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 px-4 text-sm font-bold text-white transition-colors hover:border-brass hover:bg-white/10", mobile && "mt-4 w-full")}><span aria-hidden="true" className="grid size-6 place-items-center rounded-full bg-white font-display text-xs font-black text-brass-deep">G</span><span>Cuenta</span></a>;
+    return <a href="/auth/google" aria-label="Iniciar sesión con Google" className={cn("group flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/20 px-4 text-sm font-bold text-white transition-colors hover:border-brass hover:bg-white/10", mobile && "mt-4 w-full")}><span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-white/10 text-brass transition-colors group-hover:bg-brass group-hover:text-ink"><UserRound className="size-4" /></span><span>Cuenta</span></a>;
   }
 
   if (mobile) {

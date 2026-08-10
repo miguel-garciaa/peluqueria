@@ -9,7 +9,10 @@ describe("Navbar", () => {
     expect(screen.getByRole("navigation", { name: "Navegación principal" })).toHaveClass("navbar-shell");
     expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("xl:hidden");
     expect(screen.getAllByRole("link", { name: "Inicio 01" })[0].parentElement).toHaveClass("xl:flex");
-    expect(screen.getAllByRole("link", { name: "Iniciar sesión con Google" })[0]).toHaveAttribute("href", "/auth/google");
+    const accountLink = screen.getAllByRole("link", { name: "Iniciar sesión con Google" })[0];
+    expect(accountLink).toHaveAttribute("href", "/auth/google");
+    expect(accountLink.querySelector("svg")).toBeInTheDocument();
+    expect(accountLink).not.toHaveTextContent(/^GCuenta$/);
   });
 
   it("shows the authenticated account and a secure logout form", () => {
