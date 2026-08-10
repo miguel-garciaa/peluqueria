@@ -29,6 +29,7 @@ describe("Navbar", () => {
         <Navbar />
         <section id="inicio" />
         <section id="servicios" />
+        <section id="equipo" />
         <section id="galeria" />
         <section id="reservas" />
       </>,
@@ -59,12 +60,13 @@ describe("Navbar", () => {
         <Navbar />
         <section id="inicio" />
         <section id="servicios" />
+        <section id="equipo" />
         <section id="galeria" />
         <section id="reservas" />
       </>,
     );
 
-    fireEvent.click(screen.getAllByRole("link", { name: "Galería 03" })[0]);
+    fireEvent.click(screen.getAllByRole("link", { name: "Galería 04" })[0]);
 
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "auto", block: "start" });
     scrollIntoView.mockRestore();

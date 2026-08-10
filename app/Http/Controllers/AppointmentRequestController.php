@@ -15,6 +15,7 @@ class AppointmentRequestController extends Controller
             'full_name' => $validated['fullName'],
             'phone' => $validated['phone'],
             'service_id' => $validated['serviceId'],
+            'professional_id' => $validated['professionalId'],
             'requested_date' => $validated['date'],
             'time_slot' => $validated['timeSlot'],
         ]);

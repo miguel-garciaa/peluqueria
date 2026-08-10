@@ -13,6 +13,16 @@ export interface Service {
   icon: LucideIcon;
 }
 
+export interface Professional {
+  id: string;
+  name: string;
+  role: string;
+  experience: string;
+  specialties: string[];
+  portraitSrc: string;
+  portraitAlt: string;
+}
+
 export type GalleryCategory = "Todos" | "Cortes" | "Color" | "Tratamientos";
 export type GalleryItemCategory = Exclude<GalleryCategory, "Todos">;
 
@@ -46,6 +56,7 @@ export interface BookingFormData {
   fullName: string;
   phone: string;
   serviceId: string;
+  professionalId: string;
   date: string;
   timeSlot: string;
 }

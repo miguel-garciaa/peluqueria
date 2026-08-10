@@ -8,10 +8,16 @@ describe("BookingSection", () => {
     expect(screen.getByLabelText("Servicio")).toHaveValue("balayage");
   });
 
+  it("preselects a professional supplied by the team section", () => {
+    render(<BookingSection selectedServiceId="" selectedProfessionalId="marta" bookingEndpoint="/reservas" csrfToken="test-token" />);
+    expect(screen.getByLabelText("Profesional")).toHaveValue("marta");
+  });
+
   it("shows inline errors for an empty submission", () => {
     render(<BookingSection selectedServiceId="" bookingEndpoint="/reservas" csrfToken="test-token" />);
     fireEvent.click(screen.getByRole("button", { name: /confirmar reserva/i }));
     expect(screen.getByText("Escribe tu nombre completo.")).toBeInTheDocument();
     expect(screen.getByText("Selecciona un servicio.")).toBeInTheDocument();
+    expect(screen.getByText("Selecciona un profesional o la primera disponibilidad.")).toBeInTheDocument();
   });
 });

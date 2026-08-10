@@ -19,6 +19,7 @@ class AppointmentRequestTest extends TestCase
             'fullName' => 'María García',
             'phone' => '600 123 456',
             'serviceId' => 'balayage',
+            'professionalId' => 'marta',
             'date' => $date,
             'timeSlot' => '10:30',
         ])->assertCreated()
@@ -28,6 +29,7 @@ class AppointmentRequestTest extends TestCase
             'full_name' => 'María García',
             'phone' => '600 123 456',
             'service_id' => 'balayage',
+            'professional_id' => 'marta',
             'time_slot' => '10:30',
             'status' => 'pending',
         ]);
@@ -44,6 +46,7 @@ class AppointmentRequestTest extends TestCase
             'fullName' => 'María García',
             'phone' => '600 123 456',
             'serviceId' => 'cut',
+            'professionalId' => 'any',
             'date' => $date,
             'timeSlot' => '10:30',
         ])->assertUnprocessable()

@@ -4,7 +4,7 @@ import { BrandMark } from "@/components/BrandMark";
 import { cn } from "@/lib/utils";
 
 const links = [
-  ["Inicio", "#inicio", "01"], ["Servicios", "#servicios", "02"], ["Galería", "#galeria", "03"], ["Reservas", "#reservas", "04"],
+  ["Inicio", "#inicio", "01"], ["Servicios", "#servicios", "02"], ["Equipo", "#equipo", "03"], ["Galería", "#galeria", "04"], ["Reservas", "#reservas", "05"],
 ] as const;
 
 export function Navbar() {

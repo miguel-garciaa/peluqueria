@@ -1,6 +1,6 @@
 import { Brush, Droplets, Gem, Palette, Scissors, Sparkles } from "lucide-react";
 import heroImageColor from "@/assets/hero-salon-color.webp";
-import type { GalleryItem, Service, Testimonial, Transformation } from "@/types";
+import type { GalleryItem, Professional, Service, Testimonial, Transformation } from "@/types";
 
 const image = (id: string, width = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=84`;
@@ -14,6 +14,45 @@ export const services: Service[] = [
   { id: "barber", title: "Barba & Estilo", description: "Perfilado preciso, toalla caliente y cuidado de la piel.", longDescription: "Definimos barba, contornos y proporciones en armonía con tu corte. La preparación con toalla caliente suaviza el vello y convierte el afeitado en un ritual cómodo y preciso.", benefits: ["Diseño según facciones", "Perfilado y toalla caliente", "Hidratación de piel y barba"], imageSrc: image("photo-1622286342621-4bd786c2447c", 1400), imageAlt: "Barbero perfilando un corte y una barba", priceFrom: 22, duration: "30 min", icon: Brush },
   { id: "ritual", title: "Ritual Capilar", description: "Diagnóstico, hidratación profunda y masaje del cuero cabelludo.", longDescription: "Un cuidado pausado para recuperar equilibrio, elasticidad y brillo. Seleccionamos el tratamiento según las necesidades reales del cuero cabelludo y los largos.", benefits: ["Diagnóstico capilar", "Masaje relajante", "Hidratación y sellado de puntas"], imageSrc: image("photo-1521590832167-7bcbfaa6381f", 1400), imageAlt: "Ritual hidratante aplicado en el lavacabezas", priceFrom: 48, duration: "60 min", icon: Droplets },
   { id: "event", title: "Peinado de Evento", description: "Recogidos y ondas duraderas con una elegancia sin rigidez.", longDescription: "Creamos un peinado que acompaña tu look, tu tipo de evento y tu manera de moverte. Trabajamos fijación, volumen y textura para que dure sin perder ligereza.", benefits: ["Consulta previa de estilo", "Preparación y protección térmica", "Fijación flexible de larga duración"], imageSrc: image("photo-1562322140-8baeececf3df", 1400), imageAlt: "Peinado elegante preparado para un evento", priceFrom: 55, duration: "75 min", icon: Gem },
+];
+
+export const professionals: Professional[] = [
+  {
+    id: "laura",
+    name: "Laura Baskuñana",
+    role: "Directora creativa",
+    experience: "+14 años de oficio",
+    specialties: ["Corte personalizado", "Balayage", "Asesoría de imagen"],
+    portraitSrc: image("photo-1494790108377-be9c29b29330", 900),
+    portraitAlt: "Retrato de Laura Baskuñana, directora creativa del salón",
+  },
+  {
+    id: "dani",
+    name: "Dani Ros",
+    role: "Barbero y estilista",
+    experience: "+9 años de oficio",
+    specialties: ["Barbería", "Corte corto", "Texturas"],
+    portraitSrc: image("photo-1500648767791-00dcc994a43e", 900),
+    portraitAlt: "Retrato de Dani Ros, barbero y estilista",
+  },
+  {
+    id: "marta",
+    name: "Marta Soler",
+    role: "Especialista en color",
+    experience: "+8 años de oficio",
+    specialties: ["Colorimetría", "Rubios", "Corrección de color"],
+    portraitSrc: image("photo-1517841905240-472988babdf9", 900),
+    portraitAlt: "Retrato de Marta Soler, especialista en color",
+  },
+  {
+    id: "alvaro",
+    name: "Álvaro León",
+    role: "Estilista y terapeuta capilar",
+    experience: "+7 años de oficio",
+    specialties: ["Ritual capilar", "Peinado", "Cuero cabelludo"],
+    portraitSrc: image("photo-1507003211169-0a1dd7228f2d", 900),
+    portraitAlt: "Retrato de Álvaro León, estilista y terapeuta capilar",
+  },
 ];
 
 export const galleryItems: GalleryItem[] = [

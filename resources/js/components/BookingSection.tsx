@@ -1,22 +1,30 @@
 import { ArrowRight, CalendarDays, Check, Clock3, MapPin, Phone, Star, UserRound } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { services } from "@/data/content";
+import { professionals, services } from "@/data/content";
 import { cn } from "@/lib/utils";
 import type { BookingFormData, SubmissionStatus } from "@/types";
 import { DateField, SelectField } from "@/components/ui/booking-controls";
 import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
-const emptyForm: BookingFormData = { fullName: "", phone: "", serviceId: "", date: "", timeSlot: "" };
+const emptyForm: BookingFormData = { fullName: "", phone: "", serviceId: "", professionalId: "", date: "", timeSlot: "" };
 const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-export function BookingSection({ selectedServiceId, bookingEndpoint, csrfToken }: { selectedServiceId: string; bookingEndpoint: string; csrfToken: string }) {
-  const [formData, setFormData] = useState<BookingFormData>({ ...emptyForm, serviceId: selectedServiceId });
+interface BookingSectionProps {
+  selectedServiceId: string;
+  selectedProfessionalId?: string;
+  bookingEndpoint: string;
+  csrfToken: string;
+}
+
+export function BookingSection({ selectedServiceId, selectedProfessionalId = "", bookingEndpoint, csrfToken }: BookingSectionProps) {
+  const [formData, setFormData] = useState<BookingFormData>({ ...emptyForm, serviceId: selectedServiceId, professionalId: selectedProfessionalId });
   const [errors, setErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({});
   const [status, setStatus] = useState<SubmissionStatus>("idle");
   const [submissionMessage, setSubmissionMessage] = useState("");
 
   useEffect(() => { if (selectedServiceId) setFormData((current) => ({ ...current, serviceId: selectedServiceId })); }, [selectedServiceId]);
+  useEffect(() => { if (selectedProfessionalId) setFormData((current) => ({ ...current, professionalId: selectedProfessionalId })); }, [selectedProfessionalId]);
 
   const availableTimes = useMemo(() => {
     if (!formData.date) return [];
@@ -49,6 +57,7 @@ export function BookingSection({ selectedServiceId, bookingEndpoint, csrfToken }
     if (formData.fullName.trim().length < 2) next.fullName = "Escribe tu nombre completo.";
     if (!/^(?:\+34\s?)?[6789](?:[\s-]?\d){8}$/.test(formData.phone.trim())) next.phone = "Introduce un teléfono español válido.";
     if (!formData.serviceId) next.serviceId = "Selecciona un servicio.";
+    if (!formData.professionalId) next.professionalId = "Selecciona un profesional o la primera disponibilidad.";
     if (!formData.date || formData.date < localDate()) next.date = "Selecciona una fecha válida.";
     else if (new Date(`${formData.date}T12:00:00`).getDay() === 0) next.date = "El estudio cierra los domingos.";
     if (!formData.timeSlot) next.timeSlot = "Selecciona una hora disponible.";
@@ -97,6 +106,10 @@ export function BookingSection({ selectedServiceId, bookingEndpoint, csrfToken }
   };
 
   const serviceOptions = services.map((service) => ({ value: service.id, label: service.title, meta: `desde ${service.priceFrom} €` }));
+  const professionalOptions = [
+    { value: "any", label: "Primera disponibilidad", meta: "Cualquier profesional" },
+    ...professionals.map((professional) => ({ value: professional.id, label: professional.name, meta: professional.role })),
+  ];
   const timeOptions = availableTimes.map((time) => ({ value: time, label: time, meta: "Disponible" }));
   const inputShellClass = "mt-2 flex min-h-14 items-center gap-3 rounded-xl bg-white px-4 shadow-[inset_0_0_0_1px_oklch(0.17_0.012_65/0.13)] transition-[box-shadow,background-color] duration-200 focus-within:bg-mist/35 focus-within:shadow-[inset_0_0_0_2px_var(--color-brass-deep),0_0_0_4px_oklch(0.83_0.082_78/0.22)]";
   return (
@@ -125,6 +138,7 @@ export function BookingSection({ selectedServiceId, bookingEndpoint, csrfToken }
               <label className="text-sm font-semibold sm:col-span-2">Nombre completo<div className={cn(inputShellClass, errors.fullName && "shadow-[inset_0_0_0_1px_var(--color-danger)]")}><UserRound className="size-4 shrink-0 text-brass-deep" /><input className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink/55" value={formData.fullName} onChange={(e) => update("fullName", e.target.value)} autoComplete="name" placeholder="Tu nombre y apellidos" aria-invalid={!!errors.fullName} aria-describedby={errors.fullName ? "name-error" : undefined} /></div>{errors.fullName && <span id="name-error" className="mt-1.5 block text-xs font-medium text-danger">{errors.fullName}</span>}</label>
               <label className="text-sm font-semibold sm:col-span-2">Teléfono<div className={cn(inputShellClass, errors.phone && "shadow-[inset_0_0_0_1px_var(--color-danger)]")}><Phone className="size-4 shrink-0 text-brass-deep" /><input type="tel" inputMode="tel" className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink/55" value={formData.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" placeholder="600 000 000" aria-invalid={!!errors.phone} /></div>{errors.phone && <span className="mt-1.5 block text-xs font-medium text-danger">{errors.phone}</span>}</label>
               <div className="sm:col-span-2"><SelectField label="Servicio" value={formData.serviceId} placeholder="Selecciona un servicio" options={serviceOptions} onChange={(value) => update("serviceId", value)} error={errors.serviceId} /></div>
+              <div className="sm:col-span-2"><SelectField label="Profesional" value={formData.professionalId} placeholder="Elige quién te atenderá" options={professionalOptions} onChange={(value) => update("professionalId", value)} error={errors.professionalId} icon="professional" /></div>
               <DateField value={formData.date} min={localDate()} onChange={(value) => update("date", value)} error={errors.date} />
               <SelectField label="Hora" value={formData.timeSlot} placeholder={formData.date ? "Selecciona una hora" : "Elige primero la fecha"} options={timeOptions} onChange={(value) => update("timeSlot", value)} error={errors.timeSlot} disabled={!formData.date || availableTimes.length === 0} icon="time" />
             </div>

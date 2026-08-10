@@ -24,6 +24,7 @@ class StoreAppointmentRequest extends FormRequest
             'fullName' => ['required', 'string', 'min:2', 'max:120'],
             'phone' => ['required', 'string', 'max:32', 'regex:/^(?:\+34\s?)?[6789](?:[\s-]?\d){8}$/'],
             'serviceId' => ['required', 'string', Rule::in(['cut', 'balayage', 'keratin', 'barber', 'ritual', 'event'])],
+            'professionalId' => ['required', 'string', Rule::in(['any', 'laura', 'dani', 'marta', 'alvaro'])],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'timeSlot' => ['required', 'date_format:H:i'],
         ];
@@ -72,6 +73,8 @@ class StoreAppointmentRequest extends FormRequest
             'phone.regex' => 'Introduce un teléfono español válido.',
             'serviceId.required' => 'Selecciona un servicio.',
             'serviceId.in' => 'El servicio seleccionado no es válido.',
+            'professionalId.required' => 'Selecciona un profesional o la primera disponibilidad.',
+            'professionalId.in' => 'El profesional seleccionado no es válido.',
             'date.after_or_equal' => 'Selecciona una fecha válida.',
             'timeSlot.date_format' => 'Selecciona una hora válida.',
         ];

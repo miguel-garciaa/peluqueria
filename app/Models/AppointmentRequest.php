@@ -10,6 +10,7 @@ class AppointmentRequest extends Model
         'full_name',
         'phone',
         'service_id',
+        'professional_id',
         'requested_date',
         'time_slot',
         'status',

@@ -1,4 +1,4 @@
-import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Scissors } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Scissors, UserRound } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ interface SelectFieldProps {
   onChange: (value: string) => void;
   error?: string;
   disabled?: boolean;
-  icon?: "service" | "time";
+  icon?: "service" | "professional" | "time";
 }
 
 const triggerClass = "mt-2 flex min-h-14 w-full items-center gap-3 rounded-xl bg-white px-4 text-left text-sm text-ink shadow-[inset_0_0_0_1px_oklch(0.17_0.012_65/0.13)] outline-none transition-[box-shadow,background-color,transform] duration-200 hover:bg-mist/35 focus-visible:shadow-[inset_0_0_0_2px_var(--color-brass-deep),0_0_0_4px_oklch(0.83_0.082_78/0.22)] disabled:cursor-not-allowed disabled:opacity-50";
@@ -66,7 +66,7 @@ export function SelectField({ label, value, placeholder, options, onChange, erro
         }}
       >
         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-mist text-brass-deep">
-          {icon === "time" ? <Clock3 className="size-4" /> : selected ? <span className="font-display text-base font-bold">{selected.label.charAt(0)}</span> : <Scissors className="size-4" />}
+          {icon === "time" ? <Clock3 className="size-4" /> : icon === "professional" ? <UserRound className="size-4" /> : selected ? <span className="font-display text-base font-bold">{selected.label.charAt(0)}</span> : <Scissors className="size-4" />}
         </span>
         <span className={cn("min-w-0 flex-1 truncate", !selected && "text-ink/65")}>{selected?.label ?? placeholder}</span>
         {selected?.meta && <span className="hidden shrink-0 text-xs font-medium text-taupe sm:block">{selected.meta}</span>}

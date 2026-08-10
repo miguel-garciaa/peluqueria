@@ -8,13 +8,19 @@ import { Hero } from "@/components/Hero";
 import { Navbar } from "@/components/Navbar";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
+import { Team } from "@/components/Team";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export default function App({ bookingEndpoint, csrfToken }: { bookingEndpoint: string; csrfToken: string }) {
   const [selectedServiceId, setSelectedServiceId] = useState("");
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState("");
   const reducedMotion = useReducedMotion();
   const bookService = (serviceId: string) => {
     setSelectedServiceId(serviceId);
+    window.requestAnimationFrame(() => document.getElementById("reservas")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" }));
+  };
+  const bookProfessional = (professionalId: string) => {
+    setSelectedProfessionalId(professionalId);
     window.requestAnimationFrame(() => document.getElementById("reservas")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" }));
   };
 
@@ -25,10 +31,11 @@ export default function App({ bookingEndpoint, csrfToken }: { bookingEndpoint: s
       <main id="main-content">
         <Hero />
         <Services onBook={bookService} />
+        <Team onBook={bookProfessional} />
         <Gallery />
         <BeforeAfter />
         <Testimonials />
-        <BookingSection selectedServiceId={selectedServiceId} bookingEndpoint={bookingEndpoint} csrfToken={csrfToken} />
+        <BookingSection selectedServiceId={selectedServiceId} selectedProfessionalId={selectedProfessionalId} bookingEndpoint={bookingEndpoint} csrfToken={csrfToken} />
       </main>
       <Footer />
       <CustomCursor />
