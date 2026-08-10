@@ -1,0 +1,17 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { BookingSection } from "@/components/BookingSection";
+
+describe("BookingSection", () => {
+  it("preselects a service supplied by the page", () => {
+    render(<BookingSection selectedServiceId="balayage" bookingEndpoint="/reservas" csrfToken="test-token" />);
+    expect(screen.getByLabelText("Servicio")).toHaveValue("balayage");
+  });
+
+  it("shows inline errors for an empty submission", () => {
+    render(<BookingSection selectedServiceId="" bookingEndpoint="/reservas" csrfToken="test-token" />);
+    fireEvent.click(screen.getByRole("button", { name: /confirmar reserva/i }));
+    expect(screen.getByText("Escribe tu nombre completo.")).toBeInTheDocument();
+    expect(screen.getByText("Selecciona un servicio.")).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,29 @@
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/manrope";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import { getHeroMotionMode, type HeroNavigationType } from "@/lib/hero-motion";
+import "../css/app.css";
+
+const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+const navigationType = (navigationEntry?.type ?? "navigate") as HeroNavigationType;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const documentElement = document.documentElement;
+
+documentElement.dataset.heroMotion = getHeroMotionMode(navigationType, reducedMotion);
+if (documentElement.dataset.heroMotion === "play") {
+  window.setTimeout(() => { documentElement.dataset.heroMotion = "settled"; }, 1400);
+}
+
+const appRoot = document.getElementById("root");
+if (!appRoot) throw new Error("No se encontró el contenedor principal de la aplicación.");
+
+const bookingEndpoint = appRoot.dataset.bookingEndpoint ?? "/reservas";
+const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
+
+createRoot(appRoot).render(
+  <StrictMode>
+    <App bookingEndpoint={bookingEndpoint} csrfToken={csrfToken} />
+  </StrictMode>,
+);
