@@ -15,7 +15,7 @@ class AppointmentController extends Controller
         $appointment = $bookAppointment->handle($request->user(), $request->validated());
 
         return response()->json([
-            'message' => 'Cita confirmada. Te hemos enviado los detalles por correo.',
+            'message' => 'Cita confirmada. Recibirás los detalles por correo.',
             'appointment' => [
                 'reference' => $appointment->reference,
                 'service' => $appointment->service->name,

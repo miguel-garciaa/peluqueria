@@ -31,6 +31,11 @@ class Professional extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    public function calendarEntries(): HasMany
+    {
+        return $this->hasMany(ProfessionalCalendarEntry::class);
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);

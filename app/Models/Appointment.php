@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 #[Fillable(['reference', 'user_id', 'service_id', 'professional_id', 'customer_name', 'customer_phone', 'custom_details', 'starts_at', 'ends_at', 'status'])]
 class Appointment extends Model
 {
+    protected $table = 'bookings';
+
     protected static function booted(): void
     {
         static::creating(function (Appointment $appointment): void {

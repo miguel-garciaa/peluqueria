@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\AppointmentConfirmed;
 use App\Models\Appointment;
 use App\Models\Professional;
+use App\Models\ProfessionalCalendarEntry;
 use App\Models\Schedule;
 use App\Models\Service;
 use App\Models\User;
@@ -39,10 +40,10 @@ class AppointmentRequestTest extends TestCase
             'date' => $date,
             'timeSlot' => '10:30',
         ])->assertCreated()
-            ->assertJsonPath('message', 'Cita confirmada. Te hemos enviado los detalles por correo.')
+            ->assertJsonPath('message', 'Cita confirmada. Recibirás los detalles por correo.')
             ->assertJsonPath('appointment.professional', $professional->name);
 
-        $this->assertDatabaseHas('appointments', [
+        $this->assertDatabaseHas('bookings', [
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -82,6 +83,66 @@ class AppointmentRequestTest extends TestCase
         $this->assertFalse($times->contains('10:00'), 'Slots devueltos: '.$times->join(', '));
         $this->assertFalse($times->contains('10:30'), 'Slots devueltos: '.$times->join(', '));
         $this->assertTrue($times->contains('11:30'));
+    }
+
+    public function test_an_all_day_calendar_block_removes_availability_and_prevents_booking(): void
+    {
+        Mail::fake();
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create();
+        $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
+
+        ProfessionalCalendarEntry::query()->create([
+            'professional_id' => $professional->id,
+            'date' => $date,
+            'type' => 'blocked',
+            'all_day' => true,
+            'reason' => 'Vacaciones',
+        ]);
+
+        $this->actingAs($user)->getJson(route('bookings.availability', [
+            'date' => $date,
+            'service' => $service->slug,
+            'professional' => $professional->slug,
+        ]))->assertOk()->assertJsonCount(0, 'slots');
+
+        $this->actingAs($user)->postJson(route('bookings.store'), [
+            'fullName' => $user->name,
+            'phone' => '600 123 456',
+            'serviceId' => $service->slug,
+            'professionalId' => $professional->slug,
+            'date' => $date,
+            'timeSlot' => '10:30',
+        ])->assertUnprocessable()->assertJsonValidationErrors('timeSlot');
+
+        $this->assertDatabaseCount('bookings', 0);
+        Mail::assertNothingQueued();
+    }
+
+    public function test_a_special_calendar_opening_replaces_the_weekly_schedule_for_that_date(): void
+    {
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create();
+        $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
+
+        ProfessionalCalendarEntry::query()->create([
+            'professional_id' => $professional->id,
+            'date' => $date,
+            'type' => 'available',
+            'all_day' => false,
+            'starts_at' => '16:00',
+            'ends_at' => '18:00',
+            'slot_interval_minutes' => 30,
+            'reason' => 'Apertura especial',
+        ]);
+
+        $response = $this->actingAs($user)->getJson(route('bookings.availability', [
+            'date' => $date,
+            'service' => $service->slug,
+            'professional' => $professional->slug,
+        ]))->assertOk();
+
+        $this->assertSame(['16:00', '16:30', '17:00'], collect($response->json('slots'))->pluck('time')->all());
     }
 
     public function test_custom_service_details_are_required_and_limited_to_forty_words(): void

@@ -27,6 +27,9 @@ class AppointmentAvailability
                     ->where('day_of_week', $date->dayOfWeek)
                     ->where('is_active', true)
                     ->orderBy('starts_at'),
+                'calendarEntries' => fn ($query) => $query
+                    ->whereDate('date', $date->format('Y-m-d'))
+                    ->orderBy('starts_at'),
                 'appointments' => fn ($query) => $query
                     ->whereIn('status', ['pending', 'confirmed'])
                     ->where('starts_at', '<', $dayEnd)
@@ -37,14 +40,16 @@ class AppointmentAvailability
 
         $slots = [];
         foreach ($professionals as $candidate) {
-            foreach ($candidate->schedules as $schedule) {
-                $cursor = $date->setTimeFromTimeString(substr((string) $schedule->starts_at, 0, 5));
-                $scheduleEnd = $date->setTimeFromTimeString(substr((string) $schedule->ends_at, 0, 5));
+            foreach ($this->effectiveIntervals($candidate) as $interval) {
+                $cursor = $date->setTimeFromTimeString($interval['starts_at']);
+                $scheduleEnd = $date->setTimeFromTimeString($interval['ends_at']);
 
                 while ($cursor->addMinutes($service->duration_minutes)->lessThanOrEqualTo($scheduleEnd)) {
                     $time = $cursor->format('H:i');
                     $endsAt = $cursor->addMinutes($service->duration_minutes);
-                    $isFree = $cursor->isFuture() && ! $this->overlaps($candidate->appointments, $cursor->utc(), $endsAt->utc());
+                    $isFree = $cursor->isFuture()
+                        && ! $this->isBlocked($candidate, $cursor, $endsAt)
+                        && ! $this->overlaps($candidate->appointments, $cursor->utc(), $endsAt->utc());
 
                     if ($isFree && ! isset($slots[$time])) {
                         $slots[$time] = [
@@ -54,7 +59,7 @@ class AppointmentAvailability
                         ];
                     }
 
-                    $cursor = $cursor->addMinutes($schedule->slot_interval_minutes);
+                    $cursor = $cursor->addMinutes($interval['slot_interval_minutes']);
                 }
             }
         }
@@ -66,22 +71,29 @@ class AppointmentAvailability
 
     public function slotIsFree(Professional $professional, CarbonImmutable $startsAt, CarbonImmutable $endsAt): bool
     {
-        $hasSchedule = $professional->schedules()
-            ->where('day_of_week', $startsAt->dayOfWeek)
-            ->where('is_active', true)
-            ->get()
-            ->contains(function ($schedule) use ($startsAt, $endsAt): bool {
-                $scheduleStart = $startsAt->startOfDay()->setTimeFromTimeString(substr((string) $schedule->starts_at, 0, 5));
-                $scheduleEnd = $startsAt->startOfDay()->setTimeFromTimeString(substr((string) $schedule->ends_at, 0, 5));
+        $professional->load([
+            'schedules' => fn ($query) => $query
+                ->where('day_of_week', $startsAt->dayOfWeek)
+                ->where('is_active', true)
+                ->orderBy('starts_at'),
+            'calendarEntries' => fn ($query) => $query
+                ->whereDate('date', $startsAt->format('Y-m-d'))
+                ->orderBy('starts_at'),
+        ]);
+
+        $hasSchedule = collect($this->effectiveIntervals($professional))
+            ->contains(function (array $interval) use ($startsAt, $endsAt): bool {
+                $scheduleStart = $startsAt->startOfDay()->setTimeFromTimeString($interval['starts_at']);
+                $scheduleEnd = $startsAt->startOfDay()->setTimeFromTimeString($interval['ends_at']);
 
                 if ($startsAt->lessThan($scheduleStart) || $endsAt->greaterThan($scheduleEnd)) {
                     return false;
                 }
 
-                return $scheduleStart->diffInMinutes($startsAt) % $schedule->slot_interval_minutes === 0;
+                return $scheduleStart->diffInMinutes($startsAt) % $interval['slot_interval_minutes'] === 0;
             });
 
-        if (! $hasSchedule || ! $startsAt->isFuture()) {
+        if (! $hasSchedule || ! $startsAt->isFuture() || $this->isBlocked($professional, $startsAt, $endsAt)) {
             return false;
         }
 
@@ -97,5 +109,44 @@ class AppointmentAvailability
     {
         return $appointments->contains(fn ($appointment) => $appointment->starts_at->lessThan($endsAt)
             && $appointment->ends_at->greaterThan($startsAt));
+    }
+
+    /**
+     * @return array<int, array{starts_at: string, ends_at: string, slot_interval_minutes: int}>
+     */
+    private function effectiveIntervals(Professional $professional): array
+    {
+        $availableOverrides = $professional->calendarEntries
+            ->where('type', 'available')
+            ->where('all_day', false)
+            ->filter(fn ($entry) => $entry->starts_at && $entry->ends_at);
+
+        $source = $availableOverrides->isNotEmpty() ? $availableOverrides : $professional->schedules;
+
+        return $source->map(fn ($interval) => [
+            'starts_at' => substr((string) $interval->starts_at, 0, 5),
+            'ends_at' => substr((string) $interval->ends_at, 0, 5),
+            'slot_interval_minutes' => (int) $interval->slot_interval_minutes,
+        ])->values()->all();
+    }
+
+    private function isBlocked(Professional $professional, CarbonImmutable $startsAt, CarbonImmutable $endsAt): bool
+    {
+        return $professional->calendarEntries
+            ->where('type', 'blocked')
+            ->contains(function ($entry) use ($startsAt, $endsAt): bool {
+                if ($entry->all_day) {
+                    return true;
+                }
+
+                if (! $entry->starts_at || ! $entry->ends_at) {
+                    return false;
+                }
+
+                $blockedFrom = $startsAt->startOfDay()->setTimeFromTimeString(substr((string) $entry->starts_at, 0, 5));
+                $blockedUntil = $startsAt->startOfDay()->setTimeFromTimeString(substr((string) $entry->ends_at, 0, 5));
+
+                return $startsAt->lessThan($blockedUntil) && $endsAt->greaterThan($blockedFrom);
+            });
     }
 }

@@ -4,7 +4,11 @@ Web de Baskuñana Peluqueros integrada en Laravel 13 con React, TypeScript, Vite
 
 ## Arquitectura de reservas
 
-- PostgreSQL almacena `services`, `professionals`, `professional_service`, `professional_schedules` y `appointments`.
+- PostgreSQL almacena `services`, `professionals`, `professional_service`, `professional_schedules`, `professional_calendar_entries` y `bookings`.
+- `bookings` contiene cada reserva confirmada con cliente, servicio, profesional, inicio, fin, estado y referencia.
+- `professional_schedules` define el horario semanal recurrente de cada profesional.
+- `professional_calendar_entries` permite bloquear vacaciones, festivos o ausencias y crear aperturas especiales para una fecha concreta. Una apertura especial sustituye el horario semanal de ese día.
+- La tabla antigua `appointment_requests` se conserva como `legacy_appointment_requests` para no perder datos, pero no participa en el flujo nuevo de reservas.
 - Cada servicio define su duración; la disponibilidad solo ofrece huecos donde el servicio completo cabe dentro del horario.
 - La creación bloquea las filas de profesionales dentro de una transacción y vuelve a comprobar solapamientos, evitando dobles reservas concurrentes.
 - `AppointmentConfirmed` implementa `ShouldQueue` y se envía por la conexión Redis en la cola `emails`.
@@ -23,12 +27,20 @@ composer run dev
 
 Configura en `.env` las credenciales de PostgreSQL, Redis, Google y el proveedor SMTP. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
 
+`MAIL_MAILER=log` no entrega correos: solo los escribe en `storage/logs/laravel.log`. En producción configura `MAIL_MAILER=smtp` con el host, puerto, usuario, contraseña y remitente reales. Después de cambiar correo o Redis, limpia la configuración y reinicia tanto Octane como el worker de colas.
+
 Si ejecutas los procesos por separado:
 
 ```bash
 php artisan serve
 php artisan queue:work redis --queue=emails,default --tries=3
 npm run dev
+```
+
+Para volver a enviar una confirmación después de corregir SMTP:
+
+```bash
+php artisan appointments:resend-confirmation REFERENCIA_DE_LA_CITA
 ```
 
 ## Comprobaciones
@@ -107,4 +119,4 @@ La aplicación confía en el proxy únicamente cuando la conexión llega desde `
 
 ## Catálogo y horarios
 
-`php artisan db:seed` crea los siete servicios (incluido “Personalizado”), cuatro profesionales y sus horarios de lunes a sábado. Para adaptar turnos o especialidades, modifica `DatabaseSeeder` o gestiona las mismas tablas desde un panel administrativo.
+`php artisan db:seed` crea los siete servicios (incluido “Personalizado”), cuatro profesionales y sus horarios de lunes a sábado. Para adaptar turnos o especialidades, modifica `DatabaseSeeder` o gestiona las mismas tablas desde un panel administrativo. Los cambios semanales van en `professional_schedules`; las excepciones de fechas concretas van en `professional_calendar_entries`.
