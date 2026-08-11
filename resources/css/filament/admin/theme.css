@@ -369,8 +369,7 @@ html.fi,
 }
 
 .agenda-icon-button:focus-visible,
-.agenda-today:focus-visible,
-.agenda-filters select:focus-visible {
+.agenda-today:focus-visible {
     outline: 2px solid var(--bk-brass);
     outline-offset: 2px;
 }
@@ -391,28 +390,21 @@ html.fi,
 }
 
 .agenda-filters {
-    display: flex;
-    gap: 0.75rem;
+    min-width: min(100%, 23rem);
+    width: 23rem;
 }
 
-.agenda-filters label {
+.agenda-filters .fi-fo-field-label-content {
     color: var(--bk-muted);
-    display: grid;
     font-size: 0.68rem;
     font-weight: 750;
-    gap: 0.3rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.agenda-filters select {
-    background: var(--bk-surface-raised);
-    border: 1px solid var(--bk-border);
-    border-radius: 0.5rem;
-    color: var(--bk-ink);
-    font-size: 0.85rem;
-    min-width: 10rem;
-    padding: 0.62rem 0.75rem;
+.agenda-filters .fi-select-input {
+    font-size: 0.875rem;
+    font-weight: 650;
     text-transform: none;
 }
 
@@ -632,6 +624,38 @@ html.fi,
 
     .fi-header-heading {
         font-size: 1.75rem;
+    }
+
+    .fi-wi-stats-overview .fi-section-content {
+        gap: 0.75rem;
+    }
+
+    .fi-wi-stats-overview-stat {
+        min-height: 8.5rem;
+        padding: 1rem;
+    }
+
+    .fi-wi-stats-overview-stat-content {
+        gap: 0.4rem;
+    }
+
+    .fi-wi-stats-overview-stat-label {
+        font-size: 0.75rem;
+        line-height: 1.25;
+    }
+
+    .fi-wi-stats-overview-stat-value {
+        font-size: 1.75rem;
+    }
+
+    .fi-wi-stats-overview-stat-description {
+        align-items: flex-start;
+        font-size: 0.7rem;
+        line-height: 1.3;
+    }
+
+    .fi-wi-stats-overview-stat-description .fi-icon {
+        margin-top: 0.05rem;
     }
 
     .agenda-navigation strong {

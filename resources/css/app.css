@@ -74,6 +74,36 @@ img { display: block; }
 }
 .booking-input:focus { border-color: var(--color-brass-deep); box-shadow: 0 0 0 3px oklch(0.83 0.082 78 / .25); }
 .booking-input-error { border-color: var(--color-danger); }
+.booking-phone-input {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 3.5rem;
+  margin-top: .5rem;
+  padding-inline: 1rem;
+  border: 1px solid oklch(0.17 0.012 65 / .14);
+  border-radius: .75rem;
+  background: white;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.booking-phone-input:focus-within { border-color: var(--color-brass-deep); box-shadow: 0 0 0 3px oklch(0.83 0.082 78 / .25); }
+.booking-phone-prefix {
+  flex: none;
+  color: var(--color-ink);
+  font-weight: 700;
+  user-select: none;
+}
+.booking-phone-number {
+  min-width: 0;
+  flex: 1;
+  padding-left: .4rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  outline: none;
+}
+.booking-phone-number::placeholder { color: var(--color-taupe); opacity: 1; }
+.booking-phone-input.booking-input-error { border-color: var(--color-danger); }
 @keyframes booking-dialog-in { from { opacity: .35; transform: translateY(1.25rem) scale(.98); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 39.999rem) {

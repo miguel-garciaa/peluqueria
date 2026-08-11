@@ -9,7 +9,9 @@ use App\Models\Professional;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -50,6 +52,30 @@ class Agenda extends Page
     public function cancelAppointmentAction(): Action
     {
         return CancelAppointmentAction::make();
+    }
+
+    public function filters(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Select::make('professionalFilter')
+                    ->label('Profesional')
+                    ->options(fn (): array => ['all' => 'Todos'] + $this->professionals()->pluck('name', 'id')->all())
+                    ->native(false)
+                    ->live(),
+                Select::make('statusFilter')
+                    ->label('Estado')
+                    ->options([
+                        'active' => 'Activas',
+                        'all' => 'Todas',
+                        'pending' => 'Pendientes',
+                        'completed' => 'Completadas',
+                        'cancelled' => 'Canceladas',
+                    ])
+                    ->native(false)
+                    ->live(),
+            ])
+            ->columns(2);
     }
 
     public function previousWeek(): void

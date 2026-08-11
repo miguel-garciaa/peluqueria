@@ -45,10 +45,16 @@ describe("BookingModal", () => {
     render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
 
     const phone = screen.getByRole("textbox", { name: "Teléfono" });
-    expect(phone).toHaveValue("+34 600 12 34 56");
+    const prefix = screen.getByText("+34");
+
+    expect(prefix).toHaveAttribute("aria-hidden", "true");
+    expect(phone).toHaveValue("600 12 34 56");
+
+    fireEvent.change(phone, { target: { value: "" } });
+    expect(prefix).toBeInTheDocument();
 
     fireEvent.change(phone, { target: { value: "612345678" } });
-    expect(phone).toHaveValue("+34 612 34 56 78");
+    expect(phone).toHaveValue("612 34 56 78");
   });
 
   it("shows the summary and waits for explicit confirmation before creating the appointment", async () => {

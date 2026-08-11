@@ -40,7 +40,8 @@ class SchedulesTable
             ->filters([
                 SelectFilter::make('professional')
                     ->relationship('professional', 'name')
-                    ->label('Profesional'),
+                    ->label('Profesional')
+                    ->native(false),
             ])
             ->recordActions([
                 EditAction::make()->label('Editar'),

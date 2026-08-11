@@ -94,6 +94,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
   );
   const visibleSlots = useMemo(() => slots.filter((slot) => slot.period === period), [period, slots]);
   const customDetailsLength = Array.from(form.customDetails).length;
+  const nationalPhone = form.phone.replace(/^\+34\s?/, "");
 
   const update = (field: keyof BookingFormData, value: string) => {
     setForm((current) => {
@@ -195,7 +196,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
               <p className="mt-2 text-sm leading-6 text-taupe">Usaremos estos datos únicamente para gestionar tu cita. El correo está asociado a tu sesión.</p>
               <div className="mt-7 grid gap-5 sm:grid-cols-2">
                 <label className="text-sm font-bold">Nombre completo<input value={form.fullName} onChange={(event) => update("fullName", event.target.value)} autoComplete="name" className={cn("booking-input", errors.fullName && "booking-input-error")} />{errors.fullName && <span className="mt-1.5 block text-xs text-danger">{errors.fullName}</span>}</label>
-                <label className="text-sm font-bold">Teléfono<input type="tel" inputMode="tel" value={form.phone} onChange={(event) => update("phone", formatSpanishPhone(event.target.value))} autoComplete="tel" placeholder="+34 600 00 00 00" maxLength={16} className={cn("booking-input", errors.phone && "booking-input-error")} />{errors.phone && <span className="mt-1.5 block text-xs text-danger">{errors.phone}</span>}</label>
+                <label className="text-sm font-bold">Teléfono<span className={cn("booking-phone-input", errors.phone && "booking-input-error")}><span className="booking-phone-prefix" aria-hidden="true">+34</span><input type="tel" inputMode="numeric" value={nationalPhone} onChange={(event) => update("phone", formatSpanishPhone(event.target.value))} autoComplete="tel-national" placeholder="600 00 00 00" maxLength={12} className="booking-phone-number" /></span>{errors.phone && <span className="mt-1.5 block text-xs text-danger">{errors.phone}</span>}</label>
                 <label className="text-sm font-bold sm:col-span-2">Correo<input readOnly value={currentUser.email} className="booking-input bg-mist/65 text-taupe" /></label>
               </div>
             </section>}

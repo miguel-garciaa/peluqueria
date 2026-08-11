@@ -27,8 +27,8 @@ class ProfessionalCalendarEntriesTable
                 TextColumn::make('reason')->label('Motivo')->limit(35),
             ])
             ->filters([
-                SelectFilter::make('professional')->relationship('professional', 'name')->label('Profesional'),
-                SelectFilter::make('type')->label('Tipo')->options(['blocked' => 'Bloqueo', 'available' => 'Apertura']),
+                SelectFilter::make('professional')->relationship('professional', 'name')->label('Profesional')->native(false),
+                SelectFilter::make('type')->label('Tipo')->options(['blocked' => 'Bloqueo', 'available' => 'Apertura'])->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),

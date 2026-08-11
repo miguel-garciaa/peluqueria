@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Appointment;
 use App\Models\User;
+use Filament\Support\Enums\IconPosition;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -11,6 +12,12 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class BookingStats extends StatsOverviewWidget
 {
     protected static bool $isLazy = false;
+
+    protected int|array|null $columns = [
+        'default' => 2,
+        '@xl' => 4,
+        '!@lg' => 4,
+    ];
 
     protected ?string $pollingInterval = '5s';
 
@@ -45,19 +52,19 @@ class BookingStats extends StatsOverviewWidget
         return [
             Stat::make('Reservas activas', number_format($active, 0, ',', '.'))
                 ->description("{$today} para hoy")
-                ->descriptionIcon(Heroicon::CalendarDays)
+                ->descriptionIcon(Heroicon::CalendarDays, IconPosition::Before)
                 ->color('success'),
             Stat::make('Clientes registrados', number_format($customers, 0, ',', '.'))
                 ->description('Cuentas no administrativas')
-                ->descriptionIcon(Heroicon::Users)
+                ->descriptionIcon(Heroicon::Users, IconPosition::Before)
                 ->color('primary'),
             Stat::make('Reservas realizadas', number_format($total, 0, ',', '.'))
                 ->description('Histórico completo')
-                ->descriptionIcon(Heroicon::ChartBar)
+                ->descriptionIcon(Heroicon::ChartBar, IconPosition::Before)
                 ->color('info'),
             Stat::make('Reservas canceladas', number_format($cancelled, 0, ',', '.'))
                 ->description($total > 0 ? number_format(($cancelled / $total) * 100, 1, ',', '.').' % del total' : '0 % del total')
-                ->descriptionIcon(Heroicon::NoSymbol)
+                ->descriptionIcon(Heroicon::NoSymbol, IconPosition::Before)
                 ->color('danger'),
         ];
     }

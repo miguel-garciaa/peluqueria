@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
+use App\Filament\Resources\ProfessionalCalendarEntries\Pages\ListProfessionalCalendarEntries;
 use App\Filament\Resources\Professionals\Pages\CreateProfessional;
 use App\Filament\Resources\Professionals\Pages\ListProfessionals;
 use App\Filament\Resources\Services\Pages\CreateService;
+use App\Filament\Resources\Services\Pages\ListServices;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Widgets\BookingStats;
 use App\Filament\Widgets\BookingTrend;
 use App\Filament\Widgets\UpcomingBookings;
 use App\Mail\AppointmentCancelled;
@@ -20,6 +23,7 @@ use App\Services\ManageAppointment;
 use Carbon\CarbonImmutable;
 use Filament\Enums\ThemeMode;
 use Filament\Facades\Filament;
+use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -77,6 +81,25 @@ class AdminPanelTest extends TestCase
     {
         Livewire::test(BookingTrend::class)
             ->assertSeeHtml('max-height: 18rem');
+    }
+
+    public function test_the_dashboard_stats_are_compact_and_use_leading_icons(): void
+    {
+        $widget = app(BookingStats::class);
+        $stats = (new \ReflectionMethod($widget, 'getStats'))->invoke($widget);
+
+        foreach ($stats as $stat) {
+            $this->assertSame(IconPosition::Before, $stat->getDescriptionIconPosition());
+        }
+
+        Livewire::test(BookingStats::class)
+            ->assertSeeHtml('--cols-default: repeat(2, minmax(0, 1fr))')
+            ->assertSeeHtml('--cols-cxl: repeat(4, minmax(0, 1fr))');
+
+        $theme = file_get_contents(resource_path('css/filament/admin/theme.css'));
+
+        $this->assertStringContainsString('min-height: 8.5rem;', $theme);
+        $this->assertStringContainsString('.fi-wi-stats-overview-stat-description .fi-icon', $theme);
     }
 
     public function test_only_administrators_can_access_the_control_panel(): void
@@ -144,6 +167,23 @@ class AdminPanelTest extends TestCase
         ] as $uri) {
             $this->actingAs($admin)->get($uri)->assertOk();
         }
+    }
+
+    public function test_admin_filters_use_the_custom_dark_selector_and_clear_status_labels(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)
+            ->get('/admin/agenda')
+            ->assertOk()
+            ->assertSee('Activas')
+            ->assertDontSee('Confirmadas');
+
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        $calendarPage = Livewire::test(ListProfessionalCalendarEntries::class);
+
+        $this->assertFalse($calendarPage->instance()->getTable()->getFilter('professional')->isNative());
+        $this->assertFalse($calendarPage->instance()->getTable()->getFilter('type')->isNative());
     }
 
     public function test_the_agenda_displays_the_complete_appointment_information(): void
@@ -235,6 +275,37 @@ class AdminPanelTest extends TestCase
             ->callTableAction('delete', $professional);
 
         $this->assertModelMissing($professional);
+    }
+
+    public function test_services_can_only_be_deleted_when_they_have_no_appointment_history(): void
+    {
+        [$user, $service, $professional, $startsAt] = $this->catalog();
+        $admin = User::factory()->create(['is_admin' => true]);
+        $appointment = Appointment::query()->forceCreate([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => $user->phone,
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addMinutes(45)->utc(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::test(ListServices::class)
+            ->assertTableActionHasLabel('delete', 'Eliminar', $service)
+            ->assertTableActionDisabled('delete', $service);
+
+        $appointment->delete();
+
+        Livewire::test(ListServices::class)
+            ->assertTableActionEnabled('delete', $service)
+            ->callTableAction('delete', $service);
+
+        $this->assertModelMissing($service);
     }
 
     public function test_an_administrator_can_upload_service_and_professional_photos(): void

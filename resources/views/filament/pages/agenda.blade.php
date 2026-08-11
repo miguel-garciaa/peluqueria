@@ -13,26 +13,7 @@
             </div>
 
             <div class="agenda-filters">
-                <label>
-                    <span>Profesional</span>
-                    <select wire:model.live="professionalFilter">
-                        <option value="all">Todos</option>
-                        @foreach ($this->professionals() as $professional)
-                            <option value="{{ $professional->getKey() }}">{{ $professional->name }}</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label>
-                    <span>Estado</span>
-                    <select wire:model.live="statusFilter">
-                        <option value="active">Activas</option>
-                        <option value="all">Todas</option>
-                        <option value="pending">Pendientes</option>
-                        <option value="confirmed">Confirmadas</option>
-                        <option value="completed">Completadas</option>
-                        <option value="cancelled">Canceladas</option>
-                    </select>
-                </label>
+                {{ $this->filters }}
             </div>
         </div>
 

@@ -50,14 +50,15 @@ class AppointmentsTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('Estado')
+                    ->native(false)
                     ->options([
                         'pending' => 'Pendiente',
                         'confirmed' => 'Confirmada',
                         'completed' => 'Completada',
                         'cancelled' => 'Cancelada',
                     ]),
-                SelectFilter::make('professional')->relationship('professional', 'name')->label('Profesional'),
-                SelectFilter::make('service')->relationship('service', 'name')->label('Servicio'),
+                SelectFilter::make('professional')->relationship('professional', 'name')->label('Profesional')->native(false),
+                SelectFilter::make('service')->relationship('service', 'name')->label('Servicio')->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
