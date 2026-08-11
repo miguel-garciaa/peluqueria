@@ -1,6 +1,6 @@
-import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { services } from "@/data/content";
+import { heroImage, services } from "@/data/content";
 import type { BookingCatalogService, Service } from "@/types";
 import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -17,17 +17,26 @@ const priceLabel = (price: number | null) => price === null
 export function Services({ onBook, catalogServices }: ServicesProps) {
   const [activeService, setActiveService] = useState<Service | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const displayedServices = services
-    .filter((service) => catalogServices === undefined || catalogServices.some((item) => item.id === service.id))
-    .map((service) => {
-      const current = catalogServices?.find((item) => item.id === service.id);
+  const displayedServices: Service[] = catalogServices === undefined
+    ? services
+    : catalogServices.map((current) => {
+      const presentation = services.find((service) => service.id === current.id);
+      const description = current.description?.trim()
+        || presentation?.description
+        || "Un servicio adaptado a tus necesidades, con valoración profesional previa.";
 
-      return current ? {
-        ...service,
+      return {
+        id: current.id,
         title: current.name,
+        description,
+        longDescription: current.description?.trim() || presentation?.longDescription || description,
+        benefits: presentation?.benefits ?? ["Valoración personalizada", "Servicio adaptado a ti", "Recomendaciones de mantenimiento"],
+        imageSrc: presentation?.imageSrc ?? heroImage,
+        imageAlt: presentation?.imageAlt ?? `Servicio ${current.name} en Baskuñana Peluqueros`,
         priceFrom: current.priceFrom,
         duration: `${current.durationMinutes} min`,
-      } : service;
+        icon: presentation?.icon ?? Sparkles,
+      };
     });
 
   useEffect(() => {

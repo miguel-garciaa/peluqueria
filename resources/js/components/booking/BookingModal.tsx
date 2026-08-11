@@ -85,16 +85,29 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
 
   const selectedService = catalog.services.find((service) => service.id === form.serviceId);
   const selectedProfessional = form.professionalId === "any" ? null : catalog.professionals.find((professional) => professional.id === form.professionalId);
+  const eligibleProfessionals = useMemo(
+    () => form.serviceId
+      ? catalog.professionals.filter((professional) => professional.serviceIds.includes(form.serviceId))
+      : catalog.professionals,
+    [catalog.professionals, form.serviceId],
+  );
   const visibleSlots = useMemo(() => slots.filter((slot) => slot.period === period), [period, slots]);
   const customDetailsLength = Array.from(form.customDetails).length;
 
   const update = (field: keyof BookingFormData, value: string) => {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-      ...(["serviceId", "professionalId", "date"].includes(field) ? { timeSlot: "" } : {}),
-      ...(field === "serviceId" && !catalog.services.find((service) => service.id === value)?.isCustom ? { customDetails: "" } : {}),
-    }));
+    setForm((current) => {
+      const selectedProfessionalStillEligible = field !== "serviceId"
+        || current.professionalId === "any"
+        || catalog.professionals.some((professional) => professional.id === current.professionalId && professional.serviceIds.includes(value));
+
+      return {
+        ...current,
+        [field]: value,
+        ...(["serviceId", "professionalId", "date"].includes(field) ? { timeSlot: "" } : {}),
+        ...(field === "serviceId" && !selectedProfessionalStillEligible ? { professionalId: "any" } : {}),
+        ...(field === "serviceId" && !catalog.services.find((service) => service.id === value)?.isCustom ? { customDetails: "" } : {}),
+      };
+    });
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
@@ -193,7 +206,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
               </div>
               {errors.serviceId && <p className="mt-2 text-xs font-semibold text-danger">{errors.serviceId}</p>}
               {selectedService?.isCustom && <div className="mt-5"><label htmlFor="custom-details" className="block text-sm font-bold">Cuéntanos qué necesitas</label><textarea id="custom-details" value={form.customDetails} onChange={(event) => update("customDetails", event.target.value)} rows={3} maxLength={100} className={cn("booking-input resize-none py-3", errors.customDetails && "booking-input-error")} placeholder="Ej.: quiero valorar un cambio de color y corte…" aria-describedby="custom-details-count" /><span id="custom-details-count" className="mt-1.5 block text-right text-xs text-taupe">{customDetailsLength}/100 caracteres</span>{errors.customDetails && <span className="block text-xs text-danger">{errors.customDetails}</span>}</div>}
-              <fieldset className="mt-6"><legend className="text-sm font-bold">¿Quién quieres que te atienda?</legend><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => update("professionalId", "any")} aria-pressed={form.professionalId === "any"} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === "any" && "border-brass-deep bg-brass text-ink")}>Primera disponibilidad</button>{catalog.professionals.map((professional) => <button key={professional.id} type="button" onClick={() => update("professionalId", professional.id)} aria-pressed={form.professionalId === professional.id} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === professional.id && "border-ink bg-ink text-white")}>{professional.name.split(" ")[0]}</button>)}</div>{errors.professionalId && <p className="mt-2 text-xs text-danger">{errors.professionalId}</p>}</fieldset>
+              <fieldset className="mt-6"><legend className="text-sm font-bold">¿Quién quieres que te atienda?</legend><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => update("professionalId", "any")} aria-pressed={form.professionalId === "any"} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === "any" && "border-brass-deep bg-brass text-ink")}>Primera disponibilidad</button>{eligibleProfessionals.map((professional) => <button key={professional.id} type="button" onClick={() => update("professionalId", professional.id)} aria-pressed={form.professionalId === professional.id} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === professional.id && "border-ink bg-ink text-white")}>{professional.name.split(" ")[0]}</button>)}</div>{errors.professionalId && <p className="mt-2 text-xs text-danger">{errors.professionalId}</p>}</fieldset>
             </section>}
 
             {step === 3 && <section aria-labelledby="step-date-title">

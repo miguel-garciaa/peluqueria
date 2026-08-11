@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Professional;
-use App\Models\Service;
+use App\Services\BookingCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class LandingPageController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request, BookingCatalog $bookingCatalog): View
     {
         $user = $request->user();
 
@@ -21,20 +20,7 @@ class LandingPageController extends Controller
                 'avatarUrl' => $user->avatar_url,
                 'isAdmin' => $user->isPanelAdmin(),
             ] : null,
-            'bookingCatalog' => [
-                'services' => Service::query()->active()->orderBy('id')->get()->map(fn (Service $service) => [
-                    'id' => $service->slug,
-                    'name' => $service->name,
-                    'durationMinutes' => $service->duration_minutes,
-                    'priceFrom' => $service->price_from !== null ? (float) $service->price_from : null,
-                    'isCustom' => $service->is_custom,
-                ]),
-                'professionals' => Professional::query()->active()->orderBy('id')->get()->map(fn (Professional $professional) => [
-                    'id' => $professional->slug,
-                    'name' => $professional->name,
-                    'role' => $professional->role,
-                ]),
-            ],
+            'bookingCatalog' => $bookingCatalog->get(),
             'authMessage' => session('auth_success') ?? session('auth_error'),
             'authMessageType' => session()->has('auth_error') ? 'error' : 'success',
         ]);

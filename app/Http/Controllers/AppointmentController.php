@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAppointment;
 use App\Mail\AppointmentCancelled;
 use App\Models\Appointment;
-use App\Models\Professional;
-use App\Models\Service;
 use App\Services\BookAppointment;
+use App\Services\BookingCatalog;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -32,7 +31,7 @@ class AppointmentController extends Controller
         ], 201);
     }
 
-    public function index(Request $request): View
+    public function index(Request $request, BookingCatalog $bookingCatalog): View
     {
         $appointments = $request->user()->appointments()
             ->where('status', '!=', 'cancelled')
@@ -60,20 +59,7 @@ class AppointmentController extends Controller
                 'isAdmin' => $request->user()->isPanelAdmin(),
             ],
             'appointments' => $appointments,
-            'bookingCatalog' => [
-                'services' => Service::query()->active()->orderBy('id')->get()->map(fn (Service $service) => [
-                    'id' => $service->slug,
-                    'name' => $service->name,
-                    'durationMinutes' => $service->duration_minutes,
-                    'priceFrom' => $service->price_from !== null ? (float) $service->price_from : null,
-                    'isCustom' => $service->is_custom,
-                ]),
-                'professionals' => Professional::query()->active()->orderBy('id')->get()->map(fn (Professional $professional) => [
-                    'id' => $professional->slug,
-                    'name' => $professional->name,
-                    'role' => $professional->role,
-                ]),
-            ],
+            'bookingCatalog' => $bookingCatalog->get(),
         ]);
     }
 

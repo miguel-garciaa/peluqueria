@@ -1,12 +1,33 @@
-import { ArrowDownRight } from "lucide-react";
+import { ArrowDownRight, UserRound } from "lucide-react";
 import { professionals } from "@/data/content";
 import { RevealTitle } from "@/components/ui/reveal-title";
+import type { BookingCatalogProfessional, BookingCatalogService } from "@/types";
 
 interface TeamProps {
   onBook: (professionalId: string) => void;
+  catalogProfessionals?: BookingCatalogProfessional[];
+  catalogServices?: BookingCatalogService[];
 }
 
-export function Team({ onBook }: TeamProps) {
+export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProps) {
+  const displayedProfessionals = catalogProfessionals === undefined
+    ? professionals
+    : catalogProfessionals.map((current) => {
+      const presentation = professionals.find((professional) => professional.id === current.id);
+
+      return {
+        id: current.id,
+        name: current.name,
+        role: current.role || "Profesional del salón",
+        experience: presentation?.experience ?? "Atención personalizada",
+        specialties: current.serviceIds
+          .map((serviceId) => catalogServices?.find((service) => service.id === serviceId)?.name)
+          .filter((serviceName): serviceName is string => Boolean(serviceName)),
+        portraitSrc: presentation?.portraitSrc ?? null,
+        portraitAlt: presentation?.portraitAlt ?? `Perfil de ${current.name}`,
+      };
+    });
+
   return (
     <section id="equipo" className="team-section bg-porcelain pb-[clamp(5rem,7vw,6.5rem)]">
       <div className="container-shell border-t border-ink/12 pt-[clamp(5rem,7vw,6.5rem)]">
@@ -25,15 +46,15 @@ export function Team({ onBook }: TeamProps) {
         </div>
 
         <div className="team-lineup grid gap-x-4 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {professionals.map((professional, index) => (
+          {displayedProfessionals.map((professional, index) => (
             <article key={professional.id}>
               <div className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist lg:aspect-[8/9]">
-                <img
+                {professional.portraitSrc ? <img
                   src={professional.portraitSrc}
                   alt={professional.portraitAlt}
                   loading="lazy"
                   className="h-full w-full object-cover grayscale-[18%] transition-[filter,transform] duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.025] group-hover:grayscale-0"
-                />
+                /> : <div className="grid h-full place-items-center bg-ink text-brass"><UserRound className="size-20" aria-hidden="true" /><span className="sr-only">{professional.portraitAlt}</span></div>}
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/68 to-transparent" aria-hidden="true" />
                 <span className="absolute bottom-4 left-4 rounded-full bg-white/92 px-3 py-1.5 text-xs font-bold text-ink backdrop-blur-sm">
                   {professional.experience}

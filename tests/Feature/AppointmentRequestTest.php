@@ -147,6 +147,53 @@ class AppointmentRequestTest extends TestCase
         $this->assertSame(['16:00', '16:30', '17:00'], collect($response->json('slots'))->pluck('time')->all());
     }
 
+    public function test_availability_uses_current_schedules_exceptions_and_service_assignments_without_cache(): void
+    {
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create();
+        $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
+        $parameters = [
+            'date' => $date,
+            'service' => $service->slug,
+            'professional' => $professional->slug,
+        ];
+
+        $initialTimes = collect($this->actingAs($user)
+            ->getJson(route('bookings.availability', $parameters))
+            ->assertOk()
+            ->json('slots'))
+            ->pluck('time');
+        $this->assertContains('10:30', $initialTimes);
+
+        $professional->schedules()->update(['starts_at' => '12:00']);
+        $updatedTimes = collect($this->actingAs($user)
+            ->getJson(route('bookings.availability', $parameters))
+            ->assertOk()
+            ->json('slots'))
+            ->pluck('time');
+        $this->assertNotContains('10:30', $updatedTimes);
+        $this->assertContains('12:00', $updatedTimes);
+
+        $block = ProfessionalCalendarEntry::query()->create([
+            'professional_id' => $professional->id,
+            'date' => $date,
+            'type' => 'blocked',
+            'all_day' => true,
+            'reason' => 'Bloqueo añadido desde el panel',
+        ]);
+        $this->actingAs($user)
+            ->getJson(route('bookings.availability', $parameters))
+            ->assertOk()
+            ->assertJsonCount(0, 'slots');
+
+        $block->delete();
+        $professional->services()->detach($service);
+        $this->actingAs($user)
+            ->getJson(route('bookings.availability', $parameters))
+            ->assertOk()
+            ->assertJsonCount(0, 'slots');
+    }
+
     public function test_custom_service_details_are_required_and_limited_to_one_hundred_characters(): void
     {
         [$service, $professional] = $this->createCatalog(custom: true);

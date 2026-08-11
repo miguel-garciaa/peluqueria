@@ -7,10 +7,13 @@ import type { BookingCatalog, CurrentUser } from "@/types";
 const user: CurrentUser = { name: "Ana López", email: "ana@example.com", phone: "600 123 456", avatarUrl: null };
 const catalog: BookingCatalog = {
   services: [
-    { id: "cut", name: "Corte & Peinado", durationMinutes: 45, priceFrom: 35, isCustom: false },
-    { id: "custom", name: "Personalizado", durationMinutes: 60, priceFrom: null, isCustom: true },
+    { id: "cut", name: "Corte & Peinado", description: "Corte personalizado", durationMinutes: 45, priceFrom: 35, isCustom: false },
+    { id: "custom", name: "Personalizado", description: "Valoración personalizada", durationMinutes: 60, priceFrom: null, isCustom: true },
   ],
-  professionals: [{ id: "marta", name: "Marta Soler", role: "Especialista en color" }],
+  professionals: [
+    { id: "marta", name: "Marta Soler", role: "Especialista en color", serviceIds: ["cut"] },
+    { id: "dani", name: "Dani Ros", role: "Estilista", serviceIds: ["custom"] },
+  ],
 };
 
 describe("BookingSection", () => {
@@ -93,5 +96,14 @@ describe("BookingModal", () => {
     fireEvent.change(customDetails, { target: { value: "a".repeat(101) } });
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(screen.getByText("Utiliza un máximo de 100 caracteres.")).toBeInTheDocument();
+  });
+
+  it("only offers professionals assigned to the selected service", () => {
+    render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: /Personalizado/ }));
+
+    expect(screen.getByRole("button", { name: "Dani" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Marta" })).not.toBeInTheDocument();
   });
 });

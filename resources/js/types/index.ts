@@ -75,6 +75,7 @@ export interface CurrentUser {
 export interface BookingCatalogService {
   id: string;
   name: string;
+  description: string | null;
   durationMinutes: number;
   priceFrom: number | null;
   isCustom: boolean;
@@ -84,6 +85,7 @@ export interface BookingCatalogProfessional {
   id: string;
   name: string;
   role: string | null;
+  serviceIds: string[];
 }
 
 export interface BookingCatalog {

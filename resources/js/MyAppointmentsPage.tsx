@@ -4,6 +4,7 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { BookingModal } from "@/components/booking/BookingModal";
+import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
 const statusLabels: Record<UserAppointment["status"], string> = {
@@ -45,14 +46,11 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
             </button>
           </div>
 
-          {flash?.message && (
-            <div
-              role={flash.type === "error" ? "alert" : "status"}
-              className={`mt-6 rounded-xl px-4 py-3 text-sm font-semibold ${flash.type === "error" ? "bg-danger/10 text-danger" : "bg-brass/25 text-espresso"}`}
-            >
-              {flash.message}
-            </div>
-          )}
+          <TimedNotice
+            message={flash?.message ?? null}
+            role={flash?.type === "error" ? "alert" : "status"}
+            className={`mt-6 rounded-xl px-4 py-3 text-sm font-semibold ${flash?.type === "error" ? "bg-danger/10 text-danger" : "bg-brass/25 text-espresso"}`}
+          />
 
           {appointments.length === 0 ? (
             <div className="mt-10 grid min-h-80 place-items-center rounded-2xl border border-dashed border-ink/20 bg-white p-8 text-center">

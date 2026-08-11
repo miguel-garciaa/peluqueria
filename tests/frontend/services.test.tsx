@@ -4,7 +4,7 @@ import { Services } from "@/components/Services";
 import type { BookingCatalogService } from "@/types";
 
 const databaseServices: BookingCatalogService[] = [
-  { id: "cut", name: "Corte & Peinado", durationMinutes: 50, priceFrom: 1, isCustom: false },
+  { id: "cut", name: "Corte & Peinado", description: "Descripción actualizada", durationMinutes: 50, priceFrom: 1, isCustom: false },
 ];
 
 describe("Services", () => {
@@ -14,6 +14,22 @@ describe("Services", () => {
     expect(screen.getByText("Desde 1 €")).toBeInTheDocument();
     expect(screen.getByText("50 min")).toBeInTheDocument();
     expect(screen.queryByText("Desde 35 €")).not.toBeInTheDocument();
+  });
+
+  it("shows newly created services and their database description", () => {
+    const newlyCreatedService = {
+      id: "new-treatment",
+      name: "Tratamiento nuevo",
+      description: "Descripción administrada desde Filament.",
+      durationMinutes: 40,
+      priceFrom: 29,
+      isCustom: false,
+    };
+
+    render(<Services onBook={vi.fn()} catalogServices={[newlyCreatedService]} />);
+
+    expect(screen.getByRole("button", { name: "Ver detalles de Tratamiento nuevo" })).toBeInTheDocument();
+    expect(screen.getByText("Descripción administrada desde Filament.")).toBeInTheDocument();
   });
 
   it("opens service details and books the selected service", () => {

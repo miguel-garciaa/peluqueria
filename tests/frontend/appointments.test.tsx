@@ -5,8 +5,8 @@ import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
 const user: CurrentUser = { name: "Ana López", email: "ana@example.com", phone: "600 123 456", avatarUrl: null };
 const catalog: BookingCatalog = {
-  services: [{ id: "cut", name: "Corte", durationMinutes: 45, priceFrom: 25, isCustom: false }],
-  professionals: [{ id: "marta", name: "Marta Soler", role: "Estilista" }],
+  services: [{ id: "cut", name: "Corte", description: "Corte personalizado", durationMinutes: 45, priceFrom: 25, isCustom: false }],
+  professionals: [{ id: "marta", name: "Marta Soler", role: "Estilista", serviceIds: ["cut"] }],
 };
 const appointment: UserAppointment = {
   reference: "01KREFERENCE",
