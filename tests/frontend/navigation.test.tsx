@@ -26,12 +26,22 @@ describe("Navbar", () => {
     expect(logoutButtons[0].closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
   });
 
-  it("shows the control panel shortcut only to administrators", () => {
+  it("replaces booking with the control panel action for administrators", () => {
     const { rerender } = render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} />);
     expect(screen.queryByRole("link", { name: "Panel de control" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Reservar cita" })).not.toHaveLength(0);
 
     rerender(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null, isAdmin: true }} />);
     expect(screen.getAllByRole("link", { name: "Panel de control" })[0]).toHaveAttribute("href", "/admin");
+    expect(screen.queryByRole("link", { name: "Mis citas" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Reservar cita" })).not.toBeInTheDocument();
+  });
+
+  it("centers the primary action in the mobile menu", () => {
+    render(<Navbar />);
+
+    const mobileBookingAction = screen.getAllByRole("link", { name: "Reservar cita" }).find((link) => link.parentElement?.classList.contains("justify-center"));
+    expect(mobileBookingAction?.parentElement).toHaveClass("flex", "justify-center");
   });
 
   it("scrolls smoothly to the selected section", () => {
