@@ -10,6 +10,15 @@ const catalogServices: BookingCatalogService[] = [
 const catalogProfessionals: BookingCatalogProfessional[] = [
   { id: "new-professional", name: "Lucía Actualizada", role: "Especialista técnica", serviceIds: ["new-cut"] },
 ];
+const extendedCatalogProfessionals: BookingCatalogProfessional[] = [
+  ...professionals.map((professional) => ({
+    id: professional.id,
+    name: professional.name,
+    role: professional.role,
+    serviceIds: ["new-cut"],
+  })),
+  { id: "lucia", name: "Lucía Navarro", role: "Estilista", serviceIds: ["new-cut"] },
+];
 
 describe("Team", () => {
   it("shows every professional with their specialties", () => {
@@ -19,6 +28,27 @@ describe("Team", () => {
       expect(screen.getByRole("heading", { name: professional.name })).toBeInTheDocument();
       expect(screen.getByRole("list", { name: `Especialidades de ${professional.name}` })).toBeInTheDocument();
     }
+
+    expect(screen.queryByRole("button", { name: "Profesionales anteriores" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Siguientes profesionales" })).not.toBeInTheDocument();
+  });
+
+  it("shows navigation arrows when there are more than four professionals", () => {
+    render(<Team onBook={() => undefined} catalogProfessionals={extendedCatalogProfessionals} catalogServices={catalogServices} />);
+
+    const previous = screen.getByRole("button", { name: "Profesionales anteriores" });
+    const next = screen.getByRole("button", { name: "Siguientes profesionales" });
+
+    expect(previous).toBeDisabled();
+    expect(next).toBeEnabled();
+    expect(screen.queryByRole("heading", { name: "Lucía Navarro" })).not.toBeInTheDocument();
+
+    fireEvent.click(next);
+
+    expect(screen.getByRole("heading", { name: "Lucía Navarro" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Laura Baskuñana" })).not.toBeInTheDocument();
+    expect(previous).toBeEnabled();
+    expect(next).toBeDisabled();
   });
 
   it("starts a booking with the chosen professional", () => {

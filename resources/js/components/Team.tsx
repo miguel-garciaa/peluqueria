@@ -1,4 +1,5 @@
-import { ArrowDownRight, UserRound } from "lucide-react";
+import { ArrowDownRight, ChevronLeft, ChevronRight, UserRound } from "lucide-react";
+import { useEffect, useState } from "react";
 import { professionals } from "@/data/content";
 import { RevealTitle } from "@/components/ui/reveal-title";
 import type { BookingCatalogProfessional, BookingCatalogService } from "@/types";
@@ -10,6 +11,7 @@ interface TeamProps {
 }
 
 export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProps) {
+  const [firstVisibleIndex, setFirstVisibleIndex] = useState(0);
   const displayedProfessionals = catalogProfessionals === undefined
     ? professionals
     : catalogProfessionals.map((current) => {
@@ -29,6 +31,14 @@ export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProp
           : presentation?.portraitAlt ?? `Perfil de ${current.name}`,
       };
     });
+  const visibleCount = 4;
+  const lastStartIndex = Math.max(0, displayedProfessionals.length - visibleCount);
+  const visibleProfessionals = displayedProfessionals.slice(firstVisibleIndex, firstVisibleIndex + visibleCount);
+  const hasNavigation = displayedProfessionals.length > visibleCount;
+
+  useEffect(() => {
+    setFirstVisibleIndex((current) => Math.min(current, lastStartIndex));
+  }, [lastStartIndex]);
 
   return (
     <section id="equipo" className="team-section bg-porcelain pb-[clamp(5rem,7vw,6.5rem)]">
@@ -43,12 +53,38 @@ export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProp
             />
           </div>
           <p className="max-w-md text-pretty leading-7 text-taupe">
-            Cuatro miradas distintas, una misma forma de trabajar: escuchar primero y recomendar solo lo que tu cabello necesita.
+            Miradas distintas, una misma forma de trabajar: escuchar primero y recomendar solo lo que tu cabello necesita.
           </p>
         </div>
 
-        <div className="team-lineup grid gap-x-4 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {displayedProfessionals.map((professional, index) => (
+        {hasNavigation && (
+          <div className="mb-5 flex items-center justify-end gap-3" aria-label="Navegación del equipo">
+            <span className="mr-1 text-sm font-semibold text-taupe" aria-live="polite">
+              {firstVisibleIndex + 1}–{Math.min(firstVisibleIndex + visibleCount, displayedProfessionals.length)} de {displayedProfessionals.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => setFirstVisibleIndex((current) => Math.max(0, current - 1))}
+              disabled={firstVisibleIndex === 0}
+              aria-label="Profesionales anteriores"
+              className="team-navigation-button"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setFirstVisibleIndex((current) => Math.min(lastStartIndex, current + 1))}
+              disabled={firstVisibleIndex === lastStartIndex}
+              aria-label="Siguientes profesionales"
+              className="team-navigation-button"
+            >
+              <ChevronRight aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
+        <div className="team-lineup grid gap-x-4 gap-y-12 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+          {visibleProfessionals.map((professional, index) => (
             <article key={professional.id}>
               <div className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-mist lg:aspect-[8/9]">
                 {professional.portraitSrc ? <img
@@ -67,7 +103,7 @@ export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProp
                   <h3 className="font-display text-2xl font-semibold tracking-[-0.025em]">{professional.name}</h3>
                   <p className="mt-1 text-sm font-semibold text-brass-deep">{professional.role}</p>
                 </div>
-                <span className="mt-1 font-display text-sm text-taupe" aria-hidden="true">0{index + 1}</span>
+                <span className="mt-1 font-display text-sm text-taupe" aria-hidden="true">{String(firstVisibleIndex + index + 1).padStart(2, "0")}</span>
               </div>
               <ul className="mt-4 flex flex-wrap gap-2" aria-label={`Especialidades de ${professional.name}`}>
                 {professional.specialties.map((specialty) => (
