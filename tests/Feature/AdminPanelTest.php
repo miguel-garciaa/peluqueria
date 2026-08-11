@@ -36,6 +36,7 @@ class AdminPanelTest extends TestCase
 
         $this->assertSame('resources/css/filament/admin/theme.css', $panel->getViteTheme());
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
+        $this->assertNull($panel->getGlobalSearchProvider());
     }
 
     public function test_the_dashboard_theme_keeps_the_table_toolbar_compact(): void

@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Manrope Variable')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->defaultThemeMode(ThemeMode::Dark)
+            ->globalSearch(false)
             ->maxContentWidth(Width::Full)
             ->sidebarCollapsibleOnDesktop()
             ->databaseTransactions()
