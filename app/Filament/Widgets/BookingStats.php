@@ -7,8 +7,6 @@ use App\Models\User;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class BookingStats extends StatsOverviewWidget
 {
@@ -38,14 +36,7 @@ class BookingStats extends StatsOverviewWidget
             ->selectRaw("COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0) AS cancelled")
             ->firstOrFail();
 
-        $configuredAdminEmail = Str::lower(trim((string) config('admin.email')));
-        $customers = User::query()
-            ->where('is_admin', false)
-            ->when(
-                $configuredAdminEmail !== '',
-                fn (Builder $query): Builder => $query->whereRaw('LOWER(email) <> ?', [$configuredAdminEmail]),
-            )
-            ->count();
+        $customers = User::query()->customers()->count();
         $active = (int) $counts->active;
         $today = (int) $counts->today;
         $total = (int) $counts->total;

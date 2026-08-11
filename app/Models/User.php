@@ -9,6 +9,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -57,6 +58,18 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->isPanelAdmin();
+    }
+
+    public function scopeCustomers(Builder $query): Builder
+    {
+        $configuredAdminEmail = Str::lower(trim((string) config('admin.email')));
+
+        return $query
+            ->where('is_admin', false)
+            ->when(
+                $configuredAdminEmail !== '',
+                fn (Builder $query): Builder => $query->whereRaw('LOWER(email) <> ?', [$configuredAdminEmail]),
+            );
     }
 
     public function appointments(): HasMany

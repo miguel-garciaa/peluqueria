@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\BookingTrend;
 use App\Filament\Widgets\UpcomingBookings;
 use App\Mail\AppointmentCancelled;
@@ -90,6 +91,30 @@ class AdminPanelTest extends TestCase
             ->assertOk()
             ->assertSee('Reservas activas')
             ->assertSee('Clientes registrados');
+    }
+
+    public function test_the_clients_resource_excludes_all_administrator_accounts(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $configuredAdmin = User::factory()->create(['email' => 'owner@example.com']);
+        $customer = User::factory()->create();
+        config()->set('admin.email', 'OWNER@example.com');
+
+        $this->assertEquals(
+            [$customer->id],
+            UserResource::getEloquentQuery()->pluck('id')->all(),
+        );
+
+        $this->actingAs($admin)
+            ->get('/admin/users')
+            ->assertOk()
+            ->assertSee($customer->email)
+            ->assertDontSee($admin->email)
+            ->assertDontSee($configuredAdmin->email);
+
+        $this->actingAs($admin)
+            ->get('/admin/users/'.$configuredAdmin->getRouteKey())
+            ->assertNotFound();
     }
 
     public function test_the_agenda_and_all_management_sections_render_for_an_admin(): void
