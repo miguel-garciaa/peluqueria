@@ -16,10 +16,11 @@ describe("Navbar", () => {
   });
 
   it("shows the authenticated account and a secure logout form", () => {
-    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", avatarUrl: null }} csrfToken="csrf-test" />);
+    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
 
     expect(screen.getByRole("group")).toBeInTheDocument();
     expect(screen.getAllByText("ana@example.com")[0]).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Mis citas" })[0]).toHaveAttribute("href", "/mis-citas");
     const logoutButtons = screen.getAllByRole("button", { name: "Cerrar sesión" });
     expect(logoutButtons[0].closest("form")).toHaveAttribute("action", "/logout");
     expect(logoutButtons[0].closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");

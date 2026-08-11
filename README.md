@@ -1,6 +1,14 @@
 # Baskuñana Peluqueros
 
-Landing page de Baskuñana Peluqueros integrada en Laravel con React, TypeScript, Vite, Tailwind CSS y Three.js. El formulario de reserva envía solicitudes a Laravel y las guarda en `appointment_requests`.
+Web de Baskuñana Peluqueros integrada en Laravel 13 con React, TypeScript, Vite y Tailwind CSS. Incluye autenticación con Google, reserva de citas en tiempo real, correo de confirmación en cola y el área privada “Mis Citas”.
+
+## Arquitectura de reservas
+
+- PostgreSQL almacena `services`, `professionals`, `professional_service`, `professional_schedules` y `appointments`.
+- Cada servicio define su duración; la disponibilidad solo ofrece huecos donde el servicio completo cabe dentro del horario.
+- La creación bloquea las filas de profesionales dentro de una transacción y vuelve a comprobar solapamientos, evitando dobles reservas concurrentes.
+- `AppointmentConfirmed` implementa `ShouldQueue` y se envía por la conexión Redis en la cola `emails`.
+- La aplicación guarda timestamps en UTC y calcula la agenda con `BUSINESS_TIMEZONE=Europe/Madrid`.
 
 ## Desarrollo local
 
@@ -9,12 +17,19 @@ composer install
 npm install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
-php artisan migrate
-npm run dev
+php artisan migrate --seed
+composer run dev
 ```
 
-En otra terminal, inicia Laravel u Octane. La configuración local incluida usa SQLite.
+Configura en `.env` las credenciales de PostgreSQL, Redis, Google y el proveedor SMTP. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
+
+Si ejecutas los procesos por separado:
+
+```bash
+php artisan serve
+php artisan queue:work redis --queue=emails,default --tries=3
+npm run dev
+```
 
 ## Comprobaciones
 
@@ -36,6 +51,13 @@ npm run build
 php artisan migrate --force
 php artisan optimize
 php artisan octane:reload
+php artisan queue:restart
+```
+
+El despliegue debe mantener un worker supervisado:
+
+```bash
+php artisan queue:work redis --queue=emails,default --sleep=1 --tries=3 --timeout=90
 ```
 
 Si Octane todavía no está arrancado, usa el servidor que tengas configurado:
@@ -68,4 +90,11 @@ La aplicación confía en el proxy únicamente cuando la conexión llega desde `
 ## Rutas
 
 - `GET /` — landing page.
-- `POST /reservas` — registra una solicitud de cita y devuelve JSON.
+- `GET /login` — inicia el acceso con Google.
+- `GET /reservas/disponibilidad` — devuelve huecos reales para fecha, servicio y profesional (autenticada).
+- `POST /reservas` — crea y confirma una cita (autenticada).
+- `GET /mis-citas` — área privada con las citas del usuario.
+
+## Catálogo y horarios
+
+`php artisan db:seed` crea los siete servicios (incluido “Personalizado”), cuatro profesionales y sus horarios de lunes a sábado. Para adaptar turnos o especialidades, modifica `DatabaseSeeder` o gestiona las mismas tablas desde un panel administrativo.

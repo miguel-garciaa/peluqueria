@@ -57,8 +57,51 @@ export interface BookingFormData {
   phone: string;
   serviceId: string;
   professionalId: string;
+  customDetails: string;
   date: string;
   timeSlot: string;
 }
 
 export type SubmissionStatus = "idle" | "submitting" | "success" | "error";
+
+export interface CurrentUser {
+  name: string;
+  email: string;
+  phone: string | null;
+  avatarUrl: string | null;
+}
+
+export interface BookingCatalogService {
+  id: string;
+  name: string;
+  durationMinutes: number;
+  priceFrom: number | null;
+  isCustom: boolean;
+}
+
+export interface BookingCatalogProfessional {
+  id: string;
+  name: string;
+  role: string | null;
+}
+
+export interface BookingCatalog {
+  services: BookingCatalogService[];
+  professionals: BookingCatalogProfessional[];
+}
+
+export interface AvailabilitySlot {
+  time: string;
+  period: "morning" | "afternoon";
+  professional: { slug: string; name: string };
+}
+
+export interface UserAppointment {
+  reference: string;
+  service: string;
+  professional: string;
+  customDetails: string | null;
+  startsAt: string;
+  endsAt: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+}

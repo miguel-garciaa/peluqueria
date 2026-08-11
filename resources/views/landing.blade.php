@@ -23,6 +23,8 @@
     <div
         id="root"
         data-booking-endpoint="{{ route('bookings.store', [], false) }}"
+        data-availability-endpoint="{{ route('bookings.availability', [], false) }}"
+        data-booking-catalog="{{ json_encode($bookingCatalog) }}"
         data-current-user="{{ json_encode($currentUser) }}"
         data-auth-message="{{ $authMessage }}"
         data-auth-message-type="{{ $authMessageType }}"
