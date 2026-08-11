@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointment;
+use App\Mail\AppointmentCancelled;
 use App\Models\Appointment;
 use App\Services\BookAppointment;
 use Illuminate\Contracts\View\View;
@@ -10,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AppointmentController extends Controller
 {
@@ -31,6 +33,7 @@ class AppointmentController extends Controller
     public function index(Request $request): View
     {
         $appointments = $request->user()->appointments()
+            ->where('status', '!=', 'cancelled')
             ->with(['service', 'professional'])
             ->latest('starts_at')
             ->get()
@@ -59,7 +62,7 @@ class AppointmentController extends Controller
 
     public function cancel(Request $request, string $reference): RedirectResponse
     {
-        $cancelled = DB::transaction(function () use ($request, $reference): bool {
+        $appointment = DB::transaction(function () use ($request, $reference): ?Appointment {
             /** @var Appointment $appointment */
             $appointment = $request->user()->appointments()
                 ->where('reference', $reference)
@@ -67,7 +70,7 @@ class AppointmentController extends Controller
                 ->firstOrFail();
 
             if (! $appointment->canBeCancelled()) {
-                return false;
+                return null;
             }
 
             $appointment->update([
@@ -75,15 +78,24 @@ class AppointmentController extends Controller
                 'cancelled_at' => now(),
             ]);
 
-            return true;
+            return $appointment;
         }, 3);
 
-        if (! $cancelled) {
+        if (! $appointment) {
             return to_route('appointments.index')
                 ->with('appointment_error', 'Esta cita ya no se puede anular.');
         }
 
+        $appointment->load(['service', 'professional', 'user']);
+
+        Mail::to($appointment->user->email)->queue(
+            (new AppointmentCancelled($appointment))
+                ->onConnection('redis')
+                ->onQueue('emails')
+                ->afterCommit(),
+        );
+
         return to_route('appointments.index')
-            ->with('appointment_status', 'La cita se ha anulado correctamente.');
+            ->with('appointment_status', 'La cita se ha anulado correctamente. Recibirás la confirmación por correo.');
     }
 }

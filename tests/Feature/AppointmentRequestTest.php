@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\AppointmentCancelled;
 use App\Mail\AppointmentConfirmed;
 use App\Models\Appointment;
 use App\Models\Professional;
@@ -23,6 +24,7 @@ class AppointmentRequestTest extends TestCase
         $this->postJson(route('bookings.store'))->assertUnauthorized();
         $this->getJson(route('bookings.availability'))->assertUnauthorized();
         $this->get(route('appointments.index'))->assertRedirect(route('login'));
+        $this->patchJson(route('appointments.cancel', '01KTEST'))->assertUnauthorized();
     }
 
     public function test_an_authenticated_user_can_book_and_the_email_is_queued(): void
@@ -189,6 +191,7 @@ class AppointmentRequestTest extends TestCase
 
     public function test_a_user_can_cancel_their_own_future_appointment(): void
     {
+        Mail::fake();
         [$service, $professional] = $this->createCatalog();
         $user = User::factory()->create();
         $startsAt = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
@@ -206,7 +209,7 @@ class AppointmentRequestTest extends TestCase
         $this->actingAs($user)
             ->patch(route('appointments.cancel', $appointment->reference))
             ->assertRedirect(route('appointments.index'))
-            ->assertSessionHas('appointment_status', 'La cita se ha anulado correctamente.');
+            ->assertSessionHas('appointment_status', 'La cita se ha anulado correctamente. Recibirás la confirmación por correo.');
 
         $this->assertDatabaseHas('bookings', [
             'id' => $appointment->id,
@@ -214,12 +217,53 @@ class AppointmentRequestTest extends TestCase
         ]);
         $this->assertNotNull($appointment->fresh()->cancelled_at);
 
+        Mail::assertQueued(AppointmentCancelled::class, fn (AppointmentCancelled $mail) => $mail->appointment->is($appointment)
+            && $mail->connection === 'redis'
+            && $mail->queue === 'emails');
+
+        $this->withoutVite();
+        $this->actingAs($user)
+            ->get(route('appointments.index'))
+            ->assertOk()
+            ->assertDontSee($appointment->reference);
+
         $availability = $this->actingAs($user)->getJson(route('bookings.availability', [
             'date' => $startsAt->format('Y-m-d'),
             'service' => $service->slug,
             'professional' => $professional->slug,
         ]))->assertOk();
         $this->assertContains('10:30', collect($availability->json('slots'))->pluck('time')->all());
+    }
+
+    public function test_the_cancellation_email_contains_the_cancelled_appointment_details(): void
+    {
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create(['name' => 'María']);
+        $startsAt = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
+        $appointment = Appointment::query()->create([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => '600 111 222',
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addHour()->utc(),
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
+        $appointment->load(['service', 'professional', 'user']);
+
+        $html = (new AppointmentCancelled($appointment))->render();
+
+        $this->assertStringContainsString('Tu cita ha sido anulada', $html);
+        $this->assertStringContainsString(e($service->name), $html);
+        $this->assertStringContainsString($professional->name, $html);
+        $this->assertStringContainsString($appointment->reference, $html);
+
+        foreach ([$html, (new AppointmentConfirmed($appointment))->render()] as $mailHtml) {
+            $this->assertStringNotContainsString('border-radius:20px 20px 0 0', $mailHtml);
+            $this->assertStringNotContainsString('border-radius:0 0 20px 20px', $mailHtml);
+        }
     }
 
     public function test_a_user_cannot_cancel_another_users_or_a_past_appointment(): void

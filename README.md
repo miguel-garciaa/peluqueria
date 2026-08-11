@@ -11,7 +11,8 @@ Web de Baskuñana Peluqueros integrada en Laravel 13 con React, TypeScript, Vite
 - La tabla antigua `appointment_requests` se conserva como `legacy_appointment_requests` para no perder datos, pero no participa en el flujo nuevo de reservas.
 - Cada servicio define su duración; la disponibilidad solo ofrece huecos donde el servicio completo cabe dentro del horario.
 - La creación bloquea las filas de profesionales dentro de una transacción y vuelve a comprobar solapamientos, evitando dobles reservas concurrentes.
-- `AppointmentConfirmed` implementa `ShouldQueue`, se procesa mediante Redis en la cola `emails` y se entrega utilizando la API de Resend.
+- `AppointmentConfirmed` y `AppointmentCancelled` implementan `ShouldQueue`, se procesan mediante Redis en la cola `emails` y se entregan utilizando la API de Resend.
+- Las reservas anuladas se conservan en PostgreSQL para auditoría, liberan el horario y dejan de aparecer en “Mis Citas”.
 - La aplicación guarda timestamps en UTC y calcula la agenda con `BUSINESS_TIMEZONE=Europe/Madrid`.
 
 ## Desarrollo local
