@@ -1,8 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Services } from "@/components/Services";
+import type { BookingCatalogService } from "@/types";
+
+const databaseServices: BookingCatalogService[] = [
+  { id: "cut", name: "Corte & Peinado", durationMinutes: 50, priceFrom: 1, isCustom: false },
+];
 
 describe("Services", () => {
+  it("uses the current price and duration received from the database", () => {
+    render(<Services onBook={vi.fn()} catalogServices={databaseServices} />);
+
+    expect(screen.getByText("Desde 1 €")).toBeInTheDocument();
+    expect(screen.getByText("50 min")).toBeInTheDocument();
+    expect(screen.queryByText("Desde 35 €")).not.toBeInTheDocument();
+  });
+
   it("opens service details and books the selected service", () => {
     vi.useFakeTimers();
     const onBook = vi.fn();

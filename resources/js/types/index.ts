@@ -8,7 +8,7 @@ export interface Service {
   benefits: string[];
   imageSrc: string;
   imageAlt: string;
-  priceFrom: number;
+  priceFrom: number | null;
   duration: string;
   icon: LucideIcon;
 }

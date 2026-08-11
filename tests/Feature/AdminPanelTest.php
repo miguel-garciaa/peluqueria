@@ -9,6 +9,8 @@ use App\Models\Service;
 use App\Models\User;
 use App\Services\ManageAppointment;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -16,6 +18,11 @@ use Tests\TestCase;
 class AdminPanelTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_the_duplicate_filament_logout_widget_is_not_registered(): void
+    {
+        $this->assertNotContains(AccountWidget::class, Filament::getPanel('admin')->getWidgets());
+    }
 
     public function test_only_administrators_can_access_the_control_panel(): void
     {

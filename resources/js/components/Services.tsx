@@ -1,15 +1,34 @@
 import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { services } from "@/data/content";
-import type { Service } from "@/types";
+import type { BookingCatalogService, Service } from "@/types";
 import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
-interface ServicesProps { onBook: (serviceId: string) => void; }
+interface ServicesProps {
+  onBook: (serviceId: string) => void;
+  catalogServices?: BookingCatalogService[];
+}
 
-export function Services({ onBook }: ServicesProps) {
+const priceLabel = (price: number | null) => price === null
+  ? "A consultar"
+  : `Desde ${new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 }).format(price)} €`;
+
+export function Services({ onBook, catalogServices }: ServicesProps) {
   const [activeService, setActiveService] = useState<Service | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const displayedServices = services
+    .filter((service) => catalogServices === undefined || catalogServices.some((item) => item.id === service.id))
+    .map((service) => {
+      const current = catalogServices?.find((item) => item.id === service.id);
+
+      return current ? {
+        ...service,
+        title: current.name,
+        priceFrom: current.priceFrom,
+        duration: `${current.durationMinutes} min`,
+      } : service;
+    });
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -41,13 +60,13 @@ export function Services({ onBook }: ServicesProps) {
           <p className="max-w-md leading-7 text-taupe">Cada cita comienza con una conversación. Adaptamos técnica, tiempo y producto a tu cabello.</p>
         </div>
         <ScrollReveal className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => { const Icon = service.icon; return (
+          {displayedServices.map((service) => { const Icon = service.icon; return (
             <article key={service.id} className="min-h-72 lg:min-h-64">
               <button type="button" onClick={() => setActiveService(service)} aria-label={`Ver detalles de ${service.title}`} className="group flex h-full w-full flex-col rounded-2xl bg-white p-6 text-left text-ink ring-1 ring-ink/8 outline-none transition-[background-color,color,transform] duration-300 hover:-translate-y-1 hover:bg-ink hover:text-white focus-visible:ring-2 focus-visible:ring-brass-deep focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain active:translate-y-0 lg:p-5">
                 <div className="mb-8 grid size-12 place-items-center rounded-full bg-mist text-brass-deep transition-colors group-hover:bg-white/10 group-hover:text-brass lg:mb-5 lg:size-11"><Icon className="size-5" aria-hidden="true" /></div>
                 <h3 className="font-display text-3xl font-semibold leading-tight tracking-[-0.025em] lg:text-2xl">{service.title}</h3>
                 <p className="mt-3 flex-1 text-base leading-7 text-taupe group-hover:text-white/65 lg:mt-2 lg:text-sm lg:leading-6">{service.description}</p>
-                <div className="mt-6 flex w-full items-center justify-between border-t border-ink/10 pt-5 group-hover:border-white/15 lg:mt-4 lg:pt-4"><div><strong className="block">Desde {service.priceFrom} €</strong><span className="mt-1 flex items-center gap-1.5 text-xs text-taupe group-hover:text-white/55"><Clock className="size-3.5" />{service.duration}</span></div><span aria-hidden="true" className="grid size-11 place-items-center rounded-full border border-ink/15 transition-[background-color,border-color,transform] group-hover:rotate-45 group-hover:border-brass group-hover:bg-brass group-hover:text-ink lg:size-10"><ArrowUpRight className="size-5" /></span></div>
+                <div className="mt-6 flex w-full items-center justify-between border-t border-ink/10 pt-5 group-hover:border-white/15 lg:mt-4 lg:pt-4"><div><strong className="block">{priceLabel(service.priceFrom)}</strong><span className="mt-1 flex items-center gap-1.5 text-xs text-taupe group-hover:text-white/55"><Clock className="size-3.5" />{service.duration}</span></div><span aria-hidden="true" className="grid size-11 place-items-center rounded-full border border-ink/15 transition-[background-color,border-color,transform] group-hover:rotate-45 group-hover:border-brass group-hover:bg-brass group-hover:text-ink lg:size-10"><ArrowUpRight className="size-5" /></span></div>
               </button>
             </article>
           ); })}
@@ -86,7 +105,7 @@ export function Services({ onBook }: ServicesProps) {
                 </div>
 
                 <div className="service-dialog-meta mt-4 flex items-center gap-6 md:mt-7 md:gap-8">
-                  <div><span className="block text-xs font-semibold text-taupe">Precio</span><strong className="mt-1 block text-lg">Desde {activeService.priceFrom} €</strong></div>
+                  <div><span className="block text-xs font-semibold text-taupe">Precio</span><strong className="mt-1 block text-lg">{priceLabel(activeService.priceFrom)}</strong></div>
                   <div><span className="block text-xs font-semibold text-taupe">Duración estimada</span><strong className="mt-1 flex items-center gap-2 text-lg"><Clock className="size-4 text-brass-deep" />{activeService.duration}</strong></div>
                 </div>
 
