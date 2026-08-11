@@ -12,6 +12,22 @@ export function BookingSection({ onBook }: { onBook: () => void }) {
             <p className="text-sm font-bold text-brass">Baskuñana Peluqueros</p>
             <h3 className="mt-3 font-display text-4xl font-semibold tracking-tight">Todo listo en cuatro pasos.</h3>
             <div className="mt-8 space-y-5 text-sm text-white/68"><p className="flex gap-3"><MapPin className="mt-0.5 size-5 shrink-0 text-brass" /><span>Paseo Alfonso XIII, 28<br />30201 Cartagena, Murcia</span></p><a className="flex items-center gap-3 transition-colors hover:text-white" href="tel:+34968124445"><Phone className="size-5 text-brass" />968 12 44 45</a><p className="flex gap-3"><Clock3 className="mt-0.5 size-5 shrink-0 text-brass" /><span>L–V · 9:30–20:00<br />Sábado · 9:00–15:00</span></p></div>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Paseo+Alfonso+XIII+28+30201+Cartagena+Murcia"
+              target="_blank"
+              rel="noreferrer"
+              className="group relative mt-10 min-h-56 flex-1 overflow-hidden rounded-xl bg-espresso p-5 outline-none ring-1 ring-white/12 transition-colors hover:ring-brass/55 focus-visible:ring-2 focus-visible:ring-brass"
+              aria-label="Abrir Baskuñana Peluqueros en Google Maps"
+            >
+              <span aria-hidden="true" className="absolute inset-0 opacity-40 [background-image:linear-gradient(25deg,transparent_48%,oklch(0.83_0.082_78/0.38)_49%,oklch(0.83_0.082_78/0.38)_51%,transparent_52%),linear-gradient(115deg,transparent_48%,oklch(1_0_0/0.2)_49%,oklch(1_0_0/0.2)_51%,transparent_52%)] [background-size:72px_72px]" />
+              <span aria-hidden="true" className="absolute left-[58%] top-[42%] grid size-12 place-items-center rounded-full bg-brass text-ink shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                <MapPin />
+              </span>
+              <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-ink/80 px-3 py-2 text-xs font-semibold text-white backdrop-blur-sm">
+                Ver en Google Maps
+                <ArrowUpRight aria-hidden="true" className="size-4 text-brass transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </a>
           </div>
           <div className="p-6 sm:p-10 lg:p-12">
             <p className="font-semibold text-brass-deep">Agenda en tiempo real</p>
