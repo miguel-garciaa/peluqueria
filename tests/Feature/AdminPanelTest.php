@@ -24,6 +24,12 @@ class AdminPanelTest extends TestCase
         $customer = User::factory()->create();
         $this->actingAs($customer)->get('/admin')->assertForbidden();
 
+        $configuredAdmin = User::factory()->create(['email' => 'owner@example.com']);
+        config()->set('admin.email', 'OWNER@example.com');
+        $this->actingAs($configuredAdmin)
+            ->get('/admin')
+            ->assertOk();
+
         $admin = User::factory()->create(['is_admin' => true]);
         $this->actingAs($admin)
             ->get('/admin')

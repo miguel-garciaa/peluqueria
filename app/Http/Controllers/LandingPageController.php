@@ -19,7 +19,7 @@ class LandingPageController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'avatarUrl' => $user->avatar_url,
-                'isAdmin' => $user->is_admin,
+                'isAdmin' => $user->isPanelAdmin(),
             ] : null,
             'bookingCatalog' => [
                 'services' => Service::query()->active()->orderBy('id')->get()->map(fn (Service $service) => [

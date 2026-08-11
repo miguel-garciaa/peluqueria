@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 #[Fillable(['google_id', 'name', 'email', 'phone', 'email_verified_at', 'avatar_url', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -34,9 +35,18 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function isPanelAdmin(): bool
+    {
+        $configuredAdminEmail = Str::lower(trim((string) config('admin.email')));
+        $matchesConfiguredEmail = $configuredAdminEmail !== ''
+            && Str::lower(trim((string) $this->email)) === $configuredAdminEmail;
+
+        return $this->is_admin || $matchesConfiguredEmail;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'admin' && $this->is_admin;
+        return $panel->getId() === 'admin' && $this->isPanelAdmin();
     }
 
     public function appointments(): HasMany
