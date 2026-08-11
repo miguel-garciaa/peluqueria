@@ -23,6 +23,14 @@ describe("BookingSection", () => {
 });
 
 describe("BookingModal", () => {
+  it("provides safe-area regions for the full-screen mobile layout", () => {
+    render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
+
+    const dialog = screen.getByRole("dialog", { name: "Tu próxima cita" });
+    expect(dialog.querySelector("header")).toHaveClass("booking-dialog-header");
+    expect(dialog.querySelector("footer")).toHaveClass("booking-dialog-footer");
+  });
+
   it("prefills an intent and separates morning from afternoon slots", () => {
     render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{ serviceId: "cut", professionalId: "marta" }} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));

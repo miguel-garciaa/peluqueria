@@ -152,7 +152,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
   return (
     <dialog ref={dialogRef} className="booking-dialog" onCancel={(event) => { event.preventDefault(); onClose(); }} onClose={onClose} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} aria-labelledby="booking-modal-title">
       <form onSubmit={submit} className="flex h-full min-h-0 flex-col bg-porcelain">
-        <header className="flex shrink-0 items-center justify-between border-b border-ink/10 px-5 py-4 sm:px-7">
+        <header className="booking-dialog-header flex shrink-0 items-center justify-between border-b border-ink/10 px-5 py-4 sm:px-7">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-brass-deep">Reserva online</p>
             <h2 id="booking-modal-title" className="mt-1 font-display text-2xl font-semibold tracking-tight">Tu próxima cita</h2>
@@ -220,7 +220,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
           </>}
         </div>
 
-        {!success && <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-ink/10 bg-white px-5 py-4 sm:px-7">
+        {!success && <footer className="booking-dialog-footer flex shrink-0 items-center justify-between gap-3 border-t border-ink/10 bg-white px-5 py-4 sm:px-7">
           <button type="button" onClick={() => step === 1 ? onClose() : setStep((current) => current - 1)} className="flex min-h-12 items-center gap-2 rounded-full px-4 font-bold text-ink transition-colors hover:bg-mist"><ArrowLeft className="size-4" />{step === 1 ? "Cancelar" : "Atrás"}</button>
           {step < 4 ? <button type="button" onClick={continueToNextStep} className="flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 font-bold text-white transition-transform hover:-translate-y-0.5">Continuar <ArrowRight className="size-4" /></button> : <button type="submit" disabled={submitting} className="flex min-h-12 items-center gap-3 rounded-full bg-brass px-6 font-bold text-ink transition-transform hover:-translate-y-0.5 disabled:opacity-60"><Check className="size-4" />{submitting ? "Confirmando…" : "Confirmar cita"}</button>}
         </footer>}

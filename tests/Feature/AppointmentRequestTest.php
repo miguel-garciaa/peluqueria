@@ -187,6 +187,9 @@ class AppointmentRequestTest extends TestCase
         $response = $this->actingAs($user)->get(route('appointments.index'))->assertOk();
         $response->assertSee(Appointment::query()->where('user_id', $user->id)->value('reference'));
         $response->assertDontSee(Appointment::query()->where('user_id', $otherUser->id)->value('reference'));
+        $response->assertSee('data-booking-endpoint="/reservas"', false);
+        $response->assertSee('data-availability-endpoint="/reservas/disponibilidad"', false);
+        $response->assertSee('data-booking-catalog=', false);
     }
 
     public function test_a_user_can_cancel_their_own_future_appointment(): void

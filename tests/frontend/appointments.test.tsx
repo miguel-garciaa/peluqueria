@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { MyAppointmentsPage } from "@/MyAppointmentsPage";
-import type { CurrentUser, UserAppointment } from "@/types";
+import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
 const user: CurrentUser = { name: "Ana López", email: "ana@example.com", phone: "600 123 456", avatarUrl: null };
+const catalog: BookingCatalog = {
+  services: [{ id: "cut", name: "Corte", durationMinutes: 45, priceFrom: 25, isCustom: false }],
+  professionals: [{ id: "marta", name: "Marta Soler", role: "Estilista" }],
+};
 const appointment: UserAppointment = {
   reference: "01KREFERENCE",
   service: "Corte & Peinado",
@@ -16,9 +20,33 @@ const appointment: UserAppointment = {
   cancelUrl: "/mis-citas/01KREFERENCE/anular",
 };
 
+const renderPage = (items: UserAppointment[] = [appointment]) => render(
+  <MyAppointmentsPage
+    currentUser={user}
+    appointments={items}
+    bookingCatalog={catalog}
+    bookingEndpoint="/reservas"
+    availabilityEndpoint="/reservas/disponibilidad"
+    csrfToken="csrf-test"
+    flash={null}
+  />,
+);
+
 describe("MyAppointmentsPage", () => {
+  it("shows a single booking action and opens the form without navigating home", () => {
+    renderPage();
+
+    expect(screen.queryByRole("button", { name: "Reservar cita" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Reservar cita" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Nueva cita" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Nueva cita" }));
+
+    expect(screen.getByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+  });
+
   it("asks for inline confirmation before submitting a cancellation", () => {
-    render(<MyAppointmentsPage currentUser={user} appointments={[appointment]} csrfToken="csrf-test" flash={null} />);
+    renderPage();
 
     fireEvent.click(screen.getByRole("button", { name: "Anular cita" }));
 
@@ -30,7 +58,7 @@ describe("MyAppointmentsPage", () => {
   });
 
   it("does not offer cancellation for a non-cancellable appointment", () => {
-    render(<MyAppointmentsPage currentUser={user} appointments={[{ ...appointment, status: "cancelled", canCancel: false }]} csrfToken="csrf-test" flash={null} />);
+    renderPage([{ ...appointment, status: "cancelled", canCancel: false }]);
 
     expect(screen.queryByRole("button", { name: "Anular cita" })).not.toBeInTheDocument();
   });

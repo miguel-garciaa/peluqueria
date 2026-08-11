@@ -8,7 +8,7 @@ const links = [
   ["Inicio", "#inicio", "01"], ["Servicios", "#servicios", "02"], ["Equipo", "#equipo", "03"], ["Galería", "#galeria", "04"], ["Reservas", "#reservas", "05"],
 ] as const;
 
-type NavbarProps = { currentUser?: CurrentUser | null; csrfToken?: string; onBook?: () => void; solid?: boolean };
+type NavbarProps = { currentUser?: CurrentUser | null; csrfToken?: string; onBook?: () => void; solid?: boolean; showBookingAction?: boolean };
 
 function AccountControl({ currentUser, csrfToken, mobile = false }: NavbarProps & { mobile?: boolean }) {
   if (!currentUser) {
@@ -31,7 +31,7 @@ function BookingAction({ onBook, mobile = false }: { onBook?: () => void; mobile
   return onBook ? <button type="button" onClick={onBook} className={className}>{content}</button> : <a href="/#reservas" className={className}>{content}</a>;
 }
 
-export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = false }: NavbarProps) {
+export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = false, showBookingAction = true }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeHref, setActiveHref] = useState("#inicio");
@@ -75,10 +75,10 @@ export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = fal
       <nav className="navbar-shell grid h-20 grid-cols-[1fr_auto] items-center lg:h-24 xl:grid-cols-[minmax(13rem,1fr)_auto_minmax(13rem,1fr)]" aria-label="Navegación principal">
         <a href={solid ? "/#inicio" : "#inicio"} onClick={solid ? undefined : (event) => navigateToSection(event, "#inicio")} className="flex min-h-11 items-center gap-3 font-display text-[1.05rem] font-extrabold tracking-[-0.035em] sm:text-xl lg:text-2xl" aria-label="Baskuñana Peluqueros, inicio"><BrandMark className="size-8 sm:size-9 lg:size-10" /><span className="leading-none">BASKUÑANA<span className="ml-1 text-brass">*</span><span className="mt-1 block text-[0.62em] font-normal tracking-[0.08em] text-white/60">Peluqueros · Cartagena</span></span></a>
         <div className="hidden items-center justify-center gap-7 xl:flex">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} aria-current={!solid && activeHref === href ? "page" : undefined} className={cn("nav-link relative py-4 text-[0.95rem] font-bold transition-colors", !solid && activeHref === href ? "text-white" : "text-white/55 hover:text-white")}><span>{label}</span><sup>{number}</sup></a>)}</div>
-        <div className="hidden items-center justify-self-end gap-3 xl:flex"><AccountControl currentUser={currentUser} csrfToken={csrfToken} /><BookingAction onBook={onBook} /></div>
+        <div className="hidden items-center justify-self-end gap-3 xl:flex"><AccountControl currentUser={currentUser} csrfToken={csrfToken} />{showBookingAction && <BookingAction onBook={onBook} />}</div>
         <button type="button" onClick={() => setIsMenuOpen((value) => !value)} className="grid size-11 place-items-center rounded-full border border-current/20 xl:hidden" aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>{isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button>
       </nav>
-      <div id="mobile-menu" className={cn("grid overflow-hidden bg-ink text-white transition-[grid-template-rows] duration-300 xl:hidden", isMenuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}><div className="min-h-0"><div className="navbar-shell flex flex-col gap-1 pb-6 pt-2">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} className="flex items-start justify-between border-b border-white/10 py-4 font-display text-2xl font-semibold"><span>{label}</span><sup className="font-sans text-xs text-brass">{number}</sup></a>)}<AccountControl currentUser={currentUser} csrfToken={csrfToken} mobile /><div onClick={() => setIsMenuOpen(false)}><BookingAction onBook={onBook} mobile /></div></div></div></div>
+      <div id="mobile-menu" className={cn("grid overflow-hidden bg-ink text-white transition-[grid-template-rows] duration-300 xl:hidden", isMenuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}><div className="min-h-0"><div className="navbar-shell flex flex-col gap-1 pb-6 pt-2">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} className="flex items-start justify-between border-b border-white/10 py-4 font-display text-2xl font-semibold"><span>{label}</span><sup className="font-sans text-xs text-brass">{number}</sup></a>)}<AccountControl currentUser={currentUser} csrfToken={csrfToken} mobile />{showBookingAction && <div onClick={() => setIsMenuOpen(false)}><BookingAction onBook={onBook} mobile /></div>}</div></div></div>
     </header>
   );
 }

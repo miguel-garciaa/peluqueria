@@ -61,7 +61,30 @@ img { display: block; }
 @keyframes booking-dialog-in { from { opacity: .35; transform: translateY(1.25rem) scale(.98); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 39.999rem) {
-  .booking-dialog { inset: auto 0 0; width: 100%; height: calc(100dvh - .5rem); margin: 0; border-radius: 1.25rem 1.25rem 0 0; }
+  .booking-dialog {
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .booking-dialog[open] { animation: booking-dialog-mobile-in .24s var(--ease-premium) both; }
+  .booking-dialog-header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+  }
+  .booking-dialog-footer {
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+  }
+  @keyframes booking-dialog-mobile-in {
+    from { opacity: .5; transform: translateY(.75rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 .custom-cursor {
