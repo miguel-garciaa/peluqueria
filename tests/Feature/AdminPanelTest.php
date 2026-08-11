@@ -18,6 +18,7 @@ use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminPanelTest extends TestCase
@@ -43,6 +44,12 @@ class AdminPanelTest extends TestCase
 
         $this->assertSame($expectedSpan, app(BookingTrend::class)->getColumnSpan());
         $this->assertSame($expectedSpan, app(UpcomingBookings::class)->getColumnSpan());
+    }
+
+    public function test_the_booking_trend_chart_has_a_compact_maximum_height(): void
+    {
+        Livewire::test(BookingTrend::class)
+            ->assertSeeHtml('max-height: 18rem');
     }
 
     public function test_only_administrators_can_access_the_control_panel(): void

@@ -16,6 +16,8 @@ class BookingTrend extends ChartWidget
 
     protected ?string $pollingInterval = '15s';
 
+    protected ?string $maxHeight = '18rem';
+
     protected static ?int $sort = 2;
 
     protected int|string|array $columnSpan = ['md' => 2, 'xl' => 1];
