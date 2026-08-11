@@ -15,5 +15,6 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/reservas/disponibilidad', AppointmentAvailabilityController::class)->name('bookings.availability');
     Route::post('/reservas', [AppointmentController::class, 'store'])->name('bookings.store');
     Route::get('/mis-citas', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::patch('/mis-citas/{reference}/anular', [AppointmentController::class, 'cancel'])->name('appointments.cancel');
     Route::post('/logout', [GoogleAuthController::class, 'logout'])->name('logout');
 });

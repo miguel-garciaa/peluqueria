@@ -11,7 +11,7 @@ Web de Baskuñana Peluqueros integrada en Laravel 13 con React, TypeScript, Vite
 - La tabla antigua `appointment_requests` se conserva como `legacy_appointment_requests` para no perder datos, pero no participa en el flujo nuevo de reservas.
 - Cada servicio define su duración; la disponibilidad solo ofrece huecos donde el servicio completo cabe dentro del horario.
 - La creación bloquea las filas de profesionales dentro de una transacción y vuelve a comprobar solapamientos, evitando dobles reservas concurrentes.
-- `AppointmentConfirmed` implementa `ShouldQueue` y se envía por la conexión Redis en la cola `emails`.
+- `AppointmentConfirmed` implementa `ShouldQueue`, se procesa mediante Redis en la cola `emails` y se entrega utilizando la API de Resend.
 - La aplicación guarda timestamps en UTC y calcula la agenda con `BUSINESS_TIMEZONE=Europe/Madrid`.
 
 ## Desarrollo local
@@ -25,9 +25,9 @@ php artisan migrate --seed
 composer run dev
 ```
 
-Configura en `.env` las credenciales de PostgreSQL, Redis, Google y el proveedor SMTP. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
+Configura en `.env` las credenciales de PostgreSQL, Redis, Google y la API de Resend. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
 
-`MAIL_MAILER=log` no entrega correos: solo los escribe en `storage/logs/laravel.log`. En producción configura `MAIL_MAILER=smtp` con el host, puerto, usuario, contraseña y remitente reales. Después de cambiar correo o Redis, limpia la configuración y reinicia tanto Octane como el worker de colas.
+`MAIL_MAILER=log` no entrega correos: solo los escribe en `storage/logs/laravel.log`. En producción utiliza `MAIL_MAILER=resend`, una `RESEND_API_KEY` secreta y un remitente perteneciente al dominio verificado. Después de cambiar correo o Redis, limpia la configuración y reinicia tanto Octane como el worker de colas.
 
 Si ejecutas los procesos por separado:
 
@@ -37,11 +37,20 @@ php artisan queue:work redis --queue=emails,default --tries=3
 npm run dev
 ```
 
-Para volver a enviar una confirmación después de corregir SMTP:
+Para volver a enviar una confirmación después de configurar Resend:
 
 ```bash
 php artisan appointments:resend-confirmation REFERENCIA_DE_LA_CITA
 ```
+
+Para comprobar sin mostrar contraseñas qué mailer está activo, si Redis responde, cuántos correos esperan y cuántos trabajos han fallado:
+
+```bash
+php artisan mail:diagnose
+php artisan mail:diagnose --send-to=tu-correo@example.com
+```
+
+La segunda orden realiza primero las comprobaciones y después intenta un envío directo mediante el proveedor configurado. Si funciona pero las confirmaciones permanecen pendientes, el problema está en el worker de la cola `emails`.
 
 ## Comprobaciones
 
@@ -116,6 +125,7 @@ La aplicación confía en el proxy únicamente cuando la conexión llega desde `
 - `GET /reservas/disponibilidad` — devuelve huecos reales para fecha, servicio y profesional (autenticada).
 - `POST /reservas` — crea y confirma una cita (autenticada).
 - `GET /mis-citas` — área privada con las citas del usuario.
+- `PATCH /mis-citas/{referencia}/anular` — anula una cita futura perteneciente al usuario autenticado.
 
 ## Catálogo y horarios
 

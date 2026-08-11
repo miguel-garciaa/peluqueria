@@ -14,6 +14,10 @@
         id="appointments-root"
         data-current-user="{{ json_encode($currentUser) }}"
         data-appointments="{{ json_encode($appointments) }}"
+        data-flash="{{ json_encode([
+            'message' => session('appointment_status') ?? session('appointment_error'),
+            'type' => session()->has('appointment_error') ? 'error' : 'success',
+        ]) }}"
     ></div>
 </body>
 </html>

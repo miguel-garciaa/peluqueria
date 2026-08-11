@@ -11,7 +11,8 @@ if (!root) throw new Error("No se encontró el contenedor de citas.");
 
 const currentUser = JSON.parse(root.dataset.currentUser || "null") as CurrentUser | null;
 const appointments = JSON.parse(root.dataset.appointments || "[]") as UserAppointment[];
+const flash = JSON.parse(root.dataset.flash || "null") as { message: string | null; type: "success" | "error" } | null;
 const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
 if (!currentUser) throw new Error("La vista de citas requiere una sesión activa.");
 
-createRoot(root).render(<StrictMode><MyAppointmentsPage currentUser={currentUser} appointments={appointments} csrfToken={csrfToken} /></StrictMode>);
+createRoot(root).render(<StrictMode><MyAppointmentsPage currentUser={currentUser} appointments={appointments} csrfToken={csrfToken} flash={flash} /></StrictMode>);

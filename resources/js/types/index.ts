@@ -104,4 +104,6 @@ export interface UserAppointment {
   startsAt: string;
   endsAt: string;
   status: "pending" | "confirmed" | "cancelled" | "completed";
+  canCancel: boolean;
+  cancelUrl: string;
 }

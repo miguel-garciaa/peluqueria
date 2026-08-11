@@ -187,6 +187,70 @@ class AppointmentRequestTest extends TestCase
         $response->assertDontSee(Appointment::query()->where('user_id', $otherUser->id)->value('reference'));
     }
 
+    public function test_a_user_can_cancel_their_own_future_appointment(): void
+    {
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create();
+        $startsAt = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
+        $appointment = Appointment::query()->create([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => '600 111 222',
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addHour()->utc(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($user)
+            ->patch(route('appointments.cancel', $appointment->reference))
+            ->assertRedirect(route('appointments.index'))
+            ->assertSessionHas('appointment_status', 'La cita se ha anulado correctamente.');
+
+        $this->assertDatabaseHas('bookings', [
+            'id' => $appointment->id,
+            'status' => 'cancelled',
+        ]);
+        $this->assertNotNull($appointment->fresh()->cancelled_at);
+
+        $availability = $this->actingAs($user)->getJson(route('bookings.availability', [
+            'date' => $startsAt->format('Y-m-d'),
+            'service' => $service->slug,
+            'professional' => $professional->slug,
+        ]))->assertOk();
+        $this->assertContains('10:30', collect($availability->json('slots'))->pluck('time')->all());
+    }
+
+    public function test_a_user_cannot_cancel_another_users_or_a_past_appointment(): void
+    {
+        [$service, $professional] = $this->createCatalog();
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $appointment = Appointment::query()->create([
+            'user_id' => $owner->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $owner->name,
+            'customer_phone' => '600 111 222',
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->subDay()->addHour(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($otherUser)
+            ->patch(route('appointments.cancel', $appointment->reference))
+            ->assertNotFound();
+
+        $this->actingAs($owner)
+            ->patch(route('appointments.cancel', $appointment->reference))
+            ->assertRedirect(route('appointments.index'))
+            ->assertSessionHas('appointment_error');
+
+        $this->assertSame('confirmed', $appointment->fresh()->status);
+        $this->assertNull($appointment->fresh()->cancelled_at);
+    }
+
     /** @return array{Service, Professional} */
     private function createCatalog(bool $custom = false): array
     {
