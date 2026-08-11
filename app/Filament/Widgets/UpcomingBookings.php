@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UpcomingBookings extends TableWidget
 {
-    protected static bool $isLazy = false;
+    protected static bool $isLazy = true;
 
     protected static ?int $sort = 3;
 
@@ -25,7 +25,10 @@ class UpcomingBookings extends TableWidget
             ->description('Las siguientes reservas pendientes o confirmadas.')
             ->poll('5s')
             ->query(fn (): Builder => Appointment::query()
-                ->with(['service', 'professional'])
+                ->with([
+                    'service:id,name',
+                    'professional:id,name',
+                ])
                 ->whereIn('status', ['pending', 'confirmed'])
                 ->where('starts_at', '>=', now())
                 ->orderBy('starts_at'))

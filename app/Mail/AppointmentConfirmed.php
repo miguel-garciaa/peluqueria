@@ -16,6 +16,13 @@ class AppointmentConfirmed extends Mailable implements ShouldQueue
 
     public int $tries = 3;
 
+    public int $timeout = 30;
+
+    public bool $failOnTimeout = true;
+
+    /** @var array<int, int> */
+    public array $backoff = [10, 60, 300];
+
     public function __construct(public Appointment $appointment) {}
 
     public function envelope(): Envelope

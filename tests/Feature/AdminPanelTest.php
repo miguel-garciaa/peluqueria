@@ -88,7 +88,7 @@ class AdminPanelTest extends TestCase
             ->get('/admin/agenda')
             ->assertOk()
             ->assertSee('Ana Cliente')
-            ->assertSee('600 111 222')
+            ->assertSee('+34 600 11 12 22')
             ->assertSee($service->name)
             ->assertSee($professional->name);
     }

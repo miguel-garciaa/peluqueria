@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\SpanishPhone;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
@@ -26,6 +28,14 @@ class Appointment extends Model
             'ends_at' => 'immutable_datetime',
             'cancelled_at' => 'immutable_datetime',
         ];
+    }
+
+    protected function customerPhone(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value): ?string => SpanishPhone::format($value),
+            set: fn (?string $value): ?string => SpanishPhone::format($value),
+        );
     }
 
     public function canBeCancelled(): bool

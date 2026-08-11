@@ -19,8 +19,13 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
 
     let disposed = false;
     let cleanup = () => {};
+    let loadStarted = false;
 
-    void import("three").then((THREE) => {
+    const initialize = () => {
+      if (loadStarted) return;
+      loadStarted = true;
+
+      void import("three").then((THREE) => {
       if (disposed) return;
       const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1.25 : 1.5));
@@ -62,7 +67,7 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
       }
 
       let frame = 0;
-      let inView = true;
+      let inView = false;
       let pageVisible = document.visibilityState === "visible";
       let progress = 0;
       let velocity = 0.022;
@@ -89,13 +94,14 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
       };
 
       const render = (now: number) => {
+        frame = 0;
+        if (!inView || !pageVisible) return;
+
         const dt = Math.min((now - last) / 1000, 0.05);
         last = now;
-        if (inView && pageVisible) {
-          progress = (progress + velocity * dt + 1) % 1;
-          const cruisingSpeed = hoveredItemIndex === null ? 0.022 : 0.0035;
-          velocity += (cruisingSpeed - velocity) * Math.min(1, dt * (hoveredItemIndex === null ? 2.8 : 5.5));
-        }
+        progress = (progress + velocity * dt + 1) % 1;
+        const cruisingSpeed = hoveredItemIndex === null ? 0.022 : 0.0035;
+        velocity += (cruisingSpeed - velocity) * Math.min(1, dt * (hoveredItemIndex === null ? 2.8 : 5.5));
         meshes.forEach((mesh, index) => {
           const t = (index / count + progress) % 1;
           const point = curve.getPointAt(t);
@@ -113,6 +119,19 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
         camera.lookAt(0, 0, 0);
         renderer.render(scene, camera);
         frame = requestAnimationFrame(render);
+      };
+
+      const syncRendering = () => {
+        if (!inView || !pageVisible) {
+          if (frame) cancelAnimationFrame(frame);
+          frame = 0;
+          return;
+        }
+
+        if (!frame) {
+          last = performance.now();
+          frame = requestAnimationFrame(render);
+        }
       };
 
       const onWheel = (event: WheelEvent) => {
@@ -136,12 +155,12 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
         event.preventDefault();
         onSelectItem(items[hoveredItemIndex ?? 0]);
       };
-      const onVisibility = () => { pageVisible = document.visibilityState === "visible"; last = performance.now(); };
-      const observer = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; last = performance.now(); }, { threshold: 0.1 });
+      const onVisibility = () => { pageVisible = document.visibilityState === "visible"; syncRendering(); };
+      const visibilityObserver = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; syncRendering(); }, { threshold: 0.1 });
       const resizeObserver = new ResizeObserver(resize);
       const onLost = (event: Event) => { event.preventDefault(); onContextLost(); };
 
-      observer.observe(root); resizeObserver.observe(root); resize();
+      visibilityObserver.observe(root); resizeObserver.observe(root); resize();
       window.addEventListener("wheel", onWheel, { passive: true });
       root.addEventListener("pointermove", onPointer, { passive: true });
       root.addEventListener("pointerleave", onPointerLeave);
@@ -149,10 +168,10 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
       canvas.addEventListener("keydown", onKeyDown);
       document.addEventListener("visibilitychange", onVisibility);
       canvas.addEventListener("webglcontextlost", onLost);
-      frame = requestAnimationFrame(render);
+      syncRendering();
 
       cleanup = () => {
-        cancelAnimationFrame(frame); observer.disconnect(); resizeObserver.disconnect();
+        cancelAnimationFrame(frame); visibilityObserver.disconnect(); resizeObserver.disconnect();
         window.removeEventListener("wheel", onWheel); root.removeEventListener("pointermove", onPointer);
         root.removeEventListener("pointerleave", onPointerLeave); canvas.removeEventListener("click", onClick); canvas.removeEventListener("keydown", onKeyDown);
         document.removeEventListener("visibilitychange", onVisibility); canvas.removeEventListener("webglcontextlost", onLost);
@@ -160,9 +179,18 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
         meshes.forEach((mesh) => scene.remove(mesh)); geometries.forEach((g) => g.dispose());
         materials.forEach((m) => m.dispose()); textures.forEach((t) => t.dispose()); renderer.dispose();
       };
-    }).catch(onContextLost);
+      }).catch(() => { if (!disposed) onContextLost(); });
+    };
 
-    return () => { disposed = true; cleanup(); };
+    const loadObserver = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      loadObserver.disconnect();
+      initialize();
+    }, { rootMargin: "600px 0px" });
+
+    loadObserver.observe(root);
+
+    return () => { disposed = true; loadObserver.disconnect(); cleanup(); };
   }, [items, onContextLost, onSelectItem]);
 
   return (

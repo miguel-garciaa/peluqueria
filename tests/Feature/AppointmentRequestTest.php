@@ -51,7 +51,7 @@ class AppointmentRequestTest extends TestCase
             'professional_id' => $professional->id,
             'status' => 'confirmed',
         ]);
-        $this->assertSame('600 123 456', $user->fresh()->phone);
+        $this->assertSame('+34 600 12 34 56', $user->fresh()->phone);
         Mail::assertQueued(AppointmentConfirmed::class, fn (AppointmentConfirmed $mail) => $mail->appointment->service_id === $service->id
             && $mail->connection === 'redis'
             && $mail->queue === 'emails');

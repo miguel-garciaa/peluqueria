@@ -50,8 +50,8 @@ export function CompareReveal({ before, after, labels = ["Antes", "Después"], d
   const shown = Math.round(position);
   return (
     <div ref={rootRef} role="group" aria-label={`Comparación: ${labels[0]} y ${labels[1]}`} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={stopDragging} onPointerCancel={stopDragging} onDoubleClick={() => commit(50)} className={cn("relative aspect-[4/5] w-full touch-pan-y select-none overflow-hidden rounded-2xl bg-charcoal sm:aspect-[16/10]", className)} {...props}>
-      <img src={after.src} alt={after.alt} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
-      <div className="absolute inset-0 will-change-[clip-path]" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}><img src={before.src} alt={before.alt} className="h-full w-full object-cover saturate-[.25] contrast-[.86] brightness-[.7]" draggable={false} /></div>
+      <img src={after.src} alt={after.alt} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" draggable={false} />
+      <div className="absolute inset-0 will-change-[clip-path]" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}><img src={before.src} alt={before.alt} loading="lazy" decoding="async" className="h-full w-full object-cover saturate-[.25] contrast-[.86] brightness-[.7]" draggable={false} /></div>
       <span aria-hidden="true" className="absolute left-4 top-4 z-10 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">{labels[0]}</span>
       <span aria-hidden="true" className="absolute right-4 top-4 z-10 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">{labels[1]}</span>
       <div className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-brass" style={{ left: `${position}%` }}>

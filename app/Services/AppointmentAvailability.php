@@ -17,21 +17,25 @@ class AppointmentAvailability
     public function slots(CarbonImmutable $date, Service $service, ?Professional $professional = null): array
     {
         $dayStart = $date->startOfDay()->utc();
-        $dayEnd = $date->endOfDay()->utc();
+        $dayEnd = $date->addDay()->startOfDay()->utc();
 
         $professionals = Professional::query()
             ->active()
+            ->select(['id', 'slug', 'name'])
             ->when($professional, fn (Builder $query) => $query->whereKey($professional->getKey()))
             ->whereHas('services', fn (Builder $query) => $query->whereKey($service->getKey())->where('services.is_active', true))
             ->with([
                 'schedules' => fn ($query) => $query
+                    ->select(['id', 'professional_id', 'starts_at', 'ends_at', 'slot_interval_minutes'])
                     ->where('day_of_week', $date->dayOfWeek)
                     ->where('is_active', true)
                     ->orderBy('starts_at'),
                 'calendarEntries' => fn ($query) => $query
+                    ->select(['id', 'professional_id', 'type', 'all_day', 'starts_at', 'ends_at', 'slot_interval_minutes'])
                     ->whereDate('date', $date->format('Y-m-d'))
                     ->orderBy('starts_at'),
                 'appointments' => fn ($query) => $query
+                    ->select(['id', 'professional_id', 'starts_at', 'ends_at'])
                     ->whereIn('status', ['pending', 'confirmed'])
                     ->where('starts_at', '<', $dayEnd)
                     ->where('ends_at', '>', $dayStart),
@@ -76,12 +80,14 @@ class AppointmentAvailability
         CarbonImmutable $endsAt,
         ?Appointment $except = null,
     ): bool {
-        $professional->load([
+        $professional->loadMissing([
             'schedules' => fn ($query) => $query
+                ->select(['id', 'professional_id', 'starts_at', 'ends_at', 'slot_interval_minutes'])
                 ->where('day_of_week', $startsAt->dayOfWeek)
                 ->where('is_active', true)
                 ->orderBy('starts_at'),
             'calendarEntries' => fn ($query) => $query
+                ->select(['id', 'professional_id', 'type', 'all_day', 'starts_at', 'ends_at', 'slot_interval_minutes'])
                 ->whereDate('date', $startsAt->format('Y-m-d'))
                 ->orderBy('starts_at'),
         ]);

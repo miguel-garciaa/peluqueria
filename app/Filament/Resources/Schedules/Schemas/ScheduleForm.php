@@ -23,7 +23,7 @@ class ScheduleForm
                     ])->required(),
                     TimePicker::make('starts_at')->label('Apertura')->seconds(false)->minutesStep(15)->required(),
                     TimePicker::make('ends_at')->label('Cierre')->seconds(false)->minutesStep(15)->after('starts_at')->required(),
-                    TextInput::make('slot_interval_minutes')->label('Intervalo')->numeric()->minValue(15)->step(15)->suffix('minutos')->default(30)->required(),
+                    TextInput::make('slot_interval_minutes')->label('Intervalo')->integer()->minValue(15)->maxValue(240)->step(15)->suffix('minutos')->default(30)->required(),
                     Toggle::make('is_active')->label('Horario activo')->default(true),
                 ])->columns(2)->columnSpanFull(),
             ]);

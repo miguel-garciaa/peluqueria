@@ -29,14 +29,22 @@ class GoogleAuthController extends Controller
             $profile = $googleUser->getRaw();
             $googleId = trim((string) $googleUser->getId());
             $email = Str::lower(trim((string) $googleUser->getEmail()));
+            $name = Str::limit(trim((string) $googleUser->getName()), 255, '');
+            $avatarUrl = trim((string) $googleUser->getAvatar());
             $emailVerified = filter_var(
                 $profile['email_verified'] ?? $profile['verified_email'] ?? false,
                 FILTER_VALIDATE_BOOL,
             );
 
-            if ($googleId === '' || $email === '' || ! $emailVerified) {
+            if ($googleId === ''
+                || mb_strlen($googleId) > 255
+                || ! filter_var($email, FILTER_VALIDATE_EMAIL)
+                || mb_strlen($email) > 255
+                || ! $emailVerified) {
                 return to_route('landing')->with('auth_error', 'Google no ha podido verificar este correo electrónico.');
             }
+
+            $avatarUrl = $avatarUrl !== '' ? Str::limit($avatarUrl, 2048, '') : null;
 
             $user = User::query()
                 ->where('google_id', $googleId)
@@ -50,18 +58,18 @@ class GoogleAuthController extends Controller
             if ($user) {
                 $user->fill([
                     'google_id' => $googleId,
-                    'name' => $googleUser->getName() ?: $user->name,
-                    'avatar_url' => $googleUser->getAvatar(),
+                    'name' => $name !== '' ? $name : $user->name,
+                    'avatar_url' => $avatarUrl,
                 ]);
                 $user->email_verified_at ??= now();
                 $user->save();
             } else {
                 $user = User::query()->create([
                     'google_id' => $googleId,
-                    'name' => $googleUser->getName() ?: Str::before($email, '@'),
+                    'name' => $name !== '' ? $name : Str::before($email, '@'),
                     'email' => $email,
                     'email_verified_at' => now(),
-                    'avatar_url' => $googleUser->getAvatar(),
+                    'avatar_url' => $avatarUrl,
                     'password' => Str::random(64),
                 ]);
             }

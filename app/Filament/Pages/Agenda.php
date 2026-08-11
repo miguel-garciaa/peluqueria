@@ -64,7 +64,7 @@ class Agenda extends Page
     /** @return Collection<int, Professional> */
     public function professionals(): Collection
     {
-        return Professional::query()->orderBy('name')->get();
+        return Professional::query()->select(['id', 'name'])->orderBy('name')->get();
     }
 
     /** @return array<int, array{date: CarbonImmutable, is_today: bool, appointments: Collection<int, Appointment>}> */
@@ -75,7 +75,14 @@ class Agenda extends Page
         $end = $start->addWeek();
 
         $appointments = Appointment::query()
-            ->with(['user', 'service', 'professional'])
+            ->select([
+                'id', 'service_id', 'professional_id', 'customer_name', 'customer_phone',
+                'starts_at', 'ends_at', 'status',
+            ])
+            ->with([
+                'service:id,name',
+                'professional:id,name',
+            ])
             ->where('starts_at', '<', $end->utc())
             ->where('ends_at', '>', $start->utc())
             ->when($this->professionalFilter !== 'all', fn (Builder $query) => $query->where('professional_id', $this->professionalFilter))

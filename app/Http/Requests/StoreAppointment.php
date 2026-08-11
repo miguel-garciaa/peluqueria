@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Professional;
 use App\Models\Service;
+use App\Support\SpanishPhone;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,11 +20,12 @@ class StoreAppointment extends FormRequest
     {
         return [
             'fullName' => ['required', 'string', 'min:2', 'max:120'],
-            'phone' => ['required', 'string', 'max:32', 'regex:/^(?:\+34\s?)?[6789](?:[\s-]?\d){8}$/'],
-            'serviceId' => ['required', 'string', Rule::exists('services', 'slug')->where('is_active', true)],
+            'phone' => ['required', 'string', 'max:16', 'regex:/^\+34 [6789]\d{2}(?: \d{2}){3}$/'],
+            'serviceId' => ['required', 'string', 'max:50', Rule::exists('services', 'slug')->where('is_active', true)],
             'professionalId' => [
                 'required',
                 'string',
+                'max:50',
                 function (string $attribute, mixed $value, Closure $fail): void {
                     if ($value !== 'any' && ! Professional::query()->active()->where('slug', $value)->exists()) {
                         $fail('El profesional seleccionado no está disponible.');
@@ -58,7 +60,9 @@ class StoreAppointment extends FormRequest
     {
         $this->merge([
             'fullName' => trim((string) $this->input('fullName')),
-            'phone' => trim((string) $this->input('phone')),
+            'phone' => SpanishPhone::format((string) $this->input('phone')),
+            'serviceId' => trim((string) $this->input('serviceId')),
+            'professionalId' => trim((string) $this->input('professionalId')),
             'customDetails' => trim((string) $this->input('customDetails')),
         ]);
     }

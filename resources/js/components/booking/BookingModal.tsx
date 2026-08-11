@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2, Clock3, Sciss
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPicker } from "@/components/booking/CalendarPicker";
 import { cn } from "@/lib/utils";
+import { formatSpanishPhone } from "@/lib/phone";
 import type { AvailabilitySlot, BookingCatalog, BookingFormData, CurrentUser } from "@/types";
 
 type BookingIntent = { serviceId?: string; professionalId?: string };
@@ -20,7 +21,7 @@ interface BookingModalProps {
 
 const emptyForm = (user: CurrentUser, intent: BookingIntent): BookingFormData => ({
   fullName: user.name,
-  phone: user.phone ?? "",
+  phone: formatSpanishPhone(user.phone ?? ""),
   serviceId: intent.serviceId ?? "",
   professionalId: intent.professionalId ?? "any",
   customDetails: "",
@@ -115,7 +116,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
     const next: BookingError = {};
     if (step === 1) {
       if (form.fullName.trim().length < 2) next.fullName = "Escribe tu nombre completo.";
-      if (!/^(?:\+34\s?)?[6789](?:[\s-]?\d){8}$/.test(form.phone.trim())) next.phone = "Introduce un teléfono español válido.";
+      if (!/^\+34 [6789]\d{2}(?: \d{2}){3}$/.test(form.phone)) next.phone = "Introduce un teléfono español válido.";
     }
     if (step === 2) {
       if (!form.serviceId) next.serviceId = "Selecciona un servicio.";
@@ -194,7 +195,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
               <p className="mt-2 text-sm leading-6 text-taupe">Usaremos estos datos únicamente para gestionar tu cita. El correo está asociado a tu sesión.</p>
               <div className="mt-7 grid gap-5 sm:grid-cols-2">
                 <label className="text-sm font-bold">Nombre completo<input value={form.fullName} onChange={(event) => update("fullName", event.target.value)} autoComplete="name" className={cn("booking-input", errors.fullName && "booking-input-error")} />{errors.fullName && <span className="mt-1.5 block text-xs text-danger">{errors.fullName}</span>}</label>
-                <label className="text-sm font-bold">Teléfono<input type="tel" inputMode="tel" value={form.phone} onChange={(event) => update("phone", event.target.value)} autoComplete="tel" placeholder="600 000 000" className={cn("booking-input", errors.phone && "booking-input-error")} />{errors.phone && <span className="mt-1.5 block text-xs text-danger">{errors.phone}</span>}</label>
+                <label className="text-sm font-bold">Teléfono<input type="tel" inputMode="tel" value={form.phone} onChange={(event) => update("phone", formatSpanishPhone(event.target.value))} autoComplete="tel" placeholder="+34 600 00 00 00" maxLength={16} className={cn("booking-input", errors.phone && "booking-input-error")} />{errors.phone && <span className="mt-1.5 block text-xs text-danger">{errors.phone}</span>}</label>
                 <label className="text-sm font-bold sm:col-span-2">Correo<input readOnly value={currentUser.email} className="booking-input bg-mist/65 text-taupe" /></label>
               </div>
             </section>}

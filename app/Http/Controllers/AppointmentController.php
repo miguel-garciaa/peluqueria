@@ -35,7 +35,14 @@ class AppointmentController extends Controller
     {
         $appointments = $request->user()->appointments()
             ->where('status', '!=', 'cancelled')
-            ->with(['service', 'professional'])
+            ->select([
+                'id', 'reference', 'user_id', 'service_id', 'professional_id', 'custom_details',
+                'starts_at', 'ends_at', 'status',
+            ])
+            ->with([
+                'service:id,name',
+                'professional:id,name',
+            ])
             ->latest('starts_at')
             ->get()
             ->map(fn ($appointment) => [

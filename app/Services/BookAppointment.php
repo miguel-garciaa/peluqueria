@@ -33,6 +33,17 @@ class BookAppointment
                 ->active()
                 ->when($data['professionalId'] !== 'any', fn (Builder $query) => $query->where('slug', $data['professionalId']))
                 ->whereHas('services', fn (Builder $query) => $query->whereKey($service->getKey()))
+                ->with([
+                    'schedules' => fn ($query) => $query
+                        ->select(['id', 'professional_id', 'starts_at', 'ends_at', 'slot_interval_minutes'])
+                        ->where('day_of_week', $startsAt->dayOfWeek)
+                        ->where('is_active', true)
+                        ->orderBy('starts_at'),
+                    'calendarEntries' => fn ($query) => $query
+                        ->select(['id', 'professional_id', 'type', 'all_day', 'starts_at', 'ends_at', 'slot_interval_minutes'])
+                        ->whereDate('date', $startsAt->format('Y-m-d'))
+                        ->orderBy('starts_at'),
+                ])
                 ->orderBy('id')
                 ->lockForUpdate()
                 ->get();

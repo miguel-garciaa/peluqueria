@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, MoveHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { transformations } from "@/data/content";
 import { CompareReveal } from "@/components/ui/compare-reveal";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,9 @@ import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 export function BeforeAfter() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isNearViewport, setIsNearViewport] = useState(false);
   const active = transformations[activeIndex];
 
   const move = (direction: number) => {
@@ -15,6 +17,22 @@ export function BeforeAfter() {
   };
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || isNearViewport) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setIsNearViewport(true);
+      observer.disconnect();
+    }, { rootMargin: "600px 0px" });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [isNearViewport]);
+
+  useEffect(() => {
+    if (!isNearViewport) return;
+
     const adjacent = [
       transformations[(activeIndex + 1) % transformations.length],
       transformations[(activeIndex - 1 + transformations.length) % transformations.length],
@@ -22,10 +40,10 @@ export function BeforeAfter() {
     adjacent.forEach((item) => {
       [item.before.src, item.after.src].forEach((src) => { const preload = new Image(); preload.src = src; });
     });
-  }, [activeIndex]);
+  }, [activeIndex, isNearViewport]);
 
   return (
-    <section id="transformaciones" className="relative overflow-hidden bg-charcoal py-24 text-white sm:py-32" aria-labelledby="before-after-title">
+    <section ref={sectionRef} id="transformaciones" className="relative overflow-hidden bg-charcoal py-24 text-white sm:py-32" aria-labelledby="before-after-title">
       <div className="showcase-shell relative z-10">
         <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-end lg:gap-16">
           <div>

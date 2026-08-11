@@ -33,7 +33,7 @@ const renderPage = (items: UserAppointment[] = [appointment]) => render(
 );
 
 describe("MyAppointmentsPage", () => {
-  it("shows a single booking action and opens the form without navigating home", () => {
+  it("shows a single booking action and opens the form without navigating home", async () => {
     renderPage();
 
     expect(screen.queryByRole("button", { name: "Reservar cita" })).not.toBeInTheDocument();
@@ -42,7 +42,7 @@ describe("MyAppointmentsPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Nueva cita" }));
 
-    expect(screen.getByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
   });
 
   it("asks for inline confirmation before submitting a cancellation", () => {

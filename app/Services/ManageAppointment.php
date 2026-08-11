@@ -19,7 +19,7 @@ class ManageAppointment
     public function prepare(array $data, ?Appointment $except = null): array
     {
         $service = Service::query()->findOrFail($data['service_id']);
-        $professional = Professional::query()->findOrFail($data['professional_id']);
+        $professional = Professional::query()->lockForUpdate()->findOrFail($data['professional_id']);
         $status = (string) ($data['status'] ?? 'confirmed');
 
         $worksWithService = $professional->services()->whereKey($service->getKey())->exists();

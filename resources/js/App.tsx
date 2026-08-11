@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { BookingSection } from "@/components/BookingSection";
-import { BookingModal } from "@/components/booking/BookingModal";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Gallery } from "@/components/Gallery";
@@ -12,6 +11,9 @@ import { Testimonials } from "@/components/Testimonials";
 import { Team } from "@/components/Team";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser } from "@/types";
+
+const BookingModal = lazy(() => import("@/components/booking/BookingModal")
+  .then((module) => ({ default: module.BookingModal })));
 
 export type { CurrentUser } from "@/types";
 
@@ -32,7 +34,7 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
 
   useEffect(() => {
     if (!authNotice) return;
-    const timeout = window.setTimeout(() => setAuthNotice(false), 7000);
+    const timeout = window.setTimeout(() => setAuthNotice(false), 3000);
     return () => window.clearTimeout(timeout);
   }, [authNotice]);
 
@@ -66,7 +68,11 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
       </main>
       <Footer />
       <CustomCursor />
-      {currentUser && <BookingModal open={bookingOpen} onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />}
+      {currentUser && bookingOpen && (
+        <Suspense fallback={null}>
+          <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
+        </Suspense>
+      )}
     </>
   );
 }

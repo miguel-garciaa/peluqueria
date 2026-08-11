@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class BookingTrend extends ChartWidget
 {
-    protected static bool $isLazy = false;
+    protected static bool $isLazy = true;
 
     protected ?string $heading = 'Reservas de los últimos 30 días';
 
@@ -30,15 +30,30 @@ class BookingTrend extends ChartWidget
                 $query->where('created_at', '>=', $start->utc())
                     ->orWhere('cancelled_at', '>=', $start->utc());
             })
-            ->get(['created_at', 'status', 'cancelled_at']);
+            ->get(['created_at', 'cancelled_at']);
+
+        $reservationsByDay = array_fill_keys($days->map->format('Y-m-d')->all(), 0);
+        $cancellationsByDay = $reservationsByDay;
+
+        foreach ($appointments as $appointment) {
+            $createdKey = $appointment->created_at->timezone($timezone)->format('Y-m-d');
+            if (array_key_exists($createdKey, $reservationsByDay)) {
+                $reservationsByDay[$createdKey]++;
+            }
+
+            if ($appointment->cancelled_at) {
+                $cancelledKey = $appointment->cancelled_at->timezone($timezone)->format('Y-m-d');
+                if (array_key_exists($cancelledKey, $cancellationsByDay)) {
+                    $cancellationsByDay[$cancelledKey]++;
+                }
+            }
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Reservas',
-                    'data' => $days->map(fn (CarbonImmutable $day): int => $appointments
-                        ->filter(fn (Appointment $appointment): bool => $appointment->created_at->timezone($timezone)->isSameDay($day))
-                        ->count())->all(),
+                    'data' => array_values($reservationsByDay),
                     'borderColor' => '#b7791f',
                     'backgroundColor' => 'rgba(183, 121, 31, .16)',
                     'fill' => true,
@@ -46,9 +61,7 @@ class BookingTrend extends ChartWidget
                 ],
                 [
                     'label' => 'Cancelaciones',
-                    'data' => $days->map(fn (CarbonImmutable $day): int => $appointments
-                        ->filter(fn (Appointment $appointment): bool => $appointment->cancelled_at?->timezone($timezone)->isSameDay($day) ?? false)
-                        ->count())->all(),
+                    'data' => array_values($cancellationsByDay),
                     'borderColor' => '#dc2626',
                     'backgroundColor' => 'rgba(220, 38, 38, .08)',
                     'tension' => .3,

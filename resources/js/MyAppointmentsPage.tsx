@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { ArrowUpRight, CalendarDays, CheckCircle2, Clock3, Scissors, XCircle } from "lucide-react";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { BookingModal } from "@/components/booking/BookingModal";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
+
+const BookingModal = lazy(() => import("@/components/booking/BookingModal")
+  .then((module) => ({ default: module.BookingModal })));
 
 const statusLabels: Record<UserAppointment["status"], string> = {
   confirmed: "Confirmada",
@@ -130,7 +132,11 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
       </main>
       <Footer />
       <CustomCursor />
-      <BookingModal open={bookingOpen} onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={{}} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
+      {bookingOpen && (
+        <Suspense fallback={null}>
+          <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={{}} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
+        </Suspense>
+      )}
     </>
   );
 }

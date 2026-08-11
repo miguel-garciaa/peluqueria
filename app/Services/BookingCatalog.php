@@ -18,6 +18,7 @@ class BookingCatalog
     {
         $services = Service::query()
             ->active()
+            ->select(['id', 'slug', 'name', 'description', 'duration_minutes', 'price_from', 'is_custom'])
             ->orderBy('id')
             ->get()
             ->map(fn (Service $service): array => [
@@ -33,8 +34,12 @@ class BookingCatalog
 
         $professionals = Professional::query()
             ->active()
+            ->select(['id', 'slug', 'name', 'role'])
             ->whereHas('services', fn (Builder $query) => $query->where('services.is_active', true))
-            ->with(['services' => fn ($query) => $query->active()->orderBy('services.id')])
+            ->with(['services' => fn ($query) => $query
+                ->select(['services.id', 'services.slug'])
+                ->active()
+                ->orderBy('services.id')])
             ->orderBy('id')
             ->get()
             ->map(fn (Professional $professional): array => [

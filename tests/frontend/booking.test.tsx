@@ -26,6 +26,16 @@ describe("BookingSection", () => {
 });
 
 describe("BookingModal", () => {
+  it("formats Spanish phone numbers while the customer types", () => {
+    render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
+
+    const phone = screen.getByRole("textbox", { name: "Teléfono" });
+    expect(phone).toHaveValue("+34 600 12 34 56");
+
+    fireEvent.change(phone, { target: { value: "612345678" } });
+    expect(phone).toHaveValue("+34 612 34 56 78");
+  });
+
   it("shows the summary and waits for explicit confirmation before creating the appointment", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({

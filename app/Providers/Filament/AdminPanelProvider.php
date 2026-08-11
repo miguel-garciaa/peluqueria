@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Baskuñana Control')
             ->maxContentWidth(Width::Full)
             ->sidebarCollapsibleOnDesktop()
+            ->databaseTransactions()
             ->colors([
                 'primary' => Color::hex('#b7791f'),
             ])

@@ -43,8 +43,11 @@ class AppointmentForm
                             TextInput::make('customer_phone')
                                 ->label('Teléfono')
                                 ->tel()
+                                ->telRegex('/^\+34 [6789]\d{2}(?: \d{2}){3}$/')
+                                ->mask('+34 999 99 99 99')
+                                ->placeholder('+34 600 00 00 00')
                                 ->required()
-                                ->maxLength(32),
+                                ->maxLength(16),
                         ]),
                     ])
                     ->columnSpanFull(),

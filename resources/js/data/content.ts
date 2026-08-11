@@ -2,7 +2,7 @@ import { Brush, Droplets, Gem, Palette, Scissors, Sparkles } from "lucide-react"
 import heroImageColor from "@/assets/hero-salon-color.webp";
 import type { GalleryItem, Professional, Service, Testimonial, Transformation } from "@/types";
 
-const image = (id: string, width = 1200) =>
+const image = (id: string, width = 900) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=84`;
 
 export const heroImage = heroImageColor;

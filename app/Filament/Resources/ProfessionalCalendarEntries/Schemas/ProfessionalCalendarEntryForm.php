@@ -38,7 +38,7 @@ class ProfessionalCalendarEntryForm
                     Toggle::make('all_day')->label('Día completo')->default(true)->live()->visible(fn (Get $get): bool => $get('type') === 'blocked'),
                     TimePicker::make('starts_at')->label('Desde')->seconds(false)->minutesStep(15)->required(fn (Get $get): bool => ! $get('all_day'))->visible(fn (Get $get): bool => ! $get('all_day')),
                     TimePicker::make('ends_at')->label('Hasta')->seconds(false)->minutesStep(15)->after('starts_at')->required(fn (Get $get): bool => ! $get('all_day'))->visible(fn (Get $get): bool => ! $get('all_day')),
-                    TextInput::make('slot_interval_minutes')->label('Intervalo')->numeric()->minValue(15)->step(15)->suffix('minutos')->default(30)->visible(fn (Get $get): bool => $get('type') === 'available'),
+                    TextInput::make('slot_interval_minutes')->label('Intervalo')->integer()->minValue(15)->maxValue(240)->step(15)->suffix('minutos')->default(30)->visible(fn (Get $get): bool => $get('type') === 'available'),
                     TextInput::make('reason')->label('Motivo o nota')->maxLength(255)->columnSpanFull(),
                 ])->columns(2)->columnSpanFull(),
             ]);

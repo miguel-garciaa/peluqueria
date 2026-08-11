@@ -17,9 +17,9 @@ class ServiceForm
                 Section::make('Servicio')->schema([
                     TextInput::make('name')->label('Nombre')->required()->maxLength(255),
                     TextInput::make('slug')->label('Identificador')->required()->alphaDash()->unique(ignoreRecord: true)->maxLength(50),
-                    Textarea::make('description')->label('Descripción')->rows(3)->columnSpanFull(),
-                    TextInput::make('duration_minutes')->label('Duración')->numeric()->minValue(15)->step(15)->suffix('minutos')->required(),
-                    TextInput::make('price_from')->label('Precio desde')->numeric()->prefix('€')->minValue(0),
+                    Textarea::make('description')->label('Descripción')->rows(3)->maxLength(1000)->columnSpanFull(),
+                    TextInput::make('duration_minutes')->label('Duración')->integer()->minValue(15)->maxValue(720)->step(15)->suffix('minutos')->required(),
+                    TextInput::make('price_from')->label('Precio desde')->numeric()->prefix('€')->minValue(0)->maxValue(999999.99),
                     Toggle::make('is_custom')->label('Servicio personalizado'),
                     Toggle::make('is_active')->label('Disponible para reservas')->default(true),
                 ])->columns(2)->columnSpanFull(),
