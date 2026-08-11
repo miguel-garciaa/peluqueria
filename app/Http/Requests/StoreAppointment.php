@@ -33,12 +33,7 @@ class StoreAppointment extends FormRequest
             'customDetails' => [
                 'nullable',
                 'string',
-                function (string $attribute, mixed $value, Closure $fail): void {
-                    preg_match_all('/[\p{L}\p{N}]+(?:[’\'-][\p{L}\p{N}]+)*/u', (string) $value, $words);
-                    if (count($words[0]) > 40) {
-                        $fail('Describe el servicio personalizado en un máximo de 40 palabras.');
-                    }
-                },
+                'max:100',
             ],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.today(config('app.business_timezone'))->format('Y-m-d'), 'before_or_equal:'.today(config('app.business_timezone'))->addDays(90)->format('Y-m-d')],
             'timeSlot' => ['required', 'date_format:H:i'],
@@ -76,6 +71,7 @@ class StoreAppointment extends FormRequest
             'serviceId.required' => 'Selecciona un servicio.',
             'serviceId.exists' => 'El servicio seleccionado no está disponible.',
             'professionalId.required' => 'Selecciona un profesional o la primera disponibilidad.',
+            'customDetails.max' => 'Utiliza un máximo de 100 caracteres.',
             'date.after_or_equal' => 'Selecciona una fecha válida.',
             'date.before_or_equal' => 'Puedes reservar con hasta 90 días de antelación.',
             'timeSlot.required' => 'Selecciona una hora disponible.',

@@ -147,7 +147,7 @@ class AppointmentRequestTest extends TestCase
         $this->assertSame(['16:00', '16:30', '17:00'], collect($response->json('slots'))->pluck('time')->all());
     }
 
-    public function test_custom_service_details_are_required_and_limited_to_forty_words(): void
+    public function test_custom_service_details_are_required_and_limited_to_one_hundred_characters(): void
     {
         [$service, $professional] = $this->createCatalog(custom: true);
         $user = User::factory()->create();
@@ -158,7 +158,7 @@ class AppointmentRequestTest extends TestCase
             'phone' => '600 123 456',
             'serviceId' => $service->slug,
             'professionalId' => $professional->slug,
-            'customDetails' => implode(' ', array_fill(0, 41, 'detalle')),
+            'customDetails' => str_repeat('a', 101),
             'date' => $date,
             'timeSlot' => '10:30',
         ])->assertUnprocessable()->assertJsonValidationErrors('customDetails');
@@ -264,6 +264,8 @@ class AppointmentRequestTest extends TestCase
         $this->assertStringContainsString($appointment->reference, $html);
 
         foreach ([$html, (new AppointmentConfirmed($appointment))->render()] as $mailHtml) {
+            $this->assertStringContainsString('width="620"', $mailHtml);
+            $this->assertStringContainsString('border-collapse:collapse', $mailHtml);
             $this->assertStringNotContainsString('border-radius:20px 20px 0 0', $mailHtml);
             $this->assertStringNotContainsString('border-radius:0 0 20px 20px', $mailHtml);
         }

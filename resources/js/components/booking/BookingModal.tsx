@@ -27,7 +27,6 @@ const emptyForm = (user: CurrentUser, intent: BookingIntent): BookingFormData =>
   date: "",
   timeSlot: "",
 });
-const wordCount = (value: string) => value.trim() ? value.trim().split(/\s+/u).length : 0;
 const humanDate = (value: string) => new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" }).format(new Date(`${value}T12:00:00`));
 
 export function BookingModal({ open, onClose, currentUser, catalog, intent, bookingEndpoint, availabilityEndpoint, csrfToken }: BookingModalProps) {
@@ -87,7 +86,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
   const selectedService = catalog.services.find((service) => service.id === form.serviceId);
   const selectedProfessional = form.professionalId === "any" ? null : catalog.professionals.find((professional) => professional.id === form.professionalId);
   const visibleSlots = useMemo(() => slots.filter((slot) => slot.period === period), [period, slots]);
-  const words = wordCount(form.customDetails);
+  const customDetailsLength = Array.from(form.customDetails).length;
 
   const update = (field: keyof BookingFormData, value: string) => {
     setForm((current) => ({
@@ -109,7 +108,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
       if (!form.serviceId) next.serviceId = "Selecciona un servicio.";
       if (!form.professionalId) next.professionalId = "Selecciona quién te atenderá.";
       if (selectedService?.isCustom && !form.customDetails.trim()) next.customDetails = "Cuéntanos qué necesitas.";
-      if (words > 40) next.customDetails = "Utiliza un máximo de 40 palabras.";
+      if (customDetailsLength > 100) next.customDetails = "Utiliza un máximo de 100 caracteres.";
     }
     if (step === 3) {
       if (!form.date) next.date = "Selecciona una fecha.";
@@ -123,6 +122,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (step !== 4) return;
     setSubmitting(true);
     setErrors({});
     try {
@@ -192,7 +192,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
                 {catalog.services.map((service) => <button key={service.id} type="button" onClick={() => update("serviceId", service.id)} aria-pressed={form.serviceId === service.id} className={cn("flex min-h-20 items-center justify-between rounded-2xl border border-ink/10 bg-white p-4 text-left transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-brass-deep", form.serviceId === service.id && "border-ink bg-ink text-white")}><span><strong className="block">{service.name}</strong><span className={cn("mt-1 block text-xs text-taupe", form.serviceId === service.id && "text-white/60")}>{service.durationMinutes} min{service.priceFrom !== null ? ` · desde ${service.priceFrom} €` : " · valoración previa"}</span></span>{service.isCustom ? <Sparkles className="size-5 text-brass" /> : <span className={cn("size-3 rounded-full border border-ink/20", form.serviceId === service.id && "border-brass bg-brass")} />}</button>)}
               </div>
               {errors.serviceId && <p className="mt-2 text-xs font-semibold text-danger">{errors.serviceId}</p>}
-              {selectedService?.isCustom && <div className="mt-5"><label htmlFor="custom-details" className="block text-sm font-bold">Cuéntanos qué necesitas</label><textarea id="custom-details" value={form.customDetails} onChange={(event) => update("customDetails", event.target.value)} rows={3} className={cn("booking-input resize-none py-3", errors.customDetails && "booking-input-error")} placeholder="Ej.: quiero valorar un cambio de color y corte…" aria-describedby="custom-details-count" /><span id="custom-details-count" className={cn("mt-1.5 block text-right text-xs text-taupe", words > 40 && "text-danger")}>{words}/40 palabras</span>{errors.customDetails && <span className="block text-xs text-danger">{errors.customDetails}</span>}</div>}
+              {selectedService?.isCustom && <div className="mt-5"><label htmlFor="custom-details" className="block text-sm font-bold">Cuéntanos qué necesitas</label><textarea id="custom-details" value={form.customDetails} onChange={(event) => update("customDetails", event.target.value)} rows={3} maxLength={100} className={cn("booking-input resize-none py-3", errors.customDetails && "booking-input-error")} placeholder="Ej.: quiero valorar un cambio de color y corte…" aria-describedby="custom-details-count" /><span id="custom-details-count" className="mt-1.5 block text-right text-xs text-taupe">{customDetailsLength}/100 caracteres</span>{errors.customDetails && <span className="block text-xs text-danger">{errors.customDetails}</span>}</div>}
               <fieldset className="mt-6"><legend className="text-sm font-bold">¿Quién quieres que te atienda?</legend><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => update("professionalId", "any")} aria-pressed={form.professionalId === "any"} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === "any" && "border-brass-deep bg-brass text-ink")}>Primera disponibilidad</button>{catalog.professionals.map((professional) => <button key={professional.id} type="button" onClick={() => update("professionalId", professional.id)} aria-pressed={form.professionalId === professional.id} className={cn("rounded-full border border-ink/15 bg-white px-4 py-3 text-sm font-bold", form.professionalId === professional.id && "border-ink bg-ink text-white")}>{professional.name.split(" ")[0]}</button>)}</div>{errors.professionalId && <p className="mt-2 text-xs text-danger">{errors.professionalId}</p>}</fieldset>
             </section>}
 
@@ -222,7 +222,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
 
         {!success && <footer className="booking-dialog-footer flex shrink-0 items-center justify-between gap-3 border-t border-ink/10 bg-white px-5 py-4 sm:px-7">
           <button type="button" onClick={() => step === 1 ? onClose() : setStep((current) => current - 1)} className="flex min-h-12 items-center gap-2 rounded-full px-4 font-bold text-ink transition-colors hover:bg-mist"><ArrowLeft className="size-4" />{step === 1 ? "Cancelar" : "Atrás"}</button>
-          {step < 4 ? <button type="button" onClick={continueToNextStep} className="flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 font-bold text-white transition-transform hover:-translate-y-0.5">Continuar <ArrowRight className="size-4" /></button> : <button type="submit" disabled={submitting} className="flex min-h-12 items-center gap-3 rounded-full bg-brass px-6 font-bold text-ink transition-transform hover:-translate-y-0.5 disabled:opacity-60"><Check className="size-4" />{submitting ? "Confirmando…" : "Confirmar cita"}</button>}
+          {step < 4 ? <button type="button" onClick={(event) => { event.preventDefault(); continueToNextStep(); }} className="flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 font-bold text-white transition-transform hover:-translate-y-0.5">Continuar <ArrowRight className="size-4" /></button> : <button type="submit" disabled={submitting} className="flex min-h-12 items-center gap-3 rounded-full bg-brass px-6 font-bold text-ink transition-transform hover:-translate-y-0.5 disabled:opacity-60"><Check className="size-4" />{submitting ? "Confirmando…" : "Confirmar cita"}</button>}
         </footer>}
       </form>
     </dialog>

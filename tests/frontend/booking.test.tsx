@@ -23,6 +23,48 @@ describe("BookingSection", () => {
 });
 
 describe("BookingModal", () => {
+  it("shows the summary and waits for explicit confirmation before creating the appointment", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ slots: [{ time: "10:30", period: "morning", professional: { slug: "marta", name: "Marta Soler" } }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 201,
+        json: async () => ({ message: "Cita confirmada.", appointment: { reference: "01KTEST", professional: "Marta Soler" } }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{ serviceId: "cut", professionalId: "marta" }} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+
+    const calendar = screen.getByLabelText("Calendario de citas");
+    const availableDate = Array.from(calendar.querySelectorAll<HTMLButtonElement>('button[aria-pressed]')).find((button) => !button.disabled);
+    expect(availableDate).toBeDefined();
+    fireEvent.click(availableDate!);
+    fireEvent.click(await screen.findByRole("button", { name: "10:30" }));
+
+    fireEvent.submit(screen.getByRole("dialog", { name: "Tu próxima cita" }).querySelector("form")!);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+
+    expect(screen.getByRole("heading", { name: "Confirma tu cita" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Confirmar cita" })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar cita" }));
+
+    expect(await screen.findByRole("heading", { name: "Nos vemos pronto." })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({ method: "POST" });
+
+    vi.unstubAllGlobals();
+  });
+
   it("provides safe-area regions for the full-screen mobile layout", () => {
     render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
 
@@ -41,12 +83,15 @@ describe("BookingModal", () => {
     expect(screen.getByRole("tab", { name: "Tarde" })).toBeInTheDocument();
   });
 
-  it("enforces the forty-word custom service limit", () => {
+  it("enforces the one-hundred-character custom service limit", () => {
     render(<BookingModal open onClose={() => undefined} currentUser={user} catalog={catalog} intent={{}} bookingEndpoint="/reservas" availabilityEndpoint="/reservas/disponibilidad" csrfToken="test" />);
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     fireEvent.click(screen.getByRole("button", { name: /Personalizado/ }));
-    fireEvent.change(screen.getByRole("textbox", { name: "Cuéntanos qué necesitas" }), { target: { value: Array.from({ length: 41 }, () => "detalle").join(" ") } });
+    const customDetails = screen.getByRole("textbox", { name: "Cuéntanos qué necesitas" });
+    expect(customDetails).toHaveAttribute("maxlength", "100");
+    expect(screen.getByText("0/100 caracteres")).toBeInTheDocument();
+    fireEvent.change(customDetails, { target: { value: "a".repeat(101) } });
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(screen.getByText("Utiliza un máximo de 40 palabras.")).toBeInTheDocument();
+    expect(screen.getByText("Utiliza un máximo de 100 caracteres.")).toBeInTheDocument();
   });
 });
