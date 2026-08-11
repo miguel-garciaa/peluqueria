@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +70,10 @@ class GoogleAuthController extends Controller
             $request->session()->regenerate();
 
             return to_route('landing')->with('auth_success', 'Has iniciado sesión con Google.');
+        } catch (QueryException $exception) {
+            report($exception);
+
+            return to_route('landing')->with('auth_error', 'No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.');
         } catch (Throwable $exception) {
             report($exception);
 
