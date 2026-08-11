@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Appointments\Tables;
 
 use App\Filament\Actions\CancelAppointmentAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -61,6 +62,11 @@ class AppointmentsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make()
+                    ->label('Eliminar')
+                    ->modalHeading('Eliminar cita definitivamente')
+                    ->modalDescription('Esta acción borrará la cita y su historial de forma permanente. No se puede deshacer.')
+                    ->modalSubmitActionLabel('Sí, eliminar cita'),
                 CancelAppointmentAction::make(),
             ]);
     }

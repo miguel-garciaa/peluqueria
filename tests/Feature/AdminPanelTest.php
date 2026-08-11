@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Appointments\Pages\ListAppointments;
+use App\Filament\Resources\Professionals\Pages\ListProfessionals;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\BookingTrend;
 use App\Filament\Widgets\UpcomingBookings;
@@ -193,6 +195,41 @@ class AdminPanelTest extends TestCase
         $this->assertFalse(app(ManageAppointment::class)->cancel($appointment));
 
         Mail::assertQueued(AppointmentCancelled::class, 1);
+    }
+
+    public function test_delete_actions_remove_appointments_and_protect_professionals_with_history(): void
+    {
+        [$user, $service, $professional, $startsAt] = $this->catalog();
+        $admin = User::factory()->create(['is_admin' => true]);
+        $appointment = Appointment::query()->forceCreate([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => $user->phone,
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addMinutes(45)->utc(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::test(ListProfessionals::class)
+            ->assertTableActionHasLabel('delete', 'Eliminar', $professional)
+            ->assertTableActionDisabled('delete', $professional);
+
+        Livewire::test(ListAppointments::class)
+            ->assertTableActionHasLabel('delete', 'Eliminar', $appointment)
+            ->callTableAction('delete', $appointment);
+
+        $this->assertModelMissing($appointment);
+
+        Livewire::test(ListProfessionals::class)
+            ->assertTableActionEnabled('delete', $professional)
+            ->callTableAction('delete', $professional);
+
+        $this->assertModelMissing($professional);
     }
 
     public function test_admin_rescheduling_uses_the_same_availability_rules_and_ignores_the_current_booking(): void
