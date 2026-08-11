@@ -37,10 +37,12 @@ class AdminPanelTest extends TestCase
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
     }
 
-    public function test_the_dashboard_content_widgets_use_the_full_grid_width(): void
+    public function test_the_dashboard_content_widgets_share_the_same_grid_row(): void
     {
-        $this->assertSame('full', app(BookingTrend::class)->getColumnSpan());
-        $this->assertSame('full', app(UpcomingBookings::class)->getColumnSpan());
+        $expectedSpan = ['md' => 2, 'xl' => 1];
+
+        $this->assertSame($expectedSpan, app(BookingTrend::class)->getColumnSpan());
+        $this->assertSame($expectedSpan, app(UpcomingBookings::class)->getColumnSpan());
     }
 
     public function test_only_administrators_can_access_the_control_panel(): void

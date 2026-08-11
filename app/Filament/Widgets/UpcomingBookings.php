@@ -16,7 +16,7 @@ class UpcomingBookings extends TableWidget
 
     protected static ?int $sort = 3;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = ['md' => 2, 'xl' => 1];
 
     public function table(Table $table): Table
     {

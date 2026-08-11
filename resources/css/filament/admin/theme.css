@@ -219,6 +219,11 @@ html.fi,
     width: 100%;
 }
 
+.fi-wi-table,
+.fi-wi-table > .fi-ta-ctn {
+    height: 100%;
+}
+
 .fi-ta-row {
     border-color: var(--bk-border);
     transition: background-color 120ms ease;

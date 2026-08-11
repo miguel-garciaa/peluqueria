@@ -18,7 +18,7 @@ class BookingTrend extends ChartWidget
 
     protected static ?int $sort = 2;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = ['md' => 2, 'xl' => 1];
 
     protected function getData(): array
     {
