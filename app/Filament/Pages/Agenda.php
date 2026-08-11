@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Actions\CancelAppointmentAction;
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Professional;
@@ -44,6 +45,11 @@ class Agenda extends Page
                 ->icon(Heroicon::Plus)
                 ->url(AppointmentResource::getUrl('create')),
         ];
+    }
+
+    public function cancelAppointmentAction(): Action
+    {
+        return CancelAppointmentAction::make();
     }
 
     public function previousWeek(): void

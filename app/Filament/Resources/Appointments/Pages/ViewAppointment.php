@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Appointments\Pages;
 
+use App\Filament\Actions\CancelAppointmentAction;
 use App\Filament\Resources\Appointments\AppointmentResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -14,6 +15,7 @@ class ViewAppointment extends ViewRecord
     {
         return [
             EditAction::make(),
+            CancelAppointmentAction::make(),
         ];
     }
 }

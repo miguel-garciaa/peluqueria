@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Professional;
 use App\Models\Service;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
@@ -74,5 +75,34 @@ class ManageAppointment
                 ->onQueue('emails')
                 ->afterCommit(),
         );
+    }
+
+    public function cancel(Appointment $appointment): bool
+    {
+        $cancelled = DB::transaction(function () use ($appointment): ?Appointment {
+            $lockedAppointment = Appointment::query()
+                ->lockForUpdate()
+                ->findOrFail($appointment->getKey());
+
+            if (! $lockedAppointment->canBeCancelled()) {
+                return null;
+            }
+
+            $lockedAppointment->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
+
+            return $lockedAppointment;
+        }, 3);
+
+        if (! $cancelled) {
+            return false;
+        }
+
+        $appointment->refresh();
+        $this->sendCancellation($cancelled);
+
+        return true;
     }
 }

@@ -13,16 +13,13 @@ class ScheduleInfolist
     {
         return $schema
             ->components([
-                Section::make('Horario')->schema([
+                Section::make('Horario semanal')->schema([
                     TextEntry::make('professional.name')->label('Profesional'),
-                    TextEntry::make('day_of_week')->label('Día')->formatStateUsing(fn (int $state): string => [
-                        0 => 'Domingo', 1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles',
-                        4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado',
-                    ][$state]),
+                    TextEntry::make('days_label')->label('Días')->badge()->color('gray'),
                     TextEntry::make('starts_at')->label('Desde')->time('H:i'),
                     TextEntry::make('ends_at')->label('Hasta')->time('H:i'),
                     TextEntry::make('slot_interval_minutes')->label('Intervalo')->suffix(' min'),
-                    IconEntry::make('is_active')->label('Activo')->boolean(),
+                    IconEntry::make('is_active')->label('Disponible')->boolean(),
                 ])->columns(3)->columnSpanFull(),
             ]);
     }

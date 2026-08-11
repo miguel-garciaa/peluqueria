@@ -7,6 +7,7 @@ use App\Models\Schedule;
 use App\Models\Service;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,17 +42,29 @@ class DatabaseSeeder extends Seeder
                 [...$data, 'is_active' => true],
             );
             $professional->services()->sync($services->pluck('id'));
+            $weekdayGroup = (string) Str::ulid();
+            $saturdayGroup = (string) Str::ulid();
 
             foreach (range(1, 5) as $day) {
                 Schedule::query()->updateOrCreate(
                     ['professional_id' => $professional->id, 'day_of_week' => $day, 'starts_at' => '09:30'],
-                    ['ends_at' => '20:00', 'slot_interval_minutes' => 30, 'is_active' => true],
+                    [
+                        'group_id' => $weekdayGroup,
+                        'ends_at' => '20:00',
+                        'slot_interval_minutes' => 30,
+                        'is_active' => true,
+                    ],
                 );
             }
 
             Schedule::query()->updateOrCreate(
                 ['professional_id' => $professional->id, 'day_of_week' => 6, 'starts_at' => '09:00'],
-                ['ends_at' => '15:00', 'slot_interval_minutes' => 30, 'is_active' => true],
+                [
+                    'group_id' => $saturdayGroup,
+                    'ends_at' => '15:00',
+                    'slot_interval_minutes' => 30,
+                    'is_active' => true,
+                ],
             );
         });
     }

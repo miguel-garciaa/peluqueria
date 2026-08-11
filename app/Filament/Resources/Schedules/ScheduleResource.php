@@ -15,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ScheduleResource extends Resource
 {
@@ -43,6 +45,26 @@ class ScheduleResource extends Resource
     public static function table(Table $table): Table
     {
         return SchedulesTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $representativeIds = Schedule::query()
+            ->selectRaw('MIN(id)')
+            ->groupBy('group_id');
+
+        return parent::getEloquentQuery()
+            ->whereIn('professional_schedules.id', $representativeIds)
+            ->with('groupSchedules:id,group_id,day_of_week');
+    }
+
+    public static function getRecordTitle(?Model $record): string
+    {
+        if (! $record instanceof Schedule) {
+            return static::getModelLabel();
+        }
+
+        return $record->professional->name.' · '.$record->days_label;
     }
 
     public static function getRelations(): array

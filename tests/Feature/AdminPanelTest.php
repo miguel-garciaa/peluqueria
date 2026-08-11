@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\AppointmentCancelled;
 use App\Models\Appointment;
 use App\Models\Professional;
 use App\Models\Schedule;
@@ -9,9 +10,11 @@ use App\Models\Service;
 use App\Models\User;
 use App\Services\ManageAppointment;
 use Carbon\CarbonImmutable;
+use Filament\Enums\ThemeMode;
 use Filament\Facades\Filament;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -22,6 +25,14 @@ class AdminPanelTest extends TestCase
     public function test_the_duplicate_filament_logout_widget_is_not_registered(): void
     {
         $this->assertNotContains(AccountWidget::class, Filament::getPanel('admin')->getWidgets());
+    }
+
+    public function test_the_control_panel_uses_the_baskunana_theme(): void
+    {
+        $panel = Filament::getPanel('admin');
+
+        $this->assertSame('resources/css/filament/admin/theme.css', $panel->getViteTheme());
+        $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
     }
 
     public function test_only_administrators_can_access_the_control_panel(): void
@@ -90,7 +101,37 @@ class AdminPanelTest extends TestCase
             ->assertSee('Ana Cliente')
             ->assertSee('+34 600 11 12 22')
             ->assertSee($service->name)
-            ->assertSee($professional->name);
+            ->assertSee($professional->name)
+            ->assertSee('Anular cita');
+
+        $this->actingAs($admin)
+            ->get('/admin/appointments')
+            ->assertOk()
+            ->assertSee('Anular cita');
+    }
+
+    public function test_an_administrator_can_cancel_a_client_appointment_once(): void
+    {
+        Mail::fake();
+        [$user, $service, $professional] = $this->catalog();
+        $startsAt = CarbonImmutable::now(config('app.business_timezone'))->addDay()->setTime(12, 0);
+        $appointment = Appointment::query()->create([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => $user->phone,
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addMinutes(45)->utc(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->assertTrue(app(ManageAppointment::class)->cancel($appointment));
+        $this->assertSame('cancelled', $appointment->status);
+        $this->assertNotNull($appointment->cancelled_at);
+        $this->assertFalse(app(ManageAppointment::class)->cancel($appointment));
+
+        Mail::assertQueued(AppointmentCancelled::class, 1);
     }
 
     public function test_admin_rescheduling_uses_the_same_availability_rules_and_ignores_the_current_booking(): void

@@ -22,6 +22,8 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(7, Service::query()->active()->count());
         $this->assertSame(4, Professional::query()->active()->count());
         $this->assertSame(24, Schedule::query()->where('is_active', true)->count());
+        $this->assertSame(8, Schedule::query()->distinct()->count('group_id'));
+        $this->assertSame(0, Schedule::query()->whereNull('group_id')->count());
         $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
     }
 }
