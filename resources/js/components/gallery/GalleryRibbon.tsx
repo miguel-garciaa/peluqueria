@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { uniqueRibbonSources } from "@/lib/gallery-ribbon-sources";
 import type { GalleryItem } from "@/types";
 
 interface GalleryRibbonProps {
@@ -47,6 +48,15 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
       const materials: InstanceType<typeof THREE.MeshBasicMaterial>[] = [];
       const geometries: InstanceType<typeof THREE.PlaneGeometry>[] = [];
       const textures: InstanceType<typeof THREE.Texture>[] = [];
+      const texturesBySource = new Map<string, InstanceType<typeof THREE.Texture>>();
+
+      uniqueRibbonSources(items, count).forEach((src) => {
+        const texture = loader.load(src, () => setIsReady(true));
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.minFilter = THREE.LinearFilter;
+        texturesBySource.set(src, texture);
+        textures.push(texture);
+      });
 
       for (let i = 0; i < count; i += 1) {
         const geometry = new THREE.PlaneGeometry(3.35, 2.1, 14, 3);
@@ -56,14 +66,12 @@ export function GalleryRibbon({ items, onContextLost, onSelectItem }: GalleryRib
           positions.setZ(v, 0.085 * x * x);
         }
         positions.needsUpdate = true;
-        const texture = loader.load(items[i % items.length].src, () => setIsReady(true));
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.minFilter = THREE.LinearFilter;
+        const texture = texturesBySource.get(items[i % items.length].src)!;
         const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true, opacity: 0.96 });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData.itemIndex = i % items.length;
         scene.add(mesh);
-        meshes.push(mesh); materials.push(material); geometries.push(geometry); textures.push(texture);
+        meshes.push(mesh); materials.push(material); geometries.push(geometry);
       }
 
       let frame = 0;

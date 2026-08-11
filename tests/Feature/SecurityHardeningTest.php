@@ -37,11 +37,36 @@ class SecurityHardeningTest extends TestCase
 
     public function test_sensitive_routes_have_specific_rate_limiters(): void
     {
+        $this->assertContains('throttle:landing', Route::getRoutes()->getByName('landing')->gatherMiddleware());
         $this->assertContains('throttle:oauth', Route::getRoutes()->getByName('google.redirect')->gatherMiddleware());
         $this->assertContains('throttle:oauth', Route::getRoutes()->getByName('google.callback')->gatherMiddleware());
         $this->assertContains('throttle:availability', Route::getRoutes()->getByName('bookings.availability')->gatherMiddleware());
         $this->assertContains('throttle:booking', Route::getRoutes()->getByName('bookings.store')->gatherMiddleware());
         $this->assertContains('throttle:cancellation', Route::getRoutes()->getByName('appointments.cancel')->gatherMiddleware());
+    }
+
+    public function test_landing_page_rate_limit_blocks_refresh_floods_at_two_time_scales(): void
+    {
+        $limiter = RateLimiter::limiter('landing');
+        $limits = $limiter(Request::create('/', 'GET', server: ['REMOTE_ADDR' => '127.0.0.1']));
+
+        $this->assertCount(2, $limits);
+        $this->assertNotSame($limits[0]->key, $limits[1]->key);
+        $this->assertSame(60, $limits[0]->maxAttempts);
+        $this->assertSame(600, $limits[1]->maxAttempts);
+    }
+
+    public function test_landing_page_rejects_requests_after_the_minute_limit(): void
+    {
+        $this->withoutVite();
+
+        foreach (range(1, 60) as $_) {
+            $this->get(route('landing'))->assertOk();
+        }
+
+        $this->get(route('landing'))
+            ->assertTooManyRequests()
+            ->assertHeader('Retry-After');
     }
 
     public function test_booking_rate_limits_use_independent_redis_counters(): void

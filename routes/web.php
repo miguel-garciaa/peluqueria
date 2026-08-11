@@ -6,7 +6,9 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', LandingPageController::class)->name('landing');
+Route::get('/', LandingPageController::class)
+    ->middleware('throttle:landing')
+    ->name('landing');
 Route::middleware('throttle:oauth')->group(function (): void {
     Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
     Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');

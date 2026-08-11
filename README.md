@@ -98,10 +98,28 @@ Si Octane todavía no está arrancado, usa el servidor que tengas configurado:
 php artisan octane:start --host=127.0.0.1 --port=8000
 ```
 
-Nginx debe usar como raíz el directorio `public`, servir directamente los archivos existentes y enviar el resto a Octane:
+Nginx debe usar como raíz el directorio `public`, servir directamente los archivos existentes y enviar el resto a Octane. Los recursos de Vite llevan un hash en el nombre, por lo que pueden guardarse un año de forma segura sin llegar a PHP ni a Octane:
 
 ```nginx
 root /ruta/al/proyecto/laravel/public;
+
+location ^~ /build/assets/ {
+    try_files $uri =404;
+    access_log off;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
+}
+
+location = /favicon.png {
+    try_files $uri =404;
+    access_log off;
+    add_header Cache-Control "public, max-age=604800" always;
+}
+
+location = /favicon.ico {
+    try_files $uri =404;
+    access_log off;
+    add_header Cache-Control "public, max-age=604800" always;
+}
 
 location / {
     try_files $uri @octane;
@@ -117,7 +135,9 @@ location @octane {
 }
 ```
 
-La aplicación confía en el proxy únicamente cuando la conexión llega desde `127.0.0.1` o `::1`.
+La aplicación confía en el proxy únicamente cuando la conexión llega desde `127.0.0.1` o `::1`. Además, `GET /` tiene límites independientes de 60 solicitudes por minuto y 600 por hora para cada usuario o IP; las peticiones que excedan el límite reciben `429 Too Many Requests`.
+
+En Cloudflare, crea una regla de caché para `/build/assets/*` con Edge TTL y Browser TTL de un año. Crea también una regla de rate limiting para `GET /`: empieza registrando el tráfico, valida el umbral con Analytics y después cambia la acción a Managed Challenge o Block. El servidor de origen debe aceptar HTTP/HTTPS únicamente desde las redes de Cloudflare para que no se pueda eludir esta protección atacando directamente la IP.
 
 ## Rutas
 

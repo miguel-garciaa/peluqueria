@@ -25,6 +25,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(! $this->app->isProduction());
 
+        RateLimiter::for('landing', function (Request $request): array {
+            $key = 'landing:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'unknown');
+
+            return [
+                Limit::perMinute(60)->by($key.':minute'),
+                Limit::perHour(600)->by($key.':hour'),
+            ];
+        });
+
         RateLimiter::for('oauth', fn (Request $request): Limit => Limit::perMinute(10)
             ->by('oauth:'.($request->ip() ?? 'unknown')));
 

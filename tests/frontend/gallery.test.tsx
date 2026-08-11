@@ -1,8 +1,19 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Gallery } from "@/components/Gallery";
+import { uniqueRibbonSources } from "@/lib/gallery-ribbon-sources";
 
 describe("Gallery", () => {
+  it("loads each ribbon texture source only once", () => {
+    const items = [
+      { id: "one", src: "one.webp", alt: "One", category: "Cortes" as const },
+      { id: "two", src: "two.webp", alt: "Two", category: "Color" as const },
+      { id: "one-again", src: "one.webp", alt: "One again", category: "Tratamientos" as const },
+    ];
+
+    expect(uniqueRibbonSources(items, 10)).toEqual(["one.webp", "two.webp"]);
+  });
+
   it("opens a selected photograph in the large viewer and closes it", async () => {
     render(<Gallery />);
 
