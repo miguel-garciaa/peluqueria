@@ -22,8 +22,8 @@
 <body>
     <div
         id="root"
-        data-booking-endpoint="{{ route('bookings.store', [], false) }}"
-        data-availability-endpoint="{{ route('bookings.availability', [], false) }}"
+        data-booking-endpoint="{{ request()->getBaseUrl() }}/reservas"
+        data-availability-endpoint="{{ request()->getBaseUrl() }}/reservas/disponibilidad"
         data-booking-catalog="{{ json_encode($bookingCatalog) }}"
         data-current-user="{{ json_encode($currentUser) }}"
         data-auth-message="{{ $authMessage }}"

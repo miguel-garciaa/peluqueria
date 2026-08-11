@@ -44,15 +44,25 @@ npm run build
 
 Después de actualizar el repositorio:
 
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+```
+
 ```bash
 composer install --no-dev --prefer-dist --optimize-autoloader
 npm ci
 npm run build
+php artisan optimize:clear
 php artisan migrate --force
+php artisan db:seed --force
+php artisan route:list --name=bookings
 php artisan optimize
 php artisan octane:reload
 php artisan queue:restart
 ```
+
+No arranques el worker de colas si alguno de los pasos anteriores falla. Con Octane/FrankenPHP, actualizar archivos o limpiar cachés no sustituye `octane:reload`: los workers mantienen en memoria la tabla de rutas con la que arrancaron. Si la recarga no está disponible en tu servicio, reinicia el proceso de FrankenPHP/Caddy mediante systemd o el supervisor configurado en el servidor.
 
 El despliegue debe mantener un worker supervisado:
 
