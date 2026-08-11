@@ -69,6 +69,7 @@ export interface CurrentUser {
   email: string;
   phone: string | null;
   avatarUrl: string | null;
+  isAdmin?: boolean;
 }
 
 export interface BookingCatalogService {

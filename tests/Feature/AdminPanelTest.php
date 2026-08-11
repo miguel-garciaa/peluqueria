@@ -1,0 +1,147 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Appointment;
+use App\Models\Professional;
+use App\Models\Schedule;
+use App\Models\Service;
+use App\Models\User;
+use App\Services\ManageAppointment;
+use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use Tests\TestCase;
+
+class AdminPanelTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_only_administrators_can_access_the_control_panel(): void
+    {
+        $this->get('/admin')->assertRedirect(route('google.redirect'));
+
+        $customer = User::factory()->create();
+        $this->actingAs($customer)->get('/admin')->assertForbidden();
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin)
+            ->get('/admin')
+            ->assertOk()
+            ->assertSee('Reservas activas')
+            ->assertSee('Clientes registrados');
+    }
+
+    public function test_the_agenda_and_all_management_sections_render_for_an_admin(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        foreach ([
+            '/admin/agenda',
+            '/admin/appointments',
+            '/admin/appointments/create',
+            '/admin/users',
+            '/admin/professionals',
+            '/admin/professionals/create',
+            '/admin/services',
+            '/admin/services/create',
+            '/admin/schedules',
+            '/admin/schedules/create',
+            '/admin/professional-calendar-entries',
+            '/admin/professional-calendar-entries/create',
+        ] as $uri) {
+            $this->actingAs($admin)->get($uri)->assertOk();
+        }
+    }
+
+    public function test_the_agenda_displays_the_complete_appointment_information(): void
+    {
+        [$user, $service, $professional, $startsAt] = $this->catalog();
+        $admin = User::factory()->create(['is_admin' => true]);
+        $startsAt = CarbonImmutable::now(config('app.business_timezone'))->addHour()->startOfHour();
+
+        Appointment::query()->create([
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => 'Ana Cliente',
+            'customer_phone' => '600 111 222',
+            'starts_at' => $startsAt->utc(),
+            'ends_at' => $startsAt->addMinutes(45)->utc(),
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($admin)
+            ->get('/admin/agenda')
+            ->assertOk()
+            ->assertSee('Ana Cliente')
+            ->assertSee('600 111 222')
+            ->assertSee($service->name)
+            ->assertSee($professional->name);
+    }
+
+    public function test_admin_rescheduling_uses_the_same_availability_rules_and_ignores_the_current_booking(): void
+    {
+        [$user, $service, $professional, $startsAt] = $this->catalog();
+        $manager = app(ManageAppointment::class);
+        $form = [
+            'user_id' => $user->id,
+            'service_id' => $service->id,
+            'professional_id' => $professional->id,
+            'customer_name' => $user->name,
+            'customer_phone' => '600 111 222',
+            'appointment_date' => $startsAt->format('Y-m-d'),
+            'appointment_time' => $startsAt->format('H:i'),
+            'status' => 'confirmed',
+        ];
+
+        $prepared = $manager->prepare($form);
+        $appointment = Appointment::query()->create($prepared);
+
+        $this->assertEquals(45, $appointment->starts_at->diffInMinutes($appointment->ends_at));
+        $this->assertArrayNotHasKey('appointment_date', $manager->prepare($form, $appointment));
+
+        $this->expectException(ValidationException::class);
+        $manager->prepare($form);
+    }
+
+    public function test_the_admin_grant_command_promotes_an_existing_user(): void
+    {
+        $user = User::factory()->create(['email' => 'admin@example.com']);
+
+        $this->artisan('admin:grant', ['email' => 'ADMIN@example.com'])
+            ->assertSuccessful();
+
+        $this->assertTrue($user->fresh()->is_admin);
+    }
+
+    /** @return array{User, Service, Professional, CarbonImmutable} */
+    private function catalog(): array
+    {
+        $user = User::factory()->create(['phone' => '600 111 222']);
+        $service = Service::query()->create([
+            'slug' => 'corte-admin',
+            'name' => 'Corte de prueba',
+            'duration_minutes' => 45,
+            'is_active' => true,
+        ]);
+        $professional = Professional::query()->create([
+            'slug' => 'profesional-admin',
+            'name' => 'Laura Admin',
+            'is_active' => true,
+        ]);
+        $professional->services()->attach($service);
+
+        $startsAt = CarbonImmutable::now(config('app.business_timezone'))->next('Monday')->setTime(10, 0);
+        Schedule::query()->create([
+            'professional_id' => $professional->id,
+            'day_of_week' => $startsAt->dayOfWeek,
+            'starts_at' => '09:00',
+            'ends_at' => '18:00',
+            'slot_interval_minutes' => 30,
+            'is_active' => true,
+        ]);
+
+        return [$user, $service, $professional, $startsAt];
+    }
+}

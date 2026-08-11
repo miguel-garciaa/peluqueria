@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Appointment;
 use App\Models\Professional;
 use App\Models\Service;
 use Carbon\CarbonImmutable;
@@ -69,8 +70,12 @@ class AppointmentAvailability
         return array_values($slots);
     }
 
-    public function slotIsFree(Professional $professional, CarbonImmutable $startsAt, CarbonImmutable $endsAt): bool
-    {
+    public function slotIsFree(
+        Professional $professional,
+        CarbonImmutable $startsAt,
+        CarbonImmutable $endsAt,
+        ?Appointment $except = null,
+    ): bool {
         $professional->load([
             'schedules' => fn ($query) => $query
                 ->where('day_of_week', $startsAt->dayOfWeek)
@@ -99,6 +104,7 @@ class AppointmentAvailability
 
         return ! $professional->appointments()
             ->whereIn('status', ['pending', 'confirmed'])
+            ->when($except, fn (Builder $query) => $query->whereKeyNot($except->getKey()))
             ->where('starts_at', '<', $endsAt->utc())
             ->where('ends_at', '>', $startsAt->utc())
             ->exists();

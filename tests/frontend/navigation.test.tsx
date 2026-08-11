@@ -26,6 +26,14 @@ describe("Navbar", () => {
     expect(logoutButtons[0].closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
   });
 
+  it("shows the control panel shortcut only to administrators", () => {
+    const { rerender } = render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} />);
+    expect(screen.queryByRole("link", { name: "Panel de control" })).not.toBeInTheDocument();
+
+    rerender(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null, isAdmin: true }} />);
+    expect(screen.getAllByRole("link", { name: "Panel de control" })[0]).toHaveAttribute("href", "/admin");
+  });
+
   it("scrolls smoothly to the selected section", () => {
     const matchMedia = vi.spyOn(window, "matchMedia").mockReturnValue({
         matches: false,

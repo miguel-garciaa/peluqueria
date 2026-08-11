@@ -69,7 +69,8 @@ class GoogleAuthController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            return to_route('landing')->with('auth_success', 'Has iniciado sesión con Google.');
+            return redirect()->intended(route('landing'))
+                ->with('auth_success', 'Has iniciado sesión con Google.');
         } catch (QueryException $exception) {
             report($exception);
 

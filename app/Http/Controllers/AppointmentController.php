@@ -57,6 +57,7 @@ class AppointmentController extends Controller
                 'email' => $request->user()->email,
                 'phone' => $request->user()->phone,
                 'avatarUrl' => $request->user()->avatar_url,
+                'isAdmin' => $request->user()->is_admin,
             ],
             'appointments' => $appointments,
             'bookingCatalog' => [
