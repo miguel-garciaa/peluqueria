@@ -137,7 +137,7 @@ html.fi,
     border-color: #39332c;
 }
 
-.fi-section,
+.fi-section:not(.fi-section-not-contained),
 .fi-ta-ctn,
 .fi-wi-chart,
 .fi-wi-stats-overview-stat,
@@ -149,7 +149,7 @@ html.fi,
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
 }
 
-.dark .fi-section,
+.dark .fi-section:not(.fi-section-not-contained),
 .dark .fi-ta-ctn,
 .dark .fi-wi-chart,
 .dark .fi-wi-stats-overview-stat,
@@ -180,6 +180,17 @@ html.fi,
 .fi-wi-stats-overview-stat {
     min-height: 10.5rem;
     overflow: hidden;
+}
+
+.fi-wi-stats-overview .fi-section-not-contained {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.fi-wi-stats-overview .fi-section-content {
+    gap: 1.25rem;
 }
 
 .fi-wi-stats-overview-stat-value {
