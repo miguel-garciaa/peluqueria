@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Widgets\BookingTrend;
+use App\Filament\Widgets\UpcomingBookings;
 use App\Mail\AppointmentCancelled;
 use App\Models\Appointment;
 use App\Models\Professional;
@@ -33,6 +35,12 @@ class AdminPanelTest extends TestCase
 
         $this->assertSame('resources/css/filament/admin/theme.css', $panel->getViteTheme());
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
+    }
+
+    public function test_the_dashboard_content_widgets_use_the_full_grid_width(): void
+    {
+        $this->assertSame('full', app(BookingTrend::class)->getColumnSpan());
+        $this->assertSame('full', app(UpcomingBookings::class)->getColumnSpan());
     }
 
     public function test_only_administrators_can_access_the_control_panel(): void

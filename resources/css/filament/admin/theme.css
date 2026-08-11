@@ -208,6 +208,17 @@ html.fi,
     text-transform: uppercase;
 }
 
+.fi-wi-table .fi-ta-header-toolbar:has(.fi-ta-search-field) > div:has(.fi-ta-search-field) {
+    flex: 1 1 100%;
+    margin-inline-start: 0;
+    width: 100%;
+}
+
+.fi-wi-table .fi-ta-search-field,
+.fi-wi-table .fi-ta-search-field .fi-input-wrp {
+    width: 100%;
+}
+
 .fi-ta-row {
     border-color: var(--bk-border);
     transition: background-color 120ms ease;
