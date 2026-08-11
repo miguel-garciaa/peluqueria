@@ -41,7 +41,8 @@ describe("Navbar", () => {
     render(<Navbar />);
 
     const mobileBookingAction = screen.getAllByRole("link", { name: "Reservar cita" }).find((link) => link.parentElement?.classList.contains("justify-center"));
-    expect(mobileBookingAction?.parentElement).toHaveClass("flex", "justify-center");
+    expect(mobileBookingAction).toHaveClass("mx-auto", "w-fit");
+    expect(mobileBookingAction?.parentElement).toHaveClass("flex", "w-full", "justify-center");
   });
 
   it("scrolls smoothly to the selected section", () => {
