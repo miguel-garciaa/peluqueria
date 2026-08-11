@@ -19,6 +19,8 @@ return [
 
     'limiter' => env('CACHE_LIMITER_STORE', 'redis'),
 
+    'booking_lock_store' => env('BOOKING_LOCK_STORE', 'redis'),
+
     /*
     |--------------------------------------------------------------------------
     | Cache Stores

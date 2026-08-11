@@ -145,7 +145,7 @@ class AdminPanelTest extends TestCase
         $admin = User::factory()->create(['is_admin' => true]);
         $startsAt = CarbonImmutable::now(config('app.business_timezone'))->addHour()->startOfHour();
 
-        Appointment::query()->create([
+        Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -176,7 +176,7 @@ class AdminPanelTest extends TestCase
         Mail::fake();
         [$user, $service, $professional] = $this->catalog();
         $startsAt = CarbonImmutable::now(config('app.business_timezone'))->addDay()->setTime(12, 0);
-        $appointment = Appointment::query()->create([
+        $appointment = Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -211,7 +211,7 @@ class AdminPanelTest extends TestCase
         ];
 
         $prepared = $manager->prepare($form);
-        $appointment = Appointment::query()->create($prepared);
+        $appointment = Appointment::query()->forceCreate($prepared);
 
         $this->assertEquals(45, $appointment->starts_at->diffInMinutes($appointment->ends_at));
         $this->assertArrayNotHasKey('appointment_date', $manager->prepare($form, $appointment));

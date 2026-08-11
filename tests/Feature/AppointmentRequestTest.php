@@ -57,12 +57,35 @@ class AppointmentRequestTest extends TestCase
             && $mail->queue === 'emails');
     }
 
+    public function test_booking_text_fields_are_stored_as_plain_text(): void
+    {
+        Mail::fake();
+        [$service, $professional] = $this->createCatalog(custom: true);
+        $user = User::factory()->create();
+        $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
+
+        $this->actingAs($user)->postJson(route('bookings.store'), [
+            'fullName' => '<strong>María García</strong>',
+            'phone' => '600 123 456',
+            'serviceId' => $service->slug,
+            'professionalId' => $professional->slug,
+            'customDetails' => '&lt;img src=x onerror=alert(1)&gt;Necesito tinte',
+            'date' => $date,
+            'timeSlot' => '10:30',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('bookings', [
+            'customer_name' => 'María García',
+            'custom_details' => 'Necesito tinte',
+        ]);
+    }
+
     public function test_availability_excludes_an_existing_appointment(): void
     {
         [$service, $professional] = $this->createCatalog();
         $user = User::factory()->create();
         $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->startOfDay();
-        Appointment::query()->create([
+        Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -218,7 +241,7 @@ class AppointmentRequestTest extends TestCase
         $otherUser = User::factory()->create();
         $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
         foreach ([$user, $otherUser] as $index => $owner) {
-            Appointment::query()->create([
+            Appointment::query()->forceCreate([
                 'user_id' => $owner->id,
                 'service_id' => $service->id,
                 'professional_id' => $professional->id,
@@ -245,7 +268,7 @@ class AppointmentRequestTest extends TestCase
         [$service, $professional] = $this->createCatalog();
         $user = User::factory()->create();
         $startsAt = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
-        $appointment = Appointment::query()->create([
+        $appointment = Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -290,7 +313,7 @@ class AppointmentRequestTest extends TestCase
         [$service, $professional] = $this->createCatalog();
         $user = User::factory()->create(['name' => 'María']);
         $startsAt = CarbonImmutable::now('Europe/Madrid')->next('Monday')->setTime(10, 30);
-        $appointment = Appointment::query()->create([
+        $appointment = Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,
@@ -323,7 +346,7 @@ class AppointmentRequestTest extends TestCase
         [$service, $professional] = $this->createCatalog();
         $owner = User::factory()->create();
         $otherUser = User::factory()->create();
-        $appointment = Appointment::query()->create([
+        $appointment = Appointment::query()->forceCreate([
             'user_id' => $owner->id,
             'service_id' => $service->id,
             'professional_id' => $professional->id,

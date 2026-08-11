@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Appointment;
 use App\Models\User;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -78,6 +80,16 @@ class SecurityHardeningTest extends TestCase
         $this->assertNotSame($limits[0]->key, $limits[1]->key);
         $this->assertSame(5, $limits[0]->maxAttempts);
         $this->assertSame(20, $limits[1]->maxAttempts);
+    }
+
+    public function test_booking_state_cannot_be_mass_assigned(): void
+    {
+        $this->expectException(MassAssignmentException::class);
+
+        new Appointment([
+            'customer_name' => 'Cliente',
+            'status' => 'cancelled',
+        ]);
     }
 
     public function test_redis_queue_and_admin_writes_use_safe_transaction_defaults(): void

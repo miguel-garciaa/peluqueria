@@ -8,6 +8,8 @@ use App\Models\Professional;
 use App\Models\Service;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\CacheManager;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,24 +17,78 @@ use Illuminate\Validation\ValidationException;
 
 class BookAppointment
 {
-    public function __construct(private readonly AppointmentAvailability $availability) {}
+    public function __construct(
+        private readonly AppointmentAvailability $availability,
+        private readonly CacheManager $cache,
+    ) {}
 
     /** @param array{fullName: string, phone: string, serviceId: string, professionalId: string, customDetails?: string|null, date: string, timeSlot: string} $data */
     public function handle(User $user, array $data): Appointment
     {
-        $service = Service::query()->active()->where('slug', $data['serviceId'])->firstOrFail();
         $startsAt = CarbonImmutable::createFromFormat(
-            'Y-m-d H:i',
+            '!Y-m-d H:i',
             $data['date'].' '.$data['timeSlot'],
             config('app.business_timezone'),
         );
-        $endsAt = $startsAt->addMinutes($service->duration_minutes);
 
-        $appointment = DB::transaction(function () use ($data, $endsAt, $service, $startsAt, $user): Appointment {
+        // The day-wide mutex also serializes overlapping services that start at different times.
+        $lockKey = 'bookings:create:'.hash('sha256', $startsAt->format('Y-m-d'));
+        $lock = $this->cache
+            ->store(config('cache.booking_lock_store'))
+            ->lock($lockKey, 30);
+
+        try {
+            /** @var Appointment $appointment */
+            $appointment = $lock->block(
+                3,
+                fn (): Appointment => $this->createBooking($user, $data, $startsAt),
+            );
+        } catch (LockTimeoutException) {
+            throw ValidationException::withMessages([
+                'timeSlot' => 'Otra reserva está procesando ese horario. Inténtalo de nuevo en unos segundos.',
+            ]);
+        }
+
+        $appointment->load(['service', 'professional', 'user']);
+
+        Mail::to($user->email)->queue(
+            (new AppointmentConfirmed($appointment))
+                ->onConnection('redis')
+                ->onQueue('emails')
+                ->afterCommit(),
+        );
+
+        return $appointment;
+    }
+
+    /** @param array<string, mixed> $data */
+    private function createBooking(User $user, array $data, CarbonImmutable $startsAt): Appointment
+    {
+        return DB::transaction(function () use ($user, $data, $startsAt): Appointment {
+            $service = Service::query()
+                ->active()
+                ->where('slug', $data['serviceId'])
+                ->lockForUpdate()
+                ->first();
+
+            if (! $service) {
+                throw ValidationException::withMessages([
+                    'serviceId' => 'El servicio seleccionado ya no está disponible.',
+                ]);
+            }
+
+            $endsAt = $startsAt->addMinutes($service->duration_minutes);
+
             $professionals = Professional::query()
                 ->active()
-                ->when($data['professionalId'] !== 'any', fn (Builder $query) => $query->where('slug', $data['professionalId']))
-                ->whereHas('services', fn (Builder $query) => $query->whereKey($service->getKey()))
+                ->when(
+                    $data['professionalId'] !== 'any',
+                    fn (Builder $query) => $query->where('slug', $data['professionalId']),
+                )
+                ->whereHas(
+                    'services',
+                    fn (Builder $query) => $query->whereKey($service->getKey()),
+                )
                 ->with([
                     'schedules' => fn ($query) => $query
                         ->select(['id', 'professional_id', 'starts_at', 'ends_at', 'slot_interval_minutes'])
@@ -49,7 +105,11 @@ class BookAppointment
                 ->get();
 
             $professional = $professionals->first(
-                fn (Professional $candidate) => $this->availability->slotIsFree($candidate, $startsAt, $endsAt),
+                fn (Professional $candidate): bool => $this->availability->slotIsFree(
+                    $candidate,
+                    $startsAt,
+                    $endsAt,
+                ),
             );
 
             if (! $professional) {
@@ -63,28 +123,21 @@ class BookAppointment
                 'phone' => $data['phone'],
             ])->save();
 
-            return Appointment::query()->create([
-                'user_id' => $user->getKey(),
-                'service_id' => $service->getKey(),
-                'professional_id' => $professional->getKey(),
+            $appointment = new Appointment;
+            $appointment->fill([
                 'customer_name' => $data['fullName'],
                 'customer_phone' => $data['phone'],
-                'custom_details' => $service->is_custom ? trim((string) ($data['customDetails'] ?? '')) : null,
-                'starts_at' => $startsAt->utc(),
-                'ends_at' => $endsAt->utc(),
-                'status' => 'confirmed',
+                'custom_details' => $service->is_custom ? ($data['customDetails'] ?? null) : null,
             ]);
-        }, 3);
+            $appointment->user()->associate($user);
+            $appointment->service()->associate($service);
+            $appointment->professional()->associate($professional);
+            $appointment->starts_at = $startsAt->utc();
+            $appointment->ends_at = $endsAt->utc();
+            $appointment->status = 'confirmed';
+            $appointment->save();
 
-        $appointment->load(['service', 'professional', 'user']);
-
-        Mail::to($user->email)->queue(
-            (new AppointmentConfirmed($appointment))
-                ->onConnection('redis')
-                ->onQueue('emails')
-                ->afterCommit(),
-        );
-
-        return $appointment;
+            return $appointment;
+        }, attempts: 3);
     }
 }

@@ -88,10 +88,9 @@ class ManageAppointment
                 return null;
             }
 
-            $lockedAppointment->update([
-                'status' => 'cancelled',
-                'cancelled_at' => now(),
-            ]);
+            $lockedAppointment->status = 'cancelled';
+            $lockedAppointment->cancelled_at = now();
+            $lockedAppointment->save();
 
             return $lockedAppointment;
         }, 3);

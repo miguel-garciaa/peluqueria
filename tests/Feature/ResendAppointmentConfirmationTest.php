@@ -20,7 +20,7 @@ class ResendAppointmentConfirmationTest extends TestCase
         Mail::fake();
         $this->seed();
         $user = User::factory()->create();
-        $appointment = Appointment::query()->create([
+        $appointment = Appointment::query()->forceCreate([
             'user_id' => $user->id,
             'service_id' => Service::query()->firstOrFail()->id,
             'professional_id' => Professional::query()->firstOrFail()->id,

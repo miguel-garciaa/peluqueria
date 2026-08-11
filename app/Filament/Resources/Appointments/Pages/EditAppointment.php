@@ -6,6 +6,7 @@ use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Services\ManageAppointment;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class EditAppointment extends EditRecord
 {
@@ -46,6 +47,13 @@ class EditAppointment extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         return app(ManageAppointment::class)->prepare($data, $this->record);
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $record->forceFill($data)->save();
+
+        return $record;
     }
 
     protected function afterSave(): void
