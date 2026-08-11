@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesPublicImage;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['slug', 'name', 'description', 'duration_minutes', 'price_from', 'is_custom', 'is_active'])]
+#[Fillable(['slug', 'name', 'description', 'image_path', 'duration_minutes', 'price_from', 'is_custom', 'is_active'])]
 class Service extends Model
 {
+    use DeletesPublicImage;
+
     protected function casts(): array
     {
         return [

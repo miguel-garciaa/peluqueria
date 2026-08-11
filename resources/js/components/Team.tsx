@@ -23,8 +23,10 @@ export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProp
         specialties: current.serviceIds
           .map((serviceId) => catalogServices?.find((service) => service.id === serviceId)?.name)
           .filter((serviceName): serviceName is string => Boolean(serviceName)),
-        portraitSrc: presentation?.portraitSrc ?? null,
-        portraitAlt: presentation?.portraitAlt ?? `Perfil de ${current.name}`,
+        portraitSrc: current.imageUrl || presentation?.portraitSrc || null,
+        portraitAlt: current.imageUrl
+          ? `Retrato de ${current.name}`
+          : presentation?.portraitAlt ?? `Perfil de ${current.name}`,
       };
     });
 

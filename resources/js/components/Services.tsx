@@ -31,8 +31,10 @@ export function Services({ onBook, catalogServices }: ServicesProps) {
         description,
         longDescription: current.description?.trim() || presentation?.longDescription || description,
         benefits: presentation?.benefits ?? ["Valoración personalizada", "Servicio adaptado a ti", "Recomendaciones de mantenimiento"],
-        imageSrc: presentation?.imageSrc ?? heroImage,
-        imageAlt: presentation?.imageAlt ?? `Servicio ${current.name} en Baskuñana Peluqueros`,
+        imageSrc: current.imageUrl || presentation?.imageSrc || heroImage,
+        imageAlt: current.imageUrl
+          ? `Fotografía del servicio ${current.name}`
+          : presentation?.imageAlt ?? `Servicio ${current.name} en Baskuñana Peluqueros`,
         priceFrom: current.priceFrom,
         duration: `${current.durationMinutes} min`,
         icon: presentation?.icon ?? Sparkles,

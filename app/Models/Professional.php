@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesPublicImage;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['slug', 'name', 'role', 'is_active'])]
+#[Fillable(['slug', 'name', 'role', 'image_path', 'is_active'])]
 class Professional extends Model
 {
+    use DeletesPublicImage;
+
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];

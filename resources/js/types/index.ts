@@ -76,6 +76,7 @@ export interface BookingCatalogService {
   id: string;
   name: string;
   description: string | null;
+  imageUrl?: string | null;
   durationMinutes: number;
   priceFrom: number | null;
   isCustom: boolean;
@@ -85,6 +86,7 @@ export interface BookingCatalogProfessional {
   id: string;
   name: string;
   role: string | null;
+  imageUrl?: string | null;
   serviceIds: string[];
 }
 

@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
+use App\Filament\Resources\Professionals\Pages\CreateProfessional;
 use App\Filament\Resources\Professionals\Pages\ListProfessionals;
+use App\Filament\Resources\Services\Pages\CreateService;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Widgets\BookingTrend;
 use App\Filament\Widgets\UpcomingBookings;
@@ -13,13 +15,16 @@ use App\Models\Professional;
 use App\Models\Schedule;
 use App\Models\Service;
 use App\Models\User;
+use App\Services\BookingCatalog;
 use App\Services\ManageAppointment;
 use Carbon\CarbonImmutable;
 use Filament\Enums\ThemeMode;
 use Filament\Facades\Filament;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -230,6 +235,66 @@ class AdminPanelTest extends TestCase
             ->callTableAction('delete', $professional);
 
         $this->assertModelMissing($professional);
+    }
+
+    public function test_an_administrator_can_upload_service_and_professional_photos(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::test(CreateService::class)
+            ->fillForm([
+                'image_path' => $this->fakePng('servicio.png'),
+                'name' => 'Servicio con foto',
+                'slug' => 'servicio-con-foto',
+                'duration_minutes' => 45,
+                'price_from' => 40,
+                'is_custom' => false,
+                'is_active' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $service = Service::query()->where('slug', 'servicio-con-foto')->firstOrFail();
+        $this->assertNotNull($service->image_path);
+        Storage::disk('public')->assertExists($service->image_path);
+
+        Livewire::test(CreateProfessional::class)
+            ->fillForm([
+                'image_path' => $this->fakePng('profesional.png'),
+                'name' => 'Profesional con foto',
+                'slug' => 'profesional-con-foto',
+                'role' => 'Especialista',
+                'is_active' => true,
+                'services' => [$service->id],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $professional = Professional::query()->where('slug', 'profesional-con-foto')->firstOrFail();
+        $this->assertNotNull($professional->image_path);
+        Storage::disk('public')->assertExists($professional->image_path);
+
+        $catalog = app(BookingCatalog::class)->get();
+        $this->assertStringEndsWith(
+            '/storage/'.$service->image_path,
+            collect($catalog['services'])->firstWhere('id', $service->slug)['imageUrl'],
+        );
+        $this->assertStringEndsWith(
+            '/storage/'.$professional->image_path,
+            collect($catalog['professionals'])->firstWhere('id', $professional->slug)['imageUrl'],
+        );
+    }
+
+    private function fakePng(string $name): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent(
+            $name,
+            base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', true),
+        );
     }
 
     public function test_admin_rescheduling_uses_the_same_availability_rules_and_ignores_the_current_booking(): void

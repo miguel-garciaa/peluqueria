@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -16,6 +17,11 @@ class ProfessionalsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('image_path')
+                    ->label('Foto')
+                    ->disk('public')
+                    ->circular()
+                    ->height(48),
                 TextColumn::make('name')->label('Nombre')->searchable()->sortable(),
                 TextColumn::make('role')->label('Especialidad')->searchable(),
                 TextColumn::make('services.name')->label('Servicios')->badge()->limitList(3),
