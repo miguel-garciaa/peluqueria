@@ -31,6 +31,9 @@ export interface GalleryItem {
   src: string;
   alt: string;
   category: GalleryItemCategory;
+  cut: string;
+  treatment: string;
+  professional: string;
   featured?: boolean;
 }
 

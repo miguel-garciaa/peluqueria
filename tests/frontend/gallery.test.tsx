@@ -1,27 +1,30 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Gallery } from "@/components/Gallery";
-import { uniqueRibbonSources } from "@/lib/gallery-ribbon-sources";
 
 describe("Gallery", () => {
-  it("loads each ribbon texture source only once", () => {
-    const items = [
-      { id: "one", src: "one.webp", alt: "One", category: "Cortes" as const },
-      { id: "two", src: "two.webp", alt: "Two", category: "Color" as const },
-      { id: "one-again", src: "one.webp", alt: "One again", category: "Tratamientos" as const },
-    ];
-
-    expect(uniqueRibbonSources(items, 10)).toEqual(["one.webp", "two.webp"]);
-  });
-
-  it("opens a selected photograph in the large viewer and closes it", async () => {
+  it("slows the horizontal gallery while it is hovered", () => {
     render(<Gallery />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Ampliar: Corte bob pulido/i }));
+    const gallery = screen.getByRole("region", { name: /Pasa el cursor para ralentizar/i });
+    fireEvent.pointerEnter(gallery);
+    expect(gallery).toHaveAttribute("data-slowed", "true");
+
+    fireEvent.pointerLeave(gallery);
+    expect(gallery).toHaveAttribute("data-slowed", "false");
+  });
+
+  it("opens a selected photograph with its work details and closes it", async () => {
+    render(<Gallery />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Ver detalles: Corte bob pulido/i }));
 
     expect(screen.getByRole("dialog")).toHaveClass("gallery-lightbox");
     expect(screen.getByRole("dialog")).toHaveAttribute("data-entered", "true");
     expect(screen.getByRole("img", { name: /Corte bob pulido/i }).closest("figure")).toHaveClass("gallery-lightbox-figure");
+    expect(screen.getByText("Bob recto con flequillo desfilado")).toBeInTheDocument();
+    expect(screen.getByText("Sellado de puntas y acabado pulido")).toBeInTheDocument();
+    expect(screen.getByText("Laura Baskuñana")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cerrar fotografía" })).toHaveClass("hover:bg-ink", "hover:text-white");
 
     fireEvent.click(screen.getByRole("button", { name: "Siguiente fotografía" }));

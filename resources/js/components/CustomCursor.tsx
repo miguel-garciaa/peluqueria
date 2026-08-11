@@ -60,11 +60,6 @@ export function CustomCursor() {
       );
     };
 
-    const onGalleryHover = (event: Event) => {
-      const hovered = (event as CustomEvent<{ hovered?: boolean }>).detail?.hovered === true;
-      cursor.classList.toggle("is-interactive", hovered);
-    };
-
     const hideCursor = () => { delete cursor.dataset.visible; };
 
     const raiseAboveDialogs = () => {
@@ -84,7 +79,6 @@ export function CustomCursor() {
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerover", onPointerOver, { passive: true });
     window.addEventListener("pointerdown", onPointerDown, { passive: true });
-    window.addEventListener("gallery-photo-hover", onGalleryHover);
     window.addEventListener("blur", hideCursor);
     document.documentElement.addEventListener("mouseleave", hideCursor);
 
@@ -96,7 +90,6 @@ export function CustomCursor() {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerover", onPointerOver);
       window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("gallery-photo-hover", onGalleryHover);
       window.removeEventListener("blur", hideCursor);
       document.documentElement.removeEventListener("mouseleave", hideCursor);
       try { cursor.hidePopover(); } catch { /* Already hidden. */ }

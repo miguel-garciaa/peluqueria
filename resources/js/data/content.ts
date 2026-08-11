@@ -56,18 +56,18 @@ export const professionals: Professional[] = [
 ];
 
 export const galleryItems: GalleryItem[] = [
-  { id: "cut-1", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Corte bob pulido con flequillo suave", category: "Cortes", featured: true },
-  { id: "cut-2", src: image("photo-1580618672591-eb180b1a973f"), alt: "Corte corto texturizado visto de perfil", category: "Cortes" },
-  { id: "cut-3", src: image("photo-1522337360788-8b13dee7a37e"), alt: "Estilista trabajando un corte en el salón", category: "Cortes" },
-  { id: "cut-4", src: image("photo-1562322140-8baeececf3df"), alt: "Melena natural recién cortada y peinada", category: "Cortes" },
-  { id: "color-1", src: image("photo-1605497788044-5a32c7078486"), alt: "Color cobrizo luminoso con ondas", category: "Color", featured: true },
-  { id: "color-2", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Balayage rubio de acabado natural", category: "Color" },
-  { id: "color-3", src: image("photo-1580618672591-eb180b1a973f"), alt: "Coloración creativa con tonos cálidos", category: "Color" },
-  { id: "color-4", src: image("photo-1616683693504-3ea7e9ad6fec"), alt: "Melena brillante con reflejos miel", category: "Color" },
-  { id: "care-1", src: image("photo-1560869713-7d0a29430803"), alt: "Tratamiento capilar aplicado por una especialista", category: "Tratamientos", featured: true },
-  { id: "care-2", src: image("photo-1521590832167-7bcbfaa6381f"), alt: "Ritual de cuidado en un salón profesional", category: "Tratamientos" },
-  { id: "care-3", src: image("photo-1622286342621-4bd786c2447c"), alt: "Aplicación cuidadosa de producto y acabado", category: "Tratamientos" },
-  { id: "care-4", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Cabello sano con brillo natural", category: "Tratamientos" },
+  { id: "cut-1", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Corte bob pulido con flequillo suave", category: "Cortes", cut: "Bob recto con flequillo desfilado", treatment: "Sellado de puntas y acabado pulido", professional: "Laura Baskuñana", featured: true },
+  { id: "cut-2", src: image("photo-1580618672591-eb180b1a973f"), alt: "Corte corto texturizado visto de perfil", category: "Cortes", cut: "Pixie texturizado", treatment: "Hidratación ligera y definición", professional: "Dani Ros" },
+  { id: "cut-3", src: image("photo-1522337360788-8b13dee7a37e"), alt: "Estilista trabajando un corte en el salón", category: "Cortes", cut: "Capas largas personalizadas", treatment: "Protección térmica y brushing", professional: "Marta Soler" },
+  { id: "cut-4", src: image("photo-1562322140-8baeececf3df"), alt: "Melena natural recién cortada y peinada", category: "Cortes", cut: "Media melena con capas suaves", treatment: "Nutrición de medios y puntas", professional: "Álvaro León" },
+  { id: "color-1", src: image("photo-1605497788044-5a32c7078486"), alt: "Color cobrizo luminoso con ondas", category: "Color", cut: "Capas largas de contorno", treatment: "Color cobrizo y baño de brillo", professional: "Marta Soler", featured: true },
+  { id: "color-2", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Balayage rubio de acabado natural", category: "Color", cut: "Bob ligeramente degradado", treatment: "Balayage, matiz y reparación", professional: "Laura Baskuñana" },
+  { id: "color-3", src: image("photo-1580618672591-eb180b1a973f"), alt: "Coloración creativa con tonos cálidos", category: "Color", cut: "Corte corto texturizado", treatment: "Coloración creativa y sellado", professional: "Dani Ros" },
+  { id: "color-4", src: image("photo-1616683693504-3ea7e9ad6fec"), alt: "Melena brillante con reflejos miel", category: "Color", cut: "Melena larga con puntas saneadas", treatment: "Reflejos miel y baño de brillo", professional: "Marta Soler" },
+  { id: "care-1", src: image("photo-1560869713-7d0a29430803"), alt: "Tratamiento capilar aplicado por una especialista", category: "Tratamientos", cut: "Saneado de puntas", treatment: "Ritual reparador de queratina", professional: "Marta Soler", featured: true },
+  { id: "care-2", src: image("photo-1521590832167-7bcbfaa6381f"), alt: "Ritual de cuidado en un salón profesional", category: "Tratamientos", cut: "Mantenimiento de forma", treatment: "Hidratación profunda del cuero cabelludo", professional: "Álvaro León" },
+  { id: "care-3", src: image("photo-1622286342621-4bd786c2447c"), alt: "Aplicación cuidadosa de producto y acabado", category: "Tratamientos", cut: "Perfilado y acabado", treatment: "Nutrición intensiva y protección térmica", professional: "Dani Ros" },
+  { id: "care-4", src: image("photo-1595476108010-b4d1f102b1b1"), alt: "Cabello sano con brillo natural", category: "Tratamientos", cut: "Bob con puntas compactas", treatment: "Reconstrucción, sellado y brillo", professional: "Laura Baskuñana" },
 ];
 
 export const testimonials: Testimonial[] = [

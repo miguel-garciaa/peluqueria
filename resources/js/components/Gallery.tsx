@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { galleryItems } from "@/data/content";
 import { cn } from "@/lib/utils";
 import type { GalleryCategory } from "@/types";
-import { GalleryFallback } from "./gallery/GalleryFallback";
 import { GalleryLightbox } from "./gallery/GalleryLightbox";
 import { GalleryRibbon } from "./gallery/GalleryRibbon";
 import { RevealTitle } from "@/components/ui/reveal-title";
@@ -12,18 +11,9 @@ const categories: GalleryCategory[] = ["Todos", "Cortes", "Color", "Tratamientos
 
 export function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState<GalleryCategory>("Todos");
-  const [useFallback, setUseFallback] = useState(false);
   const [activeItem, setActiveItem] = useState<(typeof galleryItems)[number] | null>(null);
 
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setUseFallback(query.matches);
-    sync(); query.addEventListener("change", sync);
-    return () => query.removeEventListener("change", sync);
-  }, []);
-
   const filtered = useMemo(() => selectedCategory === "Todos" ? galleryItems : galleryItems.filter((item) => item.category === selectedCategory), [selectedCategory]);
-  const handleContextLost = useCallback(() => setUseFallback(true), []);
   const handleSelectItem = useCallback((item: (typeof galleryItems)[number]) => setActiveItem(item), []);
   const moveLightbox = useCallback((direction: -1 | 1) => {
     setActiveItem((current) => {
@@ -43,8 +33,7 @@ export function Gallery() {
           {categories.map((category) => <button key={category} type="button" onClick={() => setSelectedCategory(category)} aria-pressed={selectedCategory === category} className={cn("min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors", selectedCategory === category ? "border-brass bg-brass text-ink" : "border-white/15 text-white/70 hover:border-white/40 hover:text-white")}>{category}</button>)}
         </ScrollReveal>
       </div>
-      <div className="mt-6 md:mt-4">{useFallback ? <div className="container-shell"><GalleryFallback items={filtered} onSelectItem={handleSelectItem} /></div> : <GalleryRibbon items={filtered} onContextLost={handleContextLost} onSelectItem={handleSelectItem} />}</div>
-      <ul className="sr-only">{filtered.map((item) => <li key={item.id}>{item.alt}</li>)}</ul>
+      <div className="mt-10"><GalleryRibbon items={filtered} onSelectItem={handleSelectItem} /></div>
       <GalleryLightbox item={activeItem} onClose={() => setActiveItem(null)} onMove={moveLightbox} />
     </section>
   );

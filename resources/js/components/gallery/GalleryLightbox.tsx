@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Scissors, Sparkles, UserRound, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import type { GalleryItem } from "@/types";
@@ -86,15 +86,22 @@ export function GalleryLightbox({ item, onClose, onMove }: GalleryLightboxProps)
       {item && (
         <div className="gallery-lightbox-panel relative flex h-full w-full flex-col items-center justify-center px-4 py-16 sm:px-16">
           <button type="button" onClick={requestClose} aria-label="Cerrar fotografía" className="absolute right-4 top-4 grid size-12 place-items-center rounded-full bg-white text-ink transition-[transform,background-color,color] duration-200 hover:scale-105 hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:right-8 sm:top-8"><X /></button>
-          <button type="button" onClick={() => onMove(-1)} aria-label="Fotografía anterior" className="absolute left-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition-colors hover:bg-brass hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:left-8 sm:size-14"><ChevronLeft /></button>
-          <figure key={item.id} className="gallery-lightbox-figure flex min-h-0 max-h-full max-w-[min(82vw,88rem)] flex-col items-center">
-            <img src={largeSrc} alt={item.alt} className="min-h-0 max-h-[76svh] w-auto max-w-full rounded-xl object-contain" />
-            <figcaption className="mt-4 flex w-full items-center justify-between gap-4 text-sm">
-              <span id="gallery-lightbox-title" className="font-semibold">{item.alt}</span>
-              <span className="shrink-0 text-brass">{item.category}</span>
+          <button type="button" onClick={() => onMove(-1)} aria-label="Fotografía anterior" className="absolute bottom-4 left-4 grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition-colors hover:bg-brass hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:bottom-auto sm:left-8 sm:top-1/2 sm:size-14 sm:-translate-y-1/2"><ChevronLeft /></button>
+          <figure key={item.id} className="gallery-lightbox-figure grid min-h-0 max-h-full w-full max-w-[min(86vw,76rem)] overflow-hidden rounded-xl bg-charcoal lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,.65fr)]">
+            <div className="flex min-h-0 items-center justify-center bg-black/25">
+              <img src={largeSrc} alt={item.alt} className="h-[48svh] w-full object-contain lg:h-[76svh]" />
+            </div>
+            <figcaption className="max-h-[29svh] overflow-y-auto p-5 sm:p-7 lg:max-h-none lg:self-center lg:p-9">
+              <p className="text-sm font-semibold text-brass">{item.category}</p>
+              <h3 id="gallery-lightbox-title" className="mt-2 text-balance font-display text-2xl font-semibold sm:text-3xl">{item.alt}</h3>
+              <dl className="mt-6 space-y-5">
+                <div><dt className="flex items-center gap-2 text-xs font-semibold text-white/55"><Scissors className="size-4 text-brass" />Tipo de corte</dt><dd className="mt-1.5 text-sm font-semibold leading-6">{item.cut}</dd></div>
+                <div><dt className="flex items-center gap-2 text-xs font-semibold text-white/55"><Sparkles className="size-4 text-brass" />Tratamiento</dt><dd className="mt-1.5 text-sm font-semibold leading-6">{item.treatment}</dd></div>
+                <div><dt className="flex items-center gap-2 text-xs font-semibold text-white/55"><UserRound className="size-4 text-brass" />Profesional</dt><dd className="mt-1.5 text-sm font-semibold leading-6">{item.professional}</dd></div>
+              </dl>
             </figcaption>
           </figure>
-          <button type="button" onClick={() => onMove(1)} aria-label="Siguiente fotografía" className="absolute right-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition-colors hover:bg-brass hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:right-8 sm:size-14"><ChevronRight /></button>
+          <button type="button" onClick={() => onMove(1)} aria-label="Siguiente fotografía" className="absolute bottom-4 right-4 grid size-12 place-items-center rounded-full bg-white/10 text-white ring-1 ring-white/25 transition-colors hover:bg-brass hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass sm:bottom-auto sm:right-8 sm:top-1/2 sm:size-14 sm:-translate-y-1/2"><ChevronRight /></button>
         </div>
       )}
     </dialog>
