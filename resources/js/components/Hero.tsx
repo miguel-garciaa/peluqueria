@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { heroImage } from "@/data/content";
 
 export function Hero({ onBook }: { onBook: () => void }) {
@@ -19,7 +19,6 @@ export function Hero({ onBook }: { onBook: () => void }) {
             <a href="#servicios" className="w-[min(100%,21rem)] rounded-full border border-white/35 px-6 py-3 font-bold text-white transition-colors hover:bg-white hover:text-ink sm:w-auto sm:px-7 sm:py-4">Ver servicios</a>
           </div>
         </div>
-        <a href="#servicios" aria-label="Ir a servicios" className="hero-scroll-cue absolute bottom-6 right-0 grid size-11 place-items-center text-white/75 transition-colors hover:text-brass lg:bottom-10"><ArrowDown className="size-6" /></a>
       </div>
     </section>
   );

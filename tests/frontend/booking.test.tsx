@@ -32,6 +32,12 @@ describe("BookingSection", () => {
       "https://www.google.com/maps/search/?api=1&query=Paseo+Alfonso+XIII+28+30201+Cartagena+Murcia",
     );
   });
+
+  it("offers a way back to the start from the bottom of the page", () => {
+    render(<BookingSection onBook={vi.fn()} />);
+
+    expect(screen.getByRole("link", { name: "Volver al inicio" })).toHaveAttribute("href", "#inicio");
+  });
 });
 
 describe("BookingModal", () => {

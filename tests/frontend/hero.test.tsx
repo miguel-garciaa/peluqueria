@@ -9,6 +9,7 @@ describe("Hero", () => {
 
     expect(screen.getByRole("button", { name: "Reservar cita" })).toHaveClass("w-[min(100%,21rem)]", "sm:w-auto", "p-1.5");
     expect(screen.getByRole("link", { name: "Ver servicios" })).toHaveClass("w-[min(100%,21rem)]", "sm:w-auto", "py-3");
+    expect(screen.queryByRole("link", { name: "Ir a servicios" })).not.toBeInTheDocument();
   });
 });
 

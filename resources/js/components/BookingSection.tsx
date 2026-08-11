@@ -1,4 +1,4 @@
-import { ArrowUpRight, CalendarCheck2, Check, Clock3, MapPin, Phone } from "lucide-react";
+import { ArrowUp, ArrowUpRight, CalendarCheck2, Check, Clock3, MapPin, Phone } from "lucide-react";
 import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
@@ -37,6 +37,14 @@ export function BookingSection({ onBook }: { onBook: () => void }) {
             <button type="button" onClick={onBook} className="group mt-8 flex min-h-16 w-full items-center justify-between rounded-xl bg-ink px-4 font-bold text-white shadow-[0_5px_0_var(--color-espresso)] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_7px_0_var(--color-espresso)] sm:px-5"><span className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-lg bg-brass text-ink"><CalendarCheck2 className="size-5" /></span>Reservar cita</span><ArrowUpRight className="size-5 text-brass transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>
           </div>
         </ScrollReveal>
+        <div className="mt-8 flex justify-end">
+          <a href="#inicio" className="group inline-flex min-h-11 items-center gap-3 rounded-full border border-white/20 px-3 py-2 pr-5 text-sm font-bold text-white/80 outline-none transition-[background-color,color,border-color,transform] hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-ink focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4 focus-visible:ring-offset-ink">
+            <span className="grid size-8 place-items-center rounded-full bg-brass text-ink">
+              <ArrowUp aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5" />
+            </span>
+            Volver al inicio
+          </a>
+        </div>
       </div>
     </section>
   );
