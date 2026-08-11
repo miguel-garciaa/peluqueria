@@ -38,6 +38,24 @@ class AdminPanelTest extends TestCase
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
     }
 
+    public function test_the_dashboard_theme_keeps_the_table_toolbar_compact(): void
+    {
+        $theme = file_get_contents(resource_path('css/filament/admin/theme.css'));
+
+        $this->assertStringContainsString(
+            '> .fi-ta-actions:first-child:not(:has(*))',
+            $theme,
+        );
+        $this->assertStringContainsString(
+            '.fi-wi-chart > .fi-section > .fi-section-content-ctn',
+            $theme,
+        );
+        $this->assertStringContainsString(
+            '.fi-wi-table .fi-ta-header {',
+            $theme,
+        );
+    }
+
     public function test_the_dashboard_content_widgets_share_the_same_grid_row(): void
     {
         $expectedSpan = ['md' => 2, 'xl' => 1];

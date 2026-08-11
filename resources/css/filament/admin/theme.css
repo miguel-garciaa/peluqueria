@@ -214,6 +214,19 @@ html.fi,
     width: 100%;
 }
 
+.fi-wi-table .fi-ta-header-toolbar:has(.fi-ta-search-field)
+    > .fi-ta-actions:first-child:not(:has(*)) {
+    display: none;
+}
+
+.fi-wi-chart > .fi-section > .fi-section-content-ctn {
+    border-top-width: 0;
+}
+
+.fi-wi-table .fi-ta-header {
+    border-bottom-width: 0;
+}
+
 .fi-wi-table .fi-ta-search-field,
 .fi-wi-table .fi-ta-search-field .fi-input-wrp {
     width: 100%;
