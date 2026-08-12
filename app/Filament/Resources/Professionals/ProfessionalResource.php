@@ -20,7 +20,7 @@ class ProfessionalResource extends Resource
 {
     protected static ?string $model = Professional::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
     protected static ?string $navigationLabel = 'Profesionales';
 
