@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentAvailabilityController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentHistoryPdfController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,8 @@ Route::middleware('throttle:oauth')->group(function (): void {
 Route::get('/login', fn () => to_route('google.redirect'))->name('login');
 
 Route::middleware('auth')->group(function (): void {
+    Route::get('/historial-citas/exportar.pdf', AppointmentHistoryPdfController::class)
+        ->name('appointment-history.pdf');
     Route::get('/reservas/disponibilidad', AppointmentAvailabilityController::class)
         ->middleware('throttle:availability')
         ->name('bookings.availability');

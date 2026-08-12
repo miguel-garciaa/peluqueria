@@ -28,7 +28,7 @@ class ProductResource extends Resource
 
     protected static ?string $pluralModelLabel = 'productos';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $recordTitleAttribute = 'name';
 

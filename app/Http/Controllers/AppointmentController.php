@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAppointment;
 use App\Models\Appointment;
 use App\Services\BookAppointment;
 use App\Services\BookingCatalog;
+use App\Services\CompleteElapsedAppointments;
 use App\Services\ManageAppointment;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -29,8 +30,13 @@ class AppointmentController extends Controller
         ], 201);
     }
 
-    public function index(Request $request, BookingCatalog $bookingCatalog): View
-    {
+    public function index(
+        Request $request,
+        BookingCatalog $bookingCatalog,
+        CompleteElapsedAppointments $completeElapsedAppointments,
+    ): View {
+        $completeElapsedAppointments->handle();
+
         $appointments = $request->user()->appointments()
             ->where('status', '!=', 'cancelled')
             ->select([

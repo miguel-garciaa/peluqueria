@@ -37,6 +37,12 @@ class ManageAppointment
         );
         $endsAt = $startsAt->addMinutes($service->duration_minutes);
 
+        if ($status === 'completed' && $endsAt->isFuture()) {
+            throw ValidationException::withMessages([
+                'data.status' => 'La cita se completará automáticamente cuando termine su duración prevista.',
+            ]);
+        }
+
         if (in_array($status, ['pending', 'confirmed'], true)
             && ! $this->availability->slotIsFree($professional, $startsAt, $endsAt, $except)) {
             throw ValidationException::withMessages([
@@ -51,6 +57,7 @@ class ManageAppointment
         $data['cancelled_at'] = $status === 'cancelled'
             ? ($except?->cancelled_at ?? now())
             : null;
+        $data['completed_at'] = $status === 'completed' ? $endsAt->utc() : null;
 
         return $data;
     }

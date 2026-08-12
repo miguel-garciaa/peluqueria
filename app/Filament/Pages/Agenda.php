@@ -6,6 +6,7 @@ use App\Filament\Actions\CancelAppointmentAction;
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Models\Appointment;
 use App\Models\Professional;
+use App\Services\CompleteElapsedAppointments;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -36,6 +37,7 @@ class Agenda extends Page
 
     public function mount(): void
     {
+        app(CompleteElapsedAppointments::class)->handle();
         $this->selectedDate = CarbonImmutable::now(config('app.business_timezone'))->format('Y-m-d');
     }
 

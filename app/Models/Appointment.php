@@ -31,6 +31,7 @@ class Appointment extends Model
             'starts_at' => 'immutable_datetime',
             'ends_at' => 'immutable_datetime',
             'cancelled_at' => 'immutable_datetime',
+            'completed_at' => 'immutable_datetime',
         ];
     }
 

@@ -572,6 +572,89 @@ html.fi,
     text-align: center;
 }
 
+/* Historial */
+.history-shell {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.history-toolbar {
+    align-items: end;
+    background: var(--bk-surface);
+    border: 1px solid var(--bk-border);
+    border-radius: 0.75rem;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(15rem, 0.8fr) minmax(32rem, 1.5fr);
+    padding: 1.25rem;
+}
+
+.history-period-copy h2 {
+    color: var(--bk-ink);
+    font-size: 1.1rem;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+    margin: 0;
+}
+
+.history-period-copy p {
+    color: var(--bk-muted);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.history-period-copy small {
+    color: var(--bk-muted);
+    display: block;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    margin-top: 0.65rem;
+    max-width: 44rem;
+}
+
+.history-summary {
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+}
+
+.history-summary > div {
+    background: var(--bk-surface);
+    border-block: 1px solid var(--bk-border);
+    min-height: 6.25rem;
+    padding: 1rem 1.1rem;
+}
+
+.history-summary > div:first-child {
+    border-inline-start: 1px solid var(--bk-border);
+    border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.history-summary > div:last-child {
+    border-inline-end: 1px solid var(--bk-border);
+    border-radius: 0 0.75rem 0.75rem 0;
+}
+
+.history-summary span {
+    color: var(--bk-muted);
+    display: block;
+    font-size: 0.72rem;
+    margin-bottom: 0.45rem;
+}
+
+.history-summary strong {
+    color: var(--bk-ink);
+    font-size: 1.7rem;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.history-summary .history-summary-date {
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+}
+
 @keyframes agenda-pulse {
     50% {
         opacity: 0.35;
@@ -580,6 +663,22 @@ html.fi,
 }
 
 @media (max-width: 900px) {
+    .history-toolbar {
+        align-items: stretch;
+        grid-template-columns: 1fr;
+    }
+
+    .history-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .history-summary > div,
+    .history-summary > div:first-child,
+    .history-summary > div:last-child {
+        border: 1px solid var(--bk-border);
+        border-radius: 0.65rem;
+    }
+
     .agenda-toolbar {
         align-items: stretch;
         flex-direction: column;
@@ -665,6 +764,31 @@ html.fi,
 
     .agenda-filters {
         grid-template-columns: 1fr;
+    }
+
+    .history-toolbar {
+        padding: 1rem;
+    }
+
+    .history-filters .fi-sc {
+        grid-template-columns: 1fr;
+    }
+
+    .history-summary {
+        gap: 0.65rem;
+    }
+
+    .history-summary > div {
+        min-height: 5.5rem;
+        padding: 0.85rem;
+    }
+
+    .history-summary strong {
+        font-size: 1.4rem;
+    }
+
+    .history-summary .history-summary-date {
+        font-size: 0.9rem;
     }
 }
 

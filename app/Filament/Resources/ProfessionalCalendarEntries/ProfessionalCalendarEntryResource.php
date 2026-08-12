@@ -28,7 +28,7 @@ class ProfessionalCalendarEntryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'bloqueos y excepciones';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 9;
 
     public static function form(Schema $schema): Schema
     {

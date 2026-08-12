@@ -92,6 +92,14 @@ El despliegue debe mantener un worker supervisado:
 php artisan queue:work redis --queue=emails,default --sleep=1 --tries=3 --timeout=90
 ```
 
+Configura también el planificador de Laravel para cerrar automáticamente las citas cuando alcance su hora final y añadirlas al historial. En producción, ejecuta cada minuto:
+
+```cron
+* * * * * cd /ruta/al/proyecto/laravel && php artisan schedule:run >> /dev/null 2>&1
+```
+
+En desarrollo, `composer dev` ya inicia `php artisan schedule:work` junto al servidor, la cola, los logs y Vite.
+
 Si Octane todavía no está arrancado, usa el servidor que tengas configurado:
 
 ```bash

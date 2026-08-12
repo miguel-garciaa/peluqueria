@@ -30,7 +30,7 @@ class ScheduleResource extends Resource
 
     protected static ?string $pluralModelLabel = 'horarios';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 8;
 
     public static function form(Schema $schema): Schema
     {
