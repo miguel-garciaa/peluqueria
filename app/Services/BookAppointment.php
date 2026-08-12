@@ -22,7 +22,7 @@ class BookAppointment
         private readonly CacheManager $cache,
     ) {}
 
-    /** @param array{fullName: string, phone: string, serviceId: string, professionalId: string, customDetails?: string|null, date: string, timeSlot: string} $data */
+    /** @param array{fullName: string, phone: string, serviceId: string, professionalId: string, customDetails?: string|null, date: string, timeSlot: string, paymentMethod: string} $data */
     public function handle(User $user, array $data): Appointment
     {
         $startsAt = CarbonImmutable::createFromFormat(
@@ -135,6 +135,8 @@ class BookAppointment
             $appointment->starts_at = $startsAt->utc();
             $appointment->ends_at = $endsAt->utc();
             $appointment->status = 'confirmed';
+            $appointment->payment_method = $data['paymentMethod'];
+            $appointment->payment_amount = $service->price_from;
             $appointment->save();
 
             return $appointment;

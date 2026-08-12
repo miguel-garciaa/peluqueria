@@ -27,6 +27,10 @@
                 <strong>{{ number_format($summary['services'], 0, ',', '.') }}</strong>
             </div>
             <div>
+                <span>Total cobrado</span>
+                <strong>{{ number_format($summary['collected'], 2, ',', '.') }} €</strong>
+            </div>
+            <div>
                 <span>Última finalización</span>
                 <strong class="history-summary-date">{{ $summary['latest'] ?? 'Sin datos' }}</strong>
             </div>

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Appointments\Tables;
 
 use App\Filament\Actions\CancelAppointmentAction;
+use App\Models\Payment;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -45,6 +46,11 @@ class AppointmentsTable
                         'cancelled' => 'danger',
                         default => 'gray',
                     }),
+                TextColumn::make('payment_method')
+                    ->label('Pago')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => Payment::methodOptions()[$state] ?? 'Sin indicar')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('reference')->label('Referencia')->toggleable(isToggledHiddenByDefault: true)->searchable(),
             ])
             ->filters([

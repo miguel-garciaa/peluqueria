@@ -88,6 +88,9 @@ describe("BookingModal", () => {
 
     expect(screen.getByRole("heading", { name: "Confirma tu cita" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Confirmar cita" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: /Efectivo/ })).toBeChecked();
+    expect(screen.getByRole("radio", { name: /Bizum/ })).toBeDisabled();
+    expect(screen.getByText("Próximamente")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Confirmar cita" }));
@@ -95,6 +98,7 @@ describe("BookingModal", () => {
     expect(await screen.findByRole("heading", { name: "Nos vemos pronto." })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({ method: "POST" });
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body))).toMatchObject({ paymentMethod: "cash" });
 
     vi.unstubAllGlobals();
   });

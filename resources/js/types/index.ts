@@ -63,6 +63,7 @@ export interface BookingFormData {
   customDetails: string;
   date: string;
   timeSlot: string;
+  paymentMethod: "cash" | "bizum";
 }
 
 export type SubmissionStatus = "idle" | "submitting" | "success" | "error";
@@ -96,6 +97,7 @@ export interface BookingCatalogProfessional {
 export interface BookingCatalog {
   services: BookingCatalogService[];
   professionals: BookingCatalogProfessional[];
+  bizumEnabled?: boolean;
 }
 
 export interface AvailabilitySlot {

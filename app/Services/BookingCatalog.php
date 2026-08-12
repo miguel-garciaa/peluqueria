@@ -12,7 +12,8 @@ class BookingCatalog
     /**
      * @return array{
      *     services: array<int, array{id: string, name: string, description: string|null, imageUrl: string|null, durationMinutes: int, priceFrom: float|null, isCustom: bool}>,
-     *     professionals: array<int, array{id: string, name: string, role: string|null, imageUrl: string|null, serviceIds: array<int, string>}>
+     *     professionals: array<int, array{id: string, name: string, role: string|null, imageUrl: string|null, serviceIds: array<int, string>}>,
+     *     bizumEnabled: bool
      * }
      */
     public function get(): array
@@ -54,7 +55,11 @@ class BookingCatalog
             ->values()
             ->all();
 
-        return compact('services', 'professionals');
+        return [
+            'services' => $services,
+            'professionals' => $professionals,
+            'bizumEnabled' => (bool) config('payments.bizum_enabled'),
+        ];
     }
 
     private function publicImageUrl(?string $path): ?string

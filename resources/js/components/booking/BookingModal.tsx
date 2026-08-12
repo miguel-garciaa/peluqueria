@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CalendarDays, Check, CheckCircle2, Clock3, Scissors, Sparkles, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Banknote, CalendarDays, Check, CheckCircle2, Clock3, Scissors, Smartphone, Sparkles, UserRound, X } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarPicker } from "@/components/booking/CalendarPicker";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ const emptyForm = (user: CurrentUser, intent: BookingIntent): BookingFormData =>
   customDetails: "",
   date: "",
   timeSlot: "",
+  paymentMethod: "cash",
 });
 const humanDate = (value: string) => new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" }).format(new Date(`${value}T12:00:00`));
 
@@ -152,7 +153,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
         const serverErrors: BookingError = {};
         for (const field of Object.keys(payload.errors ?? {}) as Array<keyof BookingFormData>) serverErrors[field] = payload.errors?.[field]?.[0];
         setErrors(serverErrors);
-        if (serverErrors.timeSlot || serverErrors.date) setStep(3); else if (serverErrors.serviceId || serverErrors.professionalId || serverErrors.customDetails) setStep(2); else setStep(1);
+        if (serverErrors.paymentMethod) setStep(4); else if (serverErrors.timeSlot || serverErrors.date) setStep(3); else if (serverErrors.serviceId || serverErrors.professionalId || serverErrors.customDetails) setStep(2); else setStep(1);
         return;
       }
       if (!response.ok || !payload.appointment) throw new Error(payload.message ?? "No se pudo confirmar la cita.");
@@ -187,6 +188,7 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
             <p className="mt-7 text-sm font-bold text-brass-deep">Reserva completada</p>
             <h3 className="mt-2 font-display text-4xl font-semibold">Nos vemos pronto.</h3>
             <p className="mt-4 max-w-md leading-7 text-taupe">{success.message} Te atenderá {success.professional}.</p>
+            {form.paymentMethod === "cash" && <p className="mt-2 text-sm text-taupe">El pago se realizará en efectivo en el salón.</p>}
             <p className="mt-5 rounded-full bg-mist px-4 py-2 font-mono text-xs font-bold">Ref. {success.reference}</p>
             <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:justify-center"><a href="/mis-citas" className="rounded-full bg-ink px-6 py-3.5 font-bold text-white">Ver mis citas</a><button type="button" onClick={onClose} className="rounded-full border border-ink/15 px-6 py-3.5 font-bold">Cerrar</button></div>
           </div> : <>
@@ -229,6 +231,22 @@ export function BookingModal({ open, onClose, currentUser, catalog, intent, book
                 <div className="grid gap-6 bg-ink p-6 text-white sm:grid-cols-[auto_1fr]"><span className="grid size-14 place-items-center rounded-2xl bg-brass text-ink"><CalendarDays /></span><div><p className="font-display text-2xl font-semibold capitalize">{humanDate(form.date)}</p><p className="mt-1 flex items-center gap-2 text-white/65"><Clock3 className="size-4 text-brass" />{form.timeSlot} · {selectedService?.durationMinutes} min</p></div></div>
                 <dl className="divide-y divide-ink/10 px-6"><div className="flex justify-between gap-4 py-4"><dt className="text-sm text-taupe">Servicio</dt><dd className="text-right text-sm font-bold">{selectedService?.name}</dd></div><div className="flex justify-between gap-4 py-4"><dt className="text-sm text-taupe">Profesional</dt><dd className="text-right text-sm font-bold">{selectedProfessional?.name ?? slots.find((slot) => slot.time === form.timeSlot)?.professional.name ?? "Primera disponibilidad"}</dd></div><div className="flex justify-between gap-4 py-4"><dt className="text-sm text-taupe">A nombre de</dt><dd className="text-right text-sm font-bold">{form.fullName}<br /><span className="font-normal text-taupe">{form.phone}</span></dd></div>{form.customDetails && <div className="py-4"><dt className="text-sm text-taupe">Petición</dt><dd className="mt-2 text-sm leading-6">{form.customDetails}</dd></div>}</dl>
               </div>
+              <fieldset className="mt-5">
+                <legend className="text-sm font-bold">Forma de pago</legend>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className={cn("flex cursor-pointer items-center gap-3 rounded-2xl border bg-white p-4 transition-colors", form.paymentMethod === "cash" ? "border-brass-deep ring-2 ring-brass/25" : "border-ink/10")}>
+                    <input type="radio" name="payment-method" value="cash" checked={form.paymentMethod === "cash"} onChange={() => update("paymentMethod", "cash")} className="sr-only" />
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brass text-ink"><Banknote className="size-5" /></span>
+                    <span><strong className="block text-sm">Efectivo</strong><span className="mt-0.5 block text-xs leading-5 text-taupe">Paga en el salón al finalizar.</span></span>
+                  </label>
+                  <label className={cn("flex items-center gap-3 rounded-2xl border p-4", catalog.bizumEnabled ? "cursor-pointer border-ink/10 bg-white" : "cursor-not-allowed border-ink/5 bg-mist/70 opacity-70")}>
+                    <input type="radio" name="payment-method" value="bizum" checked={form.paymentMethod === "bizum"} onChange={() => update("paymentMethod", "bizum")} disabled={!catalog.bizumEnabled} className="sr-only" />
+                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-ink"><Smartphone className="size-5" /></span>
+                    <span className="min-w-0"><span className="flex flex-wrap items-center gap-2"><strong className="text-sm">Bizum</strong>{!catalog.bizumEnabled && <span className="rounded-full bg-ink px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wide text-white">Próximamente</span>}</span><span className="mt-0.5 block text-xs leading-5 text-taupe">Pago online mediante Redsys.</span></span>
+                  </label>
+                </div>
+                {errors.paymentMethod && <p className="mt-2 text-xs font-semibold text-danger">{errors.paymentMethod}</p>}
+              </fieldset>
               {availabilityError && <p className="mt-4 rounded-xl bg-danger/10 p-4 text-sm font-semibold text-danger">{availabilityError}</p>}
               <p className="mt-4 text-xs leading-5 text-taupe">Al confirmar, recibirás un correo con todos los detalles de la cita.</p>
             </section>}

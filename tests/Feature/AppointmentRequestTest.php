@@ -50,11 +50,34 @@ class AppointmentRequestTest extends TestCase
             'service_id' => $service->id,
             'professional_id' => $professional->id,
             'status' => 'confirmed',
+            'payment_method' => 'cash',
+            'payment_amount' => 35,
         ]);
         $this->assertSame('+34 600 12 34 56', $user->fresh()->phone);
         Mail::assertQueued(AppointmentConfirmed::class, fn (AppointmentConfirmed $mail) => $mail->appointment->service_id === $service->id
             && $mail->connection === 'redis'
             && $mail->queue === 'emails');
+    }
+
+    public function test_bizum_is_visible_for_future_integration_but_cannot_be_selected_yet(): void
+    {
+        Mail::fake();
+        [$service, $professional] = $this->createCatalog();
+        $user = User::factory()->create();
+        $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
+
+        $this->actingAs($user)->postJson(route('bookings.store'), [
+            'fullName' => 'María García',
+            'phone' => '600 123 456',
+            'serviceId' => $service->slug,
+            'professionalId' => $professional->slug,
+            'date' => $date,
+            'timeSlot' => '10:30',
+            'paymentMethod' => 'bizum',
+        ])->assertUnprocessable()->assertJsonValidationErrors('paymentMethod');
+
+        $this->assertDatabaseCount('bookings', 0);
+        Mail::assertNothingQueued();
     }
 
     public function test_booking_text_fields_are_stored_as_plain_text(): void

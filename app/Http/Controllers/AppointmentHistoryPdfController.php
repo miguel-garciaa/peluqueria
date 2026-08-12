@@ -39,7 +39,7 @@ class AppointmentHistoryPdfController extends Controller
         $professional = $professionalId ? Professional::query()->find($professionalId) : null;
         $appointments = $historyReport
             ->query($period, $now, $serviceId, $professionalId)
-            ->with(['user:id,email', 'service:id,name', 'professional:id,name'])
+            ->with(['user:id,email', 'service:id,name', 'professional:id,name', 'payment:id,booking_id,method,status,amount,paid_at'])
             ->latest('ends_at')
             ->get();
         $pdf = $historyPdf->render(

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Appointments\Pages;
 
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Services\ManageAppointment;
+use App\Services\RecordCompletedAppointmentPayment;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -58,6 +59,10 @@ class EditAppointment extends EditRecord
 
     protected function afterSave(): void
     {
+        if ($this->record->status === 'completed') {
+            app(RecordCompletedAppointmentPayment::class)->handle($this->record);
+        }
+
         if ($this->record->status === 'cancelled' && $this->originalStatus !== 'cancelled') {
             app(ManageAppointment::class)->sendCancellation($this->record);
 

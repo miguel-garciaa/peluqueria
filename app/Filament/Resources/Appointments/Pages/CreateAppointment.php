@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Appointments\Pages;
 
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Services\ManageAppointment;
+use App\Services\RecordCompletedAppointmentPayment;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,10 @@ class CreateAppointment extends CreateRecord
 
     protected function afterCreate(): void
     {
+        if ($this->record->status === 'completed') {
+            app(RecordCompletedAppointmentPayment::class)->handle($this->record);
+        }
+
         if ($this->record->status === 'cancelled') {
             app(ManageAppointment::class)->sendCancellation($this->record);
 

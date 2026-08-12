@@ -6,6 +6,7 @@ use App\Support\SpanishPhone;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Appointment extends Model
@@ -32,6 +33,7 @@ class Appointment extends Model
             'ends_at' => 'immutable_datetime',
             'cancelled_at' => 'immutable_datetime',
             'completed_at' => 'immutable_datetime',
+            'payment_amount' => 'decimal:2',
         ];
     }
 
@@ -62,5 +64,10 @@ class Appointment extends Model
     public function professional(): BelongsTo
     {
         return $this->belongsTo(Professional::class);
+    }
+
+    public function payment(): HasOne
+    {
+        return $this->hasOne(Payment::class, 'booking_id');
     }
 }

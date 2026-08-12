@@ -36,6 +36,9 @@ class AppointmentHistoryPdf
             'totalMinutes' => $appointments->sum(
                 fn ($appointment): int => (int) $appointment->starts_at->diffInMinutes($appointment->ends_at),
             ),
+            'totalCollected' => $appointments
+                ->filter(fn ($appointment): bool => $appointment->payment?->status === 'paid')
+                ->sum(fn ($appointment): float => (float) ($appointment->payment?->amount ?? 0)),
         ])->render());
         $dompdf->render();
 

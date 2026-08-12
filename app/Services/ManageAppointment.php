@@ -22,6 +22,15 @@ class ManageAppointment
         $service = Service::query()->findOrFail($data['service_id']);
         $professional = Professional::query()->lockForUpdate()->findOrFail($data['professional_id']);
         $status = (string) ($data['status'] ?? 'confirmed');
+        $data['payment_method'] ??= 'cash';
+        if ($except?->payment()->exists() && $data['payment_method'] !== $except->payment_method) {
+            throw ValidationException::withMessages([
+                'data.payment_method' => 'No puedes cambiar la forma de pago porque esta cita ya tiene un cobro registrado.',
+            ]);
+        }
+        if (! array_key_exists('payment_amount', $data)) {
+            $data['payment_amount'] = $service->price_from;
+        }
 
         $worksWithService = $professional->services()->whereKey($service->getKey())->exists();
         if (! $worksWithService) {

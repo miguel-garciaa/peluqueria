@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\Payment;
 use App\Models\Professional;
 use App\Models\Service;
 use App\Services\AppointmentHistoryReport;
@@ -87,6 +88,7 @@ class AppointmentHistory extends Page implements HasTable
                 'user:id,email',
                 'service:id,name',
                 'professional:id,name',
+                'payment:id,booking_id,method,status,amount,paid_at',
             ]))
             ->poll('30s')
             ->defaultSort('ends_at', 'desc')
@@ -121,6 +123,19 @@ class AppointmentHistory extends Page implements HasTable
                     ->label('Duración')
                     ->state(fn (Appointment $record): string => (int) $record->starts_at->diffInMinutes($record->ends_at).' min')
                     ->visibleFrom('md'),
+                TextColumn::make('payment.method')
+                    ->label('Pago')
+                    ->badge()
+                    ->placeholder('Pendiente')
+                    ->formatStateUsing(fn (?string $state): string => Payment::methodOptions()[$state] ?? 'Pendiente')
+                    ->description(function (Appointment $record): string {
+                        $status = Payment::statusOptions()[$record->payment?->status] ?? 'Pendiente';
+                        $amount = $record->payment?->amount ?? $record->payment_amount;
+
+                        return $amount !== null
+                            ? $status.' · '.number_format((float) $amount, 2, ',', '.').' €'
+                            : $status.' · importe por valorar';
+                    }),
                 TextColumn::make('reference')
                     ->label('Referencia')
                     ->searchable()
@@ -140,7 +155,7 @@ class AppointmentHistory extends Page implements HasTable
             ->emptyStateIcon('heroicon-o-clock');
     }
 
-    /** @return array{appointments: int, customers: int, services: int, latest: ?string} */
+    /** @return array{appointments: int, customers: int, services: int, collected: float, latest: ?string} */
     public function summary(): array
     {
         $query = $this->historyQuery();
@@ -150,6 +165,10 @@ class AppointmentHistory extends Page implements HasTable
             'appointments' => (clone $query)->count(),
             'customers' => (clone $query)->distinct()->count('user_id'),
             'services' => (clone $query)->distinct()->count('service_id'),
+            'collected' => (float) (clone $query)
+                ->join('payments', 'payments.booking_id', '=', 'bookings.id')
+                ->where('payments.status', 'paid')
+                ->sum('payments.amount'),
             'latest' => $latest
                 ? CarbonImmutable::parse($latest)->timezone(config('app.business_timezone'))->locale('es')->translatedFormat('d M, H:i')
                 : null,

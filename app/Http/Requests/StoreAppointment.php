@@ -117,6 +117,10 @@ class StoreAppointment extends FormRequest
                     }
                 },
             ],
+            'paymentMethod' => [
+                'required',
+                Rule::in(config('payments.bizum_enabled') ? ['cash', 'bizum'] : ['cash']),
+            ],
         ];
     }
 
@@ -151,6 +155,7 @@ class StoreAppointment extends FormRequest
             'serviceId' => trim((string) $this->input('serviceId')),
             'professionalId' => trim((string) $this->input('professionalId')),
             'customDetails' => $this->plainText($this->input('customDetails')),
+            'paymentMethod' => trim((string) ($this->input('paymentMethod') ?: 'cash')),
         ]);
     }
 
@@ -187,6 +192,8 @@ class StoreAppointment extends FormRequest
             'date.before_or_equal' => 'Puedes reservar con hasta 90 días de antelación.',
             'timeSlot.required' => 'Selecciona una hora disponible.',
             'timeSlot.date_format' => 'La hora seleccionada no tiene un formato válido.',
+            'paymentMethod.required' => 'Selecciona una forma de pago.',
+            'paymentMethod.in' => 'Bizum estará disponible próximamente. Selecciona el pago en efectivo.',
         ];
     }
 }

@@ -28,7 +28,7 @@ class UserResource extends Resource
 
     protected static ?string $pluralModelLabel = 'clientes';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -18,10 +18,10 @@ class AppointmentHistoryReport
         $start = $period->startsAt($now);
 
         return Appointment::query()
-            ->where('status', 'completed')
-            ->where('ends_at', '<=', $now->utc())
-            ->when($start, fn (Builder $query): Builder => $query->where('ends_at', '>=', $start->utc()))
-            ->when($serviceId, fn (Builder $query): Builder => $query->where('service_id', $serviceId))
-            ->when($professionalId, fn (Builder $query): Builder => $query->where('professional_id', $professionalId));
+            ->where('bookings.status', 'completed')
+            ->where('bookings.ends_at', '<=', $now->utc())
+            ->when($start, fn (Builder $query): Builder => $query->where('bookings.ends_at', '>=', $start->utc()))
+            ->when($serviceId, fn (Builder $query): Builder => $query->where('bookings.service_id', $serviceId))
+            ->when($professionalId, fn (Builder $query): Builder => $query->where('bookings.professional_id', $professionalId));
     }
 }

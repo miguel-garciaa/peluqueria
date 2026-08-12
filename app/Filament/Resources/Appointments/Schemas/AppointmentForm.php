@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Appointments\Schemas;
 
+use App\Models\Payment;
+use App\Models\Service;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -59,6 +61,11 @@ class AppointmentForm
                                 ->relationship('service', 'name', modifyQueryUsing: fn ($query) => $query->orderBy('name'))
                                 ->searchable()
                                 ->preload()
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set, ?int $state): mixed => $set(
+                                    'payment_amount',
+                                    $state ? Service::query()->find($state)?->price_from : null,
+                                ))
                                 ->required(),
                             Select::make('professional_id')
                                 ->label('Profesional')
@@ -99,6 +106,27 @@ class AppointmentForm
                                 ])
                                 ->default('confirmed')
                                 ->required(),
+                        ]),
+                    ])
+                    ->columnSpanFull(),
+                Section::make('Pago')
+                    ->description('El efectivo se registra como cobrado al terminar la cita. Bizum queda preparado para la futura conexión con Redsys.')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('payment_method')
+                                ->label('Forma de pago')
+                                ->options(Payment::methodOptions())
+                                ->default('cash')
+                                ->native(false)
+                                ->required(),
+                            TextInput::make('payment_amount')
+                                ->label('Importe de la cita')
+                                ->numeric()
+                                ->prefix('€')
+                                ->minValue(0)
+                                ->maxValue(99999999.99)
+                                ->step(0.01)
+                                ->helperText('Se propone el precio del servicio y puedes ajustarlo para esta cita.'),
                         ]),
                     ])
                     ->columnSpanFull(),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Appointments\Schemas;
 
+use App\Models\Payment;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -56,6 +57,33 @@ class AppointmentInfolist
                     TextEntry::make('custom_details')
                         ->label('Detalles personalizados')
                         ->placeholder('Sin detalles adicionales'),
+                ])->columnSpanFull(),
+                Section::make('Pago')->schema([
+                    Grid::make(3)->schema([
+                        TextEntry::make('payment_method')
+                            ->label('Forma de pago')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state): string => Payment::methodOptions()[$state] ?? 'Sin indicar'),
+                        TextEntry::make('payment_amount')
+                            ->label('Importe previsto')
+                            ->money('EUR', locale: 'es')
+                            ->placeholder('Pendiente de valoración'),
+                        TextEntry::make('payment.status')
+                            ->label('Estado del pago')
+                            ->badge()
+                            ->placeholder('Pendiente')
+                            ->formatStateUsing(fn (?string $state): string => Payment::statusOptions()[$state] ?? 'Pendiente')
+                            ->color(fn (?string $state): string => match ($state) {
+                                'paid' => 'success',
+                                'failed' => 'danger',
+                                'refunded' => 'warning',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('payment.paid_at')
+                            ->label('Cobrado el')
+                            ->dateTime('d/m/Y H:i', timezone: config('app.business_timezone'))
+                            ->placeholder('Todavía no cobrado'),
+                    ]),
                 ])->columnSpanFull(),
             ]);
     }

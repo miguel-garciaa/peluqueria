@@ -52,7 +52,7 @@
             <td><span>Citas completadas</span><strong>{{ number_format($appointments->count(), 0, ',', '.') }}</strong></td>
             <td><span>Clientes atendidos</span><strong>{{ number_format($uniqueCustomers, 0, ',', '.') }}</strong></td>
             <td><span>Tiempo atendido</span><strong>{{ number_format($totalMinutes / 60, 1, ',', '.') }} h</strong></td>
-            <td><span>Servicios distintos</span><strong>{{ number_format($appointments->pluck('service_id')->unique()->count(), 0, ',', '.') }}</strong></td>
+            <td><span>Total cobrado</span><strong>{{ number_format($totalCollected, 2, ',', '.') }} €</strong></td>
         </tr>
     </table>
 
@@ -62,13 +62,14 @@
         <table class="history">
             <thead>
                 <tr>
-                    <th style="width: 13%">Fecha y hora</th>
-                    <th style="width: 17%">Cliente</th>
-                    <th style="width: 13%">Teléfono</th>
-                    <th style="width: 18%">Servicio</th>
-                    <th style="width: 17%">Profesional</th>
-                    <th style="width: 8%">Duración</th>
-                    <th style="width: 14%">Referencia</th>
+                    <th style="width: 12%">Fecha y hora</th>
+                    <th style="width: 15%">Cliente</th>
+                    <th style="width: 11%">Teléfono</th>
+                    <th style="width: 16%">Servicio</th>
+                    <th style="width: 14%">Profesional</th>
+                    <th style="width: 7%">Duración</th>
+                    <th style="width: 14%">Pago</th>
+                    <th style="width: 11%">Referencia</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,6 +81,16 @@
                         <td>{{ $appointment->service?->name }}</td>
                         <td>{{ $appointment->professional?->name }}</td>
                         <td class="nowrap">{{ (int) $appointment->starts_at->diffInMinutes($appointment->ends_at) }} min</td>
+                        <td>
+                            {{ \App\Models\Payment::methodOptions()[$appointment->payment_method] ?? 'Sin indicar' }}
+                            <br>
+                            <span class="meta">
+                                {{ \App\Models\Payment::statusOptions()[$appointment->payment?->status] ?? 'Pendiente' }}
+                                @if (($appointment->payment?->amount ?? $appointment->payment_amount) !== null)
+                                    · {{ number_format((float) ($appointment->payment?->amount ?? $appointment->payment_amount), 2, ',', '.') }} €
+                                @endif
+                            </span>
+                        </td>
                         <td>{{ $appointment->reference }}</td>
                     </tr>
                 @endforeach
