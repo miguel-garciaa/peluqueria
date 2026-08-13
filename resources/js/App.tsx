@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Gallery } from "@/components/Gallery";
 import { Hero } from "@/components/Hero";
 import { Navbar } from "@/components/Navbar";
+import { PwaStatus } from "@/components/PwaStatus";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
 import { Team } from "@/components/Team";
@@ -68,6 +69,7 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
       </main>
       <Footer />
       <CustomCursor />
+      <PwaStatus />
       {currentUser && bookingOpen && (
         <Suspense fallback={null}>
           <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />

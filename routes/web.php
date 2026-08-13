@@ -5,8 +5,10 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AppointmentHistoryPdfController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\PwaManifestController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/manifest.webmanifest', PwaManifestController::class)->name('pwa.manifest');
 Route::get('/', LandingPageController::class)
     ->middleware('throttle:landing')
     ->name('landing');

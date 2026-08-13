@@ -45,6 +45,14 @@ describe("MyAppointmentsPage", () => {
     expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
   });
 
+  it("opens a new booking from the persistent mobile navigation", async () => {
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: "Reservar" }));
+
+    expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+  });
+
   it("asks for inline confirmation before submitting a cancellation", () => {
     renderPage();
 

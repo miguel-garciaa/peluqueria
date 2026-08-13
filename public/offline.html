@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#171512">
+  <title>Sin conexión — Peluquería</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #171512; color: #fff; }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; min-height: 100dvh; margin: 0; display: grid; place-items: center; padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left)); background: #171512; }
+    main { width: min(100%, 34rem); }
+    .mark { display: grid; width: 4.5rem; height: 4.5rem; place-items: center; border: 1px solid #d4ad65; border-radius: 999px; color: #d4ad65; }
+    h1 { max-width: 9ch; margin: 2rem 0 1rem; font-size: clamp(2.75rem, 13vw, 5rem); line-height: .9; letter-spacing: -.04em; text-wrap: balance; }
+    h1 span { color: #d4ad65; }
+    p { max-width: 38rem; margin: 0; color: #c9c2b8; font-size: 1rem; line-height: 1.7; }
+    button { min-height: 3.25rem; margin-top: 2rem; padding: .75rem 1.35rem; border: 0; border-radius: 999px; background: #d4ad65; color: #171512; font: inherit; font-weight: 750; cursor: pointer; }
+    button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true">
+      <svg width="38" height="38" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"><circle cx="18" cy="45" r="8"/><circle cx="46" cy="45" r="8"/><path d="m23 39 23-26M41 39 18 13M27 33l5 6 5-6"/></svg>
+    </div>
+    <h1>Ahora estás sin conexión<span>*</span></h1>
+    <p>Necesitas internet para consultar disponibilidad, reservar o cancelar una cita. Cuando recuperes la conexión, podrás continuar con seguridad.</p>
+    <button type="button" onclick="window.location.reload()">Volver a intentar</button>
+  </main>
+</body>
+</html>

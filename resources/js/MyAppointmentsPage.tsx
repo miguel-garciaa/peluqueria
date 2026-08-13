@@ -3,6 +3,7 @@ import { ArrowUpRight, CalendarDays, CheckCircle2, Clock3, Scissors, XCircle } f
 import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { PwaStatus } from "@/components/PwaStatus";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
@@ -33,7 +34,7 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
   return (
     <>
       <a className="skip-link" href="#appointments-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid showBookingAction={false} />
+      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => setBookingOpen(true)} solid showBookingAction={false} />
       <main id="appointments-content" className="min-h-screen bg-porcelain pb-24 pt-32 text-ink lg:pt-40">
         <section className="container-shell">
           <div className="border-b border-ink/12 pb-10 lg:flex lg:items-end lg:justify-between">
@@ -132,6 +133,7 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
       </main>
       <Footer />
       <CustomCursor />
+      <PwaStatus />
       {bookingOpen && (
         <Suspense fallback={null}>
           <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={{}} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />

@@ -2,7 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { MyAppointmentsPage } from "@/MyAppointmentsPage";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
+import { registerPwa } from "@/lib/pwa";
 import "../css/app.css";
+
+registerPwa();
 
 const root = document.getElementById("appointments-root");
 if (!root) throw new Error("No se encontró el contenedor de citas.");

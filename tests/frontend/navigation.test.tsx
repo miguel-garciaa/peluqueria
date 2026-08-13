@@ -7,12 +7,41 @@ describe("Navbar", () => {
     render(<Navbar />);
 
     expect(screen.getByRole("navigation", { name: "Navegación principal" })).toHaveClass("navbar-shell");
-    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("xl:hidden");
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("hidden", "md:grid", "xl:hidden");
     expect(screen.getAllByRole("link", { name: "Inicio 01" })[0].parentElement).toHaveClass("xl:flex");
+    expect(screen.getByRole("navigation", { name: "Navegación móvil" })).toHaveClass("md:hidden");
     const accountLink = screen.getAllByRole("link", { name: "Iniciar sesión con Google" })[0];
     expect(accountLink).toHaveAttribute("href", "/auth/google");
     expect(accountLink.querySelector("svg")).toBeInTheDocument();
     expect(accountLink).not.toHaveTextContent(/^GCuenta$/);
+  });
+
+  it("uses an app-like five-item bottom navigation on phones", () => {
+    const onBook = vi.fn();
+    render(<Navbar onBook={onBook} />);
+
+    const mobileNavigation = screen.getByRole("navigation", { name: "Navegación móvil" });
+    expect(mobileNavigation.getElementsByClassName("mobile-bottom-nav__item")).toHaveLength(5);
+    expect(mobileNavigation).toHaveTextContent("Inicio");
+    expect(mobileNavigation).toHaveTextContent("Servicios");
+    expect(mobileNavigation).toHaveTextContent("Reservar");
+    expect(mobileNavigation).toHaveTextContent("Galería");
+    expect(mobileNavigation).toHaveTextContent("Cuenta");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reservar" }));
+    expect(onBook).toHaveBeenCalledOnce();
+  });
+
+  it("opens account actions from the mobile tab bar", () => {
+    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cuenta" }));
+
+    expect(screen.getByRole("dialog", { name: "Ana López" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Mis citas" }).at(-1)).toHaveAttribute("href", "/mis-citas");
+    const logoutButton = screen.getAllByRole("button", { name: "Cerrar sesión" }).at(-1);
+    expect(logoutButton?.closest("form")).toHaveAttribute("action", "/logout");
+    expect(logoutButton?.closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
   });
 
   it("shows the authenticated account and a secure logout form", () => {
