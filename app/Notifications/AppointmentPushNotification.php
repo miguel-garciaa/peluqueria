@@ -53,6 +53,7 @@ class AppointmentPushNotification extends Notification implements ShouldQueue
             ->lang('es')
             ->tag('appointment-'.$this->appointment->reference)
             ->renotify()
+            ->requireInteraction($adminEvent)
             ->vibrate([180, 80, 180])
             ->action('Ver cita', 'view_appointment')
             ->data([

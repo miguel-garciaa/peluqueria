@@ -38,11 +38,9 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->homeUrl('/')
             ->renderHook(
-                PanelsRenderHook::TOPBAR_END,
+                PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn (): View => view('filament.components.back-to-site'),
             )
-            ->databaseNotifications()
-            ->databaseNotificationsPolling('10s')
             ->databaseTransactions()
             ->colors([
                 'primary' => Color::hex('#b7791f'),

@@ -62,7 +62,7 @@ La segunda orden realiza primero las comprobaciones y después intenta un envío
 
 ## Notificaciones push de citas
 
-La PWA permite activar o desactivar los avisos por dispositivo desde **Cuenta**, **Mis citas** y el panel de administración. Los clientes reciben confirmaciones, cambios, cancelaciones y un recordatorio durante las 24 horas anteriores. Los administradores suscritos reciben cada nueva reserva y cancelación.
+La PWA permite activar o desactivar los avisos por dispositivo desde **Cuenta** y **Mis citas**. Los clientes reciben confirmaciones, cambios, cancelaciones y un recordatorio durante las 24 horas anteriores. Los administradores suscritos reciben cada nueva reserva y cancelación como una notificación push del sistema, aunque el panel esté cerrado; estos avisos administrativos se envían de inmediato y no dependen del worker de colas.
 
 Genera las claves VAPID una sola vez por entorno y consérvalas entre despliegues:
 

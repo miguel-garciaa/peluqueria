@@ -4,16 +4,14 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\User;
-use App\Notifications\AdminAppointmentDatabaseNotification;
 use App\Notifications\AppointmentPushNotification;
 use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class AppointmentPushNotifications
 {
     public function booked(Appointment $appointment): void
     {
-        $this->notifyAdminPanel($appointment, AppointmentPushNotification::ADMIN_CREATED);
-
         if (! $this->configured()) {
             return;
         }
@@ -34,8 +32,6 @@ class AppointmentPushNotifications
 
     public function cancelled(Appointment $appointment): void
     {
-        $this->notifyAdminPanel($appointment, AppointmentPushNotification::ADMIN_CANCELLED);
-
         if (! $this->configured()) {
             return;
         }
@@ -75,16 +71,13 @@ class AppointmentPushNotifications
             return;
         }
 
-        Notification::send($admins, new AppointmentPushNotification($appointment, $event));
-    }
-
-    private function notifyAdminPanel(Appointment $appointment, string $event): void
-    {
-        $admins = User::query()->admins()->get();
-        if ($admins->isEmpty()) {
-            return;
+        foreach ($admins as $admin) {
+            try {
+                // New bookings must reach the owner's phone even if a queue worker is unavailable.
+                Notification::sendNow($admin, new AppointmentPushNotification($appointment, $event));
+            } catch (Throwable $exception) {
+                report($exception);
+            }
         }
-
-        Notification::sendNow($admins, new AdminAppointmentDatabaseNotification($appointment, $event));
     }
 }

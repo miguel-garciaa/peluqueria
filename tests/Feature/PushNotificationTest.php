@@ -6,12 +6,14 @@ use App\Models\Appointment;
 use App\Models\Professional;
 use App\Models\Service;
 use App\Models\User;
-use App\Notifications\AdminAppointmentDatabaseNotification;
 use App\Notifications\AppointmentPushNotification;
 use App\Services\AppointmentPushNotifications;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
+use NotificationChannels\WebPush\WebPushChannel;
 use Tests\TestCase;
 
 class PushNotificationTest extends TestCase
@@ -76,40 +78,45 @@ class PushNotificationTest extends TestCase
             fn (AppointmentPushNotification $notification): bool => $notification->event === AppointmentPushNotification::CONFIRMED);
         Notification::assertSentTo($admin, AppointmentPushNotification::class,
             fn (AppointmentPushNotification $notification): bool => $notification->event === AppointmentPushNotification::ADMIN_CREATED);
-        Notification::assertSentTo($admin, AdminAppointmentDatabaseNotification::class,
-            fn (AdminAppointmentDatabaseNotification $notification): bool => $notification->event === AppointmentPushNotification::ADMIN_CREATED);
     }
 
-    public function test_the_admin_panel_receives_a_persistent_notification_even_without_vapid(): void
+    public function test_admin_booking_push_is_sent_immediately_without_waiting_for_a_queue_worker(): void
     {
-        config()->set('webpush.vapid.public_key');
-        config()->set('webpush.vapid.private_key');
-        [$appointment] = $this->appointmentAt(now()->addDays(3));
+        Queue::fake();
+        [$appointment, $customer] = $this->appointmentAt(now()->addDays(3));
         $admin = User::factory()->create(['is_admin' => true]);
+        $customer->updatePushSubscription(...$this->subscriptionArguments('customer-immediate'));
+        $admin->updatePushSubscription(...$this->subscriptionArguments('admin-immediate'));
+
+        $channel = \Mockery::mock(WebPushChannel::class);
+        $channel->shouldReceive('send')
+            ->once()
+            ->withArgs(fn (User $notifiable, AppointmentPushNotification $notification): bool => $notifiable->is($admin)
+                && $notification->event === AppointmentPushNotification::ADMIN_CREATED);
+        app()->instance(WebPushChannel::class, $channel);
 
         app(AppointmentPushNotifications::class)->booked($appointment);
 
-        $this->assertDatabaseHas('notifications', [
-            'notifiable_type' => User::class,
-            'notifiable_id' => $admin->id,
-            'type' => AdminAppointmentDatabaseNotification::class,
-        ]);
-        $this->assertDatabaseCount('notifications', 1);
+        Queue::assertPushed(SendQueuedNotifications::class, 1);
+        $this->assertDatabaseCount('notifications', 0);
     }
 
-    public function test_the_admin_panel_receives_a_persistent_cancellation_notification(): void
+    public function test_admin_booking_push_uses_a_visible_high_priority_system_notification(): void
     {
-        config()->set('webpush.vapid.public_key');
-        config()->set('webpush.vapid.private_key');
         [$appointment] = $this->appointmentAt(now()->addDays(3));
         $admin = User::factory()->create(['is_admin' => true]);
+        $notification = new AppointmentPushNotification(
+            $appointment,
+            AppointmentPushNotification::ADMIN_CREATED,
+        );
 
-        app(AppointmentPushNotifications::class)->cancelled($appointment);
+        $message = $notification->toWebPush($admin, $notification);
+        $payload = $message->toArray();
 
-        $notification = $admin->fresh()->notifications()->sole();
-
-        $this->assertSame('Cita anulada', $notification->data['title']);
-        $this->assertSame('danger', $notification->data['status']);
+        $this->assertTrue($payload['requireInteraction']);
+        $this->assertSame([180, 80, 180], $payload['vibrate']);
+        $this->assertSame('/admin/appointments/'.$appointment->getKey(), $payload['data']['url']);
+        $this->assertSame('high', $message->getOptions()['urgency']);
     }
 
     public function test_a_reminder_is_enqueued_only_once_during_the_24_hours_before_an_appointment(): void

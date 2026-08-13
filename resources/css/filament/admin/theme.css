@@ -57,11 +57,12 @@ html.fi,
 
 .admin-home-link {
     display: inline-flex;
+    flex: 0 0 2.75rem;
+    width: 2.75rem;
     min-height: 2.75rem;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding-inline: 0.875rem;
+    padding: 0;
     border: 1px solid var(--bk-border-strong);
     border-radius: 0.5rem;
     color: var(--bk-ink);
@@ -88,20 +89,19 @@ html.fi,
     height: 1.125rem;
 }
 
-.admin-home-link__mobile-label {
+.admin-home-link__label {
     display: none;
 }
 
-@media (max-width: 40rem) {
+@media (min-width: 64rem) {
     .admin-home-link {
-        padding-inline: 0.625rem;
+        flex-basis: auto;
+        gap: 0.5rem;
+        padding-inline: 0.875rem;
+        width: auto;
     }
 
-    .admin-home-link__desktop-label {
-        display: none;
-    }
-
-    .admin-home-link__mobile-label {
+    .admin-home-link__label {
         display: inline;
     }
 }
