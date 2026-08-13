@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { MobileAccountPage } from "@/components/MobileAccountPage";
 import { Navbar } from "@/components/Navbar";
 
 describe("Navbar", () => {
@@ -16,32 +17,30 @@ describe("Navbar", () => {
     expect(accountLink).not.toHaveTextContent(/^GCuenta$/);
   });
 
-  it("uses an app-like five-item bottom navigation on phones", () => {
-    const onBook = vi.fn();
-    render(<Navbar onBook={onBook} />);
+  it("uses an app-like six-item bottom navigation on phones", () => {
+    const onMobileViewChange = vi.fn();
+    render(<Navbar onMobileViewChange={onMobileViewChange} />);
 
     const mobileNavigation = screen.getByRole("navigation", { name: "Navegación móvil" });
-    expect(mobileNavigation.getElementsByClassName("mobile-bottom-nav__item")).toHaveLength(5);
+    expect(mobileNavigation.getElementsByClassName("mobile-bottom-nav__item")).toHaveLength(6);
     expect(mobileNavigation).toHaveTextContent("Inicio");
     expect(mobileNavigation).toHaveTextContent("Servicios");
+    expect(mobileNavigation).toHaveTextContent("Equipo");
     expect(mobileNavigation).toHaveTextContent("Reservar");
     expect(mobileNavigation).toHaveTextContent("Galería");
     expect(mobileNavigation).toHaveTextContent("Cuenta");
 
-    fireEvent.click(screen.getByRole("button", { name: "Reservar" }));
-    expect(onBook).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("link", { name: "Equipo" }));
+    expect(onMobileViewChange).toHaveBeenLastCalledWith("equipo");
+    fireEvent.click(screen.getByRole("link", { name: "Reservar" }));
+    expect(onMobileViewChange).toHaveBeenLastCalledWith("reservar");
   });
 
-  it("opens account actions from the mobile tab bar", () => {
-    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
+  it("links the account tab to its own app page", () => {
+    render(<Navbar activeMobileView="cuenta" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Cuenta" }));
-
-    expect(screen.getByRole("dialog", { name: "Ana López" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Mis citas" }).at(-1)).toHaveAttribute("href", "/mis-citas");
-    const logoutButton = screen.getAllByRole("button", { name: "Cerrar sesión" }).at(-1);
-    expect(logoutButton?.closest("form")).toHaveAttribute("action", "/logout");
-    expect(logoutButton?.closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
+    expect(screen.getByRole("link", { name: "Cuenta" })).toHaveAttribute("href", "/cuenta");
+    expect(screen.getByRole("link", { name: "Cuenta" })).toHaveAttribute("aria-current", "page");
   });
 
   it("shows the authenticated account and a secure logout form", () => {
@@ -134,5 +133,17 @@ describe("Navbar", () => {
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "auto", block: "start" });
     scrollIntoView.mockRestore();
     matchMedia.mockRestore();
+  });
+});
+
+describe("MobileAccountPage", () => {
+  it("shows appointments and a secure logout form for the signed-in user", () => {
+    render(<MobileAccountPage currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
+
+    expect(screen.getByRole("heading", { name: "Cuenta" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mis citas" })).toHaveAttribute("href", "/mis-citas");
+    const logoutButton = screen.getByRole("button", { name: "Cerrar sesión" });
+    expect(logoutButton.closest("form")).toHaveAttribute("action", "/logout");
+    expect(logoutButton.closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
   });
 });

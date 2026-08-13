@@ -29,6 +29,7 @@
         data-availability-endpoint="{{ request()->getBaseUrl() }}/reservas/disponibilidad"
         data-booking-catalog="{{ json_encode($bookingCatalog) }}"
         data-current-user="{{ json_encode($currentUser) }}"
+        data-mobile-view="{{ $mobileView }}"
         data-auth-message="{{ $authMessage }}"
         data-auth-message-type="{{ $authMessageType }}"
     ></div>

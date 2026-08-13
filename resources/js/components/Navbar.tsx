@@ -5,13 +5,21 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
-import type { CurrentUser } from "@/types";
+import type { CurrentUser, MobileView } from "@/types";
 
 const links = [
-  ["Inicio", "#inicio", "01"], ["Servicios", "#servicios", "02"], ["Equipo", "#equipo", "03"], ["Galería", "#galeria", "04"], ["Reservas", "#reservas", "05"],
+  ["Inicio", "#inicio", "01", "/"], ["Servicios", "#servicios", "02", "/servicios"], ["Equipo", "#equipo", "03", "/equipo"], ["Galería", "#galeria", "04", "/galeria"], ["Reservas", "#reservas", "05", "/reservar"],
 ] as const;
 
-type NavbarProps = { currentUser?: CurrentUser | null; csrfToken?: string; onBook?: () => void; solid?: boolean; showBookingAction?: boolean };
+type NavbarProps = {
+  currentUser?: CurrentUser | null;
+  csrfToken?: string;
+  onBook?: () => void;
+  onMobileViewChange?: (view: MobileView) => void;
+  activeMobileView?: MobileView;
+  solid?: boolean;
+  showBookingAction?: boolean;
+};
 
 function AccountControl({ currentUser, csrfToken, mobile = false }: NavbarProps & { mobile?: boolean }) {
   if (!currentUser) {
@@ -34,10 +42,10 @@ function PrimaryAction({ currentUser, onBook, mobile = false }: { currentUser?: 
   const content = <><span className={cn("grid place-items-center rounded-full bg-brass-deep text-white", mobile ? "size-10" : "size-9")}>{isAdmin ? <LayoutDashboard className="size-4" /> : <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />}</span><span className="whitespace-nowrap text-ink">{isAdmin ? "Panel de control" : "Reservar cita"}</span></>;
 
   if (isAdmin) return <a href="/admin" className={className}>{content}</a>;
-  return onBook ? <button type="button" onClick={onBook} className={className}>{content}</button> : <a href="/#reservas" className={className}>{content}</a>;
+  return onBook ? <button type="button" onClick={onBook} className={className}>{content}</button> : <a href="/reservar" className={className}>{content}</a>;
 }
 
-export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = false, showBookingAction = true }: NavbarProps) {
+export function Navbar({ currentUser = null, csrfToken = "", onBook, onMobileViewChange, solid = false, activeMobileView = solid ? "cuenta" : "inicio", showBookingAction = true }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeHref, setActiveHref] = useState("#inicio");
@@ -66,6 +74,13 @@ export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = fal
 
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (onMobileViewChange && window.matchMedia("(max-width: 47.999rem)").matches) {
+      const viewByHref: Record<string, MobileView> = { "#inicio": "inicio", "#servicios": "servicios", "#equipo": "equipo", "#galeria": "galeria", "#reservas": "reservar" };
+      event.preventDefault();
+      setIsMenuOpen(false);
+      onMobileViewChange(viewByHref[href] ?? "inicio");
+      return;
+    }
     const target = document.querySelector<HTMLElement>(href);
     if (!target) return;
     event.preventDefault();
@@ -81,13 +96,13 @@ export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = fal
         <span aria-hidden="true" className="navbar-accent-line" /><span aria-hidden="true" className="scroll-progress" />
         <nav className="navbar-shell grid h-20 grid-cols-[1fr_auto] items-center lg:h-24 xl:grid-cols-[minmax(13rem,1fr)_auto_minmax(13rem,1fr)]" aria-label="Navegación principal">
           <a href={solid ? "/#inicio" : "#inicio"} onClick={solid ? undefined : (event) => navigateToSection(event, "#inicio")} className="flex min-h-11 items-center gap-3 font-display text-[1.05rem] font-extrabold tracking-[-0.035em] sm:text-xl lg:text-2xl" aria-label={`${site.name}, inicio`}><BrandMark className="size-8 text-brass sm:size-9 lg:size-10" /><span className="leading-none uppercase">{site.name}<span className="mt-1 block text-[0.62em] font-normal normal-case tracking-[0.08em] text-white/60">{site.descriptor}</span></span></a>
-          <div className="hidden items-center justify-center gap-7 xl:flex">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} aria-current={!solid && activeHref === href ? "page" : undefined} className={cn("nav-link relative py-4 text-[0.95rem] font-bold transition-colors", !solid && activeHref === href ? "text-white" : "text-white/55 hover:text-white")}><span>{label}</span><sup>{number}</sup></a>)}</div>
+          <div className="hidden items-center justify-center gap-7 xl:flex">{links.map(([label, href, number, path]) => <a key={href} href={solid ? path : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} aria-current={!solid && activeHref === href ? "page" : undefined} className={cn("nav-link relative py-4 text-[0.95rem] font-bold transition-colors", !solid && activeHref === href ? "text-white" : "text-white/55 hover:text-white")}><span>{label}</span><sup>{number}</sup></a>)}</div>
           <div className="hidden items-center justify-self-end gap-3 xl:flex"><AccountControl currentUser={currentUser} csrfToken={csrfToken} />{showBookingAction && <PrimaryAction currentUser={currentUser} onBook={onBook} />}</div>
           <button type="button" onClick={() => setIsMenuOpen((value) => !value)} className="hidden size-11 place-items-center rounded-full border border-current/20 md:grid xl:hidden" aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>{isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button>
         </nav>
-        <div id="mobile-menu" className={cn("hidden overflow-hidden bg-ink text-white transition-[grid-template-rows] duration-300 md:grid xl:hidden", isMenuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}><div className="min-h-0"><div className="mobile-menu-content navbar-shell flex flex-col gap-1 pb-6 pt-2">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} className="flex items-start justify-between border-b border-white/10 py-4 font-display text-2xl font-semibold"><span>{label}</span><sup className="font-sans text-xs text-brass">{number}</sup></a>)}<InstallAppButton /><AccountControl currentUser={currentUser} csrfToken={csrfToken} mobile />{showBookingAction && <div className="flex w-full justify-center" onClick={() => setIsMenuOpen(false)}><PrimaryAction currentUser={currentUser} onBook={onBook} mobile /></div>}</div></div></div>
+        <div id="mobile-menu" className={cn("hidden overflow-hidden bg-ink text-white transition-[grid-template-rows] duration-300 md:grid xl:hidden", isMenuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}><div className="min-h-0"><div className="mobile-menu-content navbar-shell flex flex-col gap-1 pb-6 pt-2">{links.map(([label, href, number, path]) => <a key={href} href={solid ? path : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} className="flex items-start justify-between border-b border-white/10 py-4 font-display text-2xl font-semibold"><span>{label}</span><sup className="font-sans text-xs text-brass">{number}</sup></a>)}<InstallAppButton /><AccountControl currentUser={currentUser} csrfToken={csrfToken} mobile />{showBookingAction && <div className="flex w-full justify-center" onClick={() => setIsMenuOpen(false)}><PrimaryAction currentUser={currentUser} onBook={onBook} mobile /></div>}</div></div></div>
       </header>
-      <MobileBottomNav activeHref={activeHref} currentUser={currentUser} csrfToken={csrfToken} onBook={onBook} onNavigate={navigateToSection} solid={solid} />
+      <MobileBottomNav activeView={activeMobileView} currentUser={currentUser} onViewChange={onMobileViewChange} />
     </>
   );
 }

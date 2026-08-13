@@ -26,6 +26,7 @@ class PwaTest extends TestCase
             ->assertJsonPath('start_url', '/')
             ->assertJsonPath('scope', '/')
             ->assertJsonPath('display', 'standalone')
+            ->assertJsonPath('shortcuts.0.url', '/reservar')
             ->assertJsonPath('icons.0.sizes', '192x192')
             ->assertJsonPath('icons.1.sizes', '512x512')
             ->assertJsonPath('icons.2.purpose', 'maskable');

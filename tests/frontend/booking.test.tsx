@@ -36,7 +36,7 @@ describe("BookingSection", () => {
   it("offers a way back to the start from the bottom of the page", () => {
     render(<BookingSection onBook={vi.fn()} />);
 
-    expect(screen.getByRole("link", { name: "Volver al inicio" })).toHaveAttribute("href", "#inicio");
+    expect(screen.getByRole("link", { name: "Volver al inicio" })).toHaveAttribute("href", "/");
   });
 });
 

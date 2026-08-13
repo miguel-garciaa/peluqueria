@@ -12,6 +12,10 @@ Route::get('/manifest.webmanifest', PwaManifestController::class)->name('pwa.man
 Route::get('/', LandingPageController::class)
     ->middleware('throttle:landing')
     ->name('landing');
+Route::get('/{mobileView}', LandingPageController::class)
+    ->whereIn('mobileView', ['servicios', 'equipo', 'reservar', 'galeria', 'cuenta'])
+    ->middleware('throttle:landing')
+    ->name('mobile.view');
 Route::middleware('throttle:oauth')->group(function (): void {
     Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
     Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');

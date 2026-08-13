@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { getHeroMotionMode, type HeroNavigationType } from "@/lib/hero-motion";
+import { isMobileView, mobileViewFromPath } from "@/lib/mobile-navigation";
 import { registerPwa } from "@/lib/pwa";
 import "../css/app.css";
 
@@ -25,11 +26,14 @@ const availabilityEndpoint = appRoot.dataset.availabilityEndpoint ?? "/reservas/
 const bookingCatalog = JSON.parse(appRoot.dataset.bookingCatalog || '{"services":[],"professionals":[]}');
 const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
 const currentUser = JSON.parse(appRoot.dataset.currentUser || "null");
+const initialMobileView = isMobileView(appRoot.dataset.mobileView)
+  ? appRoot.dataset.mobileView
+  : mobileViewFromPath(window.location.pathname);
 const authMessage = appRoot.dataset.authMessage || null;
 const authMessageType = appRoot.dataset.authMessageType === "error" ? "error" : "success";
 
 createRoot(appRoot).render(
   <StrictMode>
-    <App bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} bookingCatalog={bookingCatalog} csrfToken={csrfToken} currentUser={currentUser} authMessage={authMessage} authMessageType={authMessageType} />
+    <App bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} bookingCatalog={bookingCatalog} csrfToken={csrfToken} currentUser={currentUser} initialMobileView={initialMobileView} authMessage={authMessage} authMessageType={authMessageType} />
   </StrictMode>,
 );

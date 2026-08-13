@@ -20,7 +20,7 @@ export function Footer() {
               <a href="#servicios" className="hover:text-white">Servicios</a>
               <a href="#galeria" className="hover:text-white">Galería</a>
               <a href="#valoraciones" className="hover:text-white">Valoraciones</a>
-              <a href="#reservas" className="hover:text-white">Reservas</a>
+              <a href="/reservar" className="hover:text-white">Reservas</a>
             </nav>
           </div>
           <div>

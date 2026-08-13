@@ -33,7 +33,7 @@ class PwaManifestController extends Controller
                 [
                     'name' => 'Reservar cita',
                     'short_name' => 'Reservar',
-                    'url' => '/#reservas',
+                    'url' => '/reservar',
                     'icons' => [['src' => '/icons/icon-192.png', 'sizes' => '192x192']],
                 ],
                 [

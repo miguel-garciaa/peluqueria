@@ -29,7 +29,7 @@
                                 <tr><td width="42%" style="padding:12px 0;color:#746e65">Referencia</td><td width="58%" align="right" style="padding:12px 0;font-size:12px;font-weight:700;word-break:break-all">{{ $appointment->reference }}</td></tr>
                             </table>
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;border-collapse:collapse">
-                                <tr><td style="background:#211f1c"><a href="{{ url('/#reservas') }}" style="display:inline-block;padding:13px 20px;color:#ffffff;font-weight:700;text-decoration:none">Reservar otra cita</a></td></tr>
+                                <tr><td style="background:#211f1c"><a href="{{ url('/reservar') }}" style="display:inline-block;padding:13px 20px;color:#ffffff;font-weight:700;text-decoration:none">Reservar otra cita</a></td></tr>
                             </table>
                             <p style="margin:26px 0 0;color:#746e65;font-size:14px;line-height:1.6">Calle Principal, 00 · Tu ciudad<br>600 00 00 00</p>
                         </td>
