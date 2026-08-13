@@ -26,13 +26,31 @@ const props = {
 };
 
 describe("mobile app booking navigation", () => {
-  it("opens the booking form immediately from the bottom navigation", async () => {
+  it("opens the booking form immediately from the bottom navigation", () => {
+    const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: query === "(max-width: 47.999rem)",
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }));
+
     render(<App {...props} initialMobileView="inicio" />);
 
     fireEvent.click(screen.getByRole("link", { name: "Reservar" }));
 
-    expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+    expect(screen.queryByText("Todo listo en cuatro pasos.")).not.toBeInTheDocument();
     expect(window.location.pathname).toBe("/reservar");
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(screen.queryByRole("dialog", { name: "Tu próxima cita" })).not.toBeInTheDocument();
+    expect(window.location.pathname).toBe("/");
+    matchMedia.mockRestore();
   });
 
   it("opens the form immediately when the installed app starts on /reservar", async () => {
@@ -50,6 +68,7 @@ describe("mobile app booking navigation", () => {
     render(<App {...props} initialMobileView="reservar" />);
 
     expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+    expect(screen.queryByText("Todo listo en cuatro pasos.")).not.toBeInTheDocument();
     matchMedia.mockRestore();
   });
 });

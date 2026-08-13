@@ -121,7 +121,7 @@ img { display: block; }
 .team-navigation-button:disabled { cursor: not-allowed; opacity: .3; }
 @keyframes booking-dialog-in { from { opacity: .35; transform: translateY(1.25rem) scale(.98); } to { opacity: 1; transform: none; } }
 
-@media (max-width: 39.999rem) {
+@media (max-width: 47.999rem) {
   .booking-dialog {
     inset: 0;
     width: 100%;
@@ -129,9 +129,12 @@ img { display: block; }
     height: 100dvh;
     margin: 0;
     border-radius: 0;
+    background: var(--color-porcelain);
     box-shadow: none;
+    overscroll-behavior: none;
   }
-  .booking-dialog[open] { animation: booking-dialog-mobile-in .24s var(--ease-premium) both; }
+  .booking-dialog[open] { animation: none; opacity: 1; transform: none; }
+  .booking-dialog::backdrop { background: var(--color-porcelain); backdrop-filter: none; }
   .booking-dialog-header {
     padding-top: max(1rem, env(safe-area-inset-top));
     padding-right: max(1.25rem, env(safe-area-inset-right));
@@ -141,10 +144,6 @@ img { display: block; }
     padding-right: max(1.25rem, env(safe-area-inset-right));
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
     padding-left: max(1.25rem, env(safe-area-inset-left));
-  }
-  @keyframes booking-dialog-mobile-in {
-    from { opacity: .5; transform: translateY(.75rem); }
-    to { opacity: 1; transform: translateY(0); }
   }
 }
 

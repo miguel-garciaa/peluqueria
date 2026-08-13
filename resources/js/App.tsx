@@ -1,5 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BeforeAfter } from "@/components/BeforeAfter";
+import { BookingModal } from "@/components/booking/BookingModal";
 import { BookingSection } from "@/components/BookingSection";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
@@ -15,9 +16,6 @@ import { TimedNotice } from "@/components/TimedNotice";
 import { mobileViewFromPath, mobileViewPaths, mobileViewTitles } from "@/lib/mobile-navigation";
 import { cn } from "@/lib/utils";
 import type { BookingCatalog, CurrentUser, MobileView } from "@/types";
-
-const BookingModal = lazy(() => import("@/components/booking/BookingModal")
-  .then((module) => ({ default: module.BookingModal })));
 
 export type { CurrentUser } from "@/types";
 
@@ -35,7 +33,8 @@ type AppProps = {
 };
 
 export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType }: AppProps) {
-  const startsInMobileBooking = initialMobileView === "reservar" && isPhoneViewport();
+  const phoneViewport = isPhoneViewport();
+  const startsInMobileBooking = initialMobileView === "reservar" && phoneViewport;
   const [bookingOpen, setBookingOpen] = useState(startsInMobileBooking && currentUser !== null);
   const [bookingIntent, setBookingIntent] = useState<{ serviceId?: string; professionalId?: string }>({});
   const [authNotice, setAuthNotice] = useState(startsInMobileBooking && currentUser === null);
@@ -65,6 +64,15 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
     else setBookingOpen(false);
     focusMobileScreen();
   }, [focusMobileScreen, openBooking]);
+
+  const closeBooking = useCallback(() => {
+    setBookingOpen(false);
+    if (!isPhoneViewport() || mobileView !== "reservar") return;
+
+    window.history.replaceState({ mobileView: "inicio" }, "", mobileViewPaths.inicio);
+    setMobileView("inicio");
+    focusMobileScreen();
+  }, [focusMobileScreen, mobileView]);
 
   useEffect(() => {
     const onPopState = () => {
@@ -119,9 +127,9 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
           <BeforeAfter />
         </div>
         <div className="hidden md:block"><Testimonials /></div>
-        <div className={cn("mobile-app-screen", mobileView === "reservar" ? "mobile-app-screen--active" : "hidden md:block")}>
+        {!phoneViewport && <div className={cn("mobile-app-screen", mobileView === "reservar" ? "mobile-app-screen--active" : "hidden md:block")}>
           <BookingSection onBook={() => openBooking()} onViewHome={() => navigateMobileView("inicio")} />
-        </div>
+        </div>}
         <div className={cn("mobile-app-screen md:hidden", mobileView === "cuenta" ? "mobile-app-screen--active" : "hidden")}>
           <MobileAccountPage currentUser={currentUser} csrfToken={csrfToken} />
         </div>
@@ -130,9 +138,7 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
       <CustomCursor />
       <PwaStatus />
       {currentUser && bookingOpen && (
-        <Suspense fallback={null}>
-          <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
-        </Suspense>
+        <BookingModal open onClose={closeBooking} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
       )}
     </>
   );
