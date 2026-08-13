@@ -1,13 +1,16 @@
 import { CalendarDays, LayoutDashboard, LogIn, LogOut, UserRound } from "lucide-react";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 import type { CurrentUser } from "@/types";
 
 interface MobileAccountPageProps {
   currentUser: CurrentUser | null;
   csrfToken: string;
+  pushPublicKey?: string;
+  pushSubscriptionEndpoint?: string;
 }
 
-export function MobileAccountPage({ currentUser, csrfToken }: MobileAccountPageProps) {
+export function MobileAccountPage({ currentUser, csrfToken, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: MobileAccountPageProps) {
   const isAdmin = currentUser?.isAdmin === true;
 
   return (
@@ -39,6 +42,9 @@ export function MobileAccountPage({ currentUser, csrfToken }: MobileAccountPageP
                 <input type="hidden" name="_token" value={csrfToken} />
                 <button type="submit" className="mobile-account-action w-full"><LogOut aria-hidden="true" />Cerrar sesión</button>
               </form>
+            </div>
+            <div className="mt-5">
+              <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} />
             </div>
           </div>
         ) : (

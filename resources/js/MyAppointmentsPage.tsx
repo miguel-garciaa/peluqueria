@@ -4,6 +4,7 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { PwaStatus } from "@/components/PwaStatus";
+import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
@@ -25,9 +26,11 @@ interface AppointmentsPageProps {
   availabilityEndpoint: string;
   csrfToken: string;
   flash: { message: string | null; type: "success" | "error" } | null;
+  pushPublicKey?: string;
+  pushSubscriptionEndpoint?: string;
 }
 
-export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash }: AppointmentsPageProps) {
+export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppointmentsPageProps) {
   const [confirmingReference, setConfirmingReference] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -54,6 +57,10 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
             role={flash?.type === "error" ? "alert" : "status"}
             className={`mt-6 rounded-xl px-4 py-3 text-sm font-semibold ${flash?.type === "error" ? "bg-danger/10 text-danger" : "bg-brass/25 text-espresso"}`}
           />
+
+          <div className="mt-6 max-w-2xl">
+            <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} tone="light" />
+          </div>
 
           {appointments.length === 0 ? (
             <div className="mt-10 grid min-h-80 place-items-center rounded-2xl border border-dashed border-ink/20 bg-white p-8 text-center">

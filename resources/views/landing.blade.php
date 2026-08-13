@@ -32,6 +32,8 @@
         data-mobile-view="{{ $mobileView }}"
         data-auth-message="{{ $authMessage }}"
         data-auth-message-type="{{ $authMessageType }}"
+        data-push-public-key="{{ config('webpush.vapid.public_key') }}"
+        data-push-subscription-endpoint="{{ route('push-subscriptions.store', absolute: false) }}"
     ></div>
 </body>
 </html>

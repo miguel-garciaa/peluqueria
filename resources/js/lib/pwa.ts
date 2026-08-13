@@ -43,6 +43,18 @@ export function registerPwa() {
   });
 }
 
+export async function getPwaRegistration() {
+  if (!("serviceWorker" in navigator)) return null;
+
+  const existing = await navigator.serviceWorker.getRegistration("/");
+  if (existing) return existing;
+
+  return navigator.serviceWorker.register("/sw.js", {
+    scope: "/",
+    updateViaCache: "none",
+  });
+}
+
 export async function applyPwaUpdate() {
   if (!("serviceWorker" in navigator)) return false;
   const registration = await navigator.serviceWorker.getRegistration("/");

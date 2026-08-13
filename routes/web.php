@@ -5,6 +5,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AppointmentHistoryPdfController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaManifestController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,12 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/reservas', [AppointmentController::class, 'store'])
         ->middleware('throttle:booking')
         ->name('bookings.store');
+    Route::post('/notificaciones/suscripcion', [PushSubscriptionController::class, 'store'])
+        ->middleware('throttle:push-subscriptions')
+        ->name('push-subscriptions.store');
+    Route::delete('/notificaciones/suscripcion', [PushSubscriptionController::class, 'destroy'])
+        ->middleware('throttle:push-subscriptions')
+        ->name('push-subscriptions.destroy');
     Route::get('/mis-citas', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::patch('/mis-citas/{reference}/anular', [AppointmentController::class, 'cancel'])
         ->middleware('throttle:cancellation')

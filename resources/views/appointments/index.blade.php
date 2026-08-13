@@ -27,6 +27,8 @@
             'message' => session('appointment_status') ?? session('appointment_error'),
             'type' => session()->has('appointment_error') ? 'error' : 'success',
         ]) }}"
+        data-push-public-key="{{ config('webpush.vapid.public_key') }}"
+        data-push-subscription-endpoint="{{ route('push-subscriptions.store', absolute: false) }}"
     ></div>
 </body>
 </html>

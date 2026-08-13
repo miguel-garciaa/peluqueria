@@ -20,6 +20,7 @@ class BookAppointment
     public function __construct(
         private readonly AppointmentAvailability $availability,
         private readonly CacheManager $cache,
+        private readonly AppointmentPushNotifications $pushNotifications,
     ) {}
 
     /** @param array{fullName: string, phone: string, serviceId: string, professionalId: string, customDetails?: string|null, date: string, timeSlot: string, paymentMethod: string} $data */
@@ -57,6 +58,8 @@ class BookAppointment
                 ->onQueue('emails')
                 ->afterCommit(),
         );
+
+        $this->pushNotifications->booked($appointment);
 
         return $appointment;
     }

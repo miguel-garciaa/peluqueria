@@ -1,4 +1,4 @@
-const CACHE_VERSION = "peluqueria-v1";
+const CACHE_VERSION = "peluqueria-v2";
 const PRECACHE = `${CACHE_VERSION}-precache`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -42,6 +42,37 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: "Peluquería", body: event.data.text() };
+  }
+
+  const { title = "Peluquería", ...options } = payload;
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = new URL(event.notification.data?.url || "/", self.location.origin).href;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (clients) => {
+      const sameOriginClient = clients.find((client) => new URL(client.url).origin === self.location.origin);
+      if (sameOriginClient) {
+        await sameOriginClient.navigate(targetUrl);
+        return sameOriginClient.focus();
+      }
+
+      return self.clients.openWindow(targetUrl);
+    }),
+  );
 });
 
 function isPrivateRequest(url) {

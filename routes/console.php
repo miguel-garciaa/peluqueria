@@ -11,3 +11,8 @@ Artisan::command('inspire', function () {
 Schedule::command('appointments:complete')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('appointments:send-push-reminders')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();

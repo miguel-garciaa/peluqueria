@@ -16,13 +16,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 #[Fillable(['google_id', 'name', 'email', 'phone', 'email_verified_at', 'avatar_url', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -70,6 +71,19 @@ class User extends Authenticatable implements FilamentUser
                 $configuredAdminEmail !== '',
                 fn (Builder $query): Builder => $query->whereRaw('LOWER(email) <> ?', [$configuredAdminEmail]),
             );
+    }
+
+    public function scopeAdmins(Builder $query): Builder
+    {
+        $configuredAdminEmail = Str::lower(trim((string) config('admin.email')));
+
+        return $query->where(function (Builder $query) use ($configuredAdminEmail): void {
+            $query->where('is_admin', true)
+                ->when(
+                    $configuredAdminEmail !== '',
+                    fn (Builder $query): Builder => $query->orWhereRaw('LOWER(email) = ?', [$configuredAdminEmail]),
+                );
+        });
     }
 
     public function appointments(): HasMany

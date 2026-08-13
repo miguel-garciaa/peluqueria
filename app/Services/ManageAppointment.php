@@ -14,7 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class ManageAppointment
 {
-    public function __construct(private readonly AppointmentAvailability $availability) {}
+    public function __construct(
+        private readonly AppointmentAvailability $availability,
+        private readonly AppointmentPushNotifications $pushNotifications,
+    ) {}
 
     /** @param array<string, mixed> $data */
     public function prepare(array $data, ?Appointment $except = null): array
@@ -67,11 +70,14 @@ class ManageAppointment
             ? ($except?->cancelled_at ?? now())
             : null;
         $data['completed_at'] = $status === 'completed' ? $endsAt->utc() : null;
+        if ($except && ! $except->starts_at->equalTo($startsAt->utc())) {
+            $data['push_reminder_sent_at'] = null;
+        }
 
         return $data;
     }
 
-    public function sendConfirmation(Appointment $appointment): void
+    public function sendConfirmation(Appointment $appointment, bool $updated = false): void
     {
         $appointment->loadMissing(['service', 'professional', 'user']);
         Mail::to($appointment->user->email)->queue(
@@ -80,6 +86,12 @@ class ManageAppointment
                 ->onQueue('emails')
                 ->afterCommit(),
         );
+
+        if ($updated) {
+            $this->pushNotifications->customerUpdated($appointment);
+        } else {
+            $this->pushNotifications->customerConfirmed($appointment);
+        }
     }
 
     public function sendCancellation(Appointment $appointment): void
@@ -91,6 +103,8 @@ class ManageAppointment
                 ->onQueue('emails')
                 ->afterCommit(),
         );
+
+        $this->pushNotifications->cancelled($appointment);
     }
 
     public function cancel(Appointment $appointment): bool

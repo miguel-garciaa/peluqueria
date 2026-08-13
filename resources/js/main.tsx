@@ -31,9 +31,11 @@ const initialMobileView = isMobileView(appRoot.dataset.mobileView)
   : mobileViewFromPath(window.location.pathname);
 const authMessage = appRoot.dataset.authMessage || null;
 const authMessageType = appRoot.dataset.authMessageType === "error" ? "error" : "success";
+const pushPublicKey = appRoot.dataset.pushPublicKey ?? "";
+const pushSubscriptionEndpoint = appRoot.dataset.pushSubscriptionEndpoint ?? "/notificaciones/suscripcion";
 
 createRoot(appRoot).render(
   <StrictMode>
-    <App bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} bookingCatalog={bookingCatalog} csrfToken={csrfToken} currentUser={currentUser} initialMobileView={initialMobileView} authMessage={authMessage} authMessageType={authMessageType} />
+    <App bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} bookingCatalog={bookingCatalog} csrfToken={csrfToken} currentUser={currentUser} initialMobileView={initialMobileView} authMessage={authMessage} authMessageType={authMessageType} pushPublicKey={pushPublicKey} pushSubscriptionEndpoint={pushSubscriptionEndpoint} />
   </StrictMode>,
 );

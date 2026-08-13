@@ -51,5 +51,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('cancellation', fn (Request $request): Limit => Limit::perMinute(10)
             ->by('cancellation:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'unknown')));
+
+        RateLimiter::for('push-subscriptions', fn (Request $request): Limit => Limit::perMinute(15)
+            ->by('push-subscriptions:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'unknown')));
     }
 }

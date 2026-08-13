@@ -17,6 +17,8 @@ const bookingEndpoint = root.dataset.bookingEndpoint ?? "/reservas";
 const availabilityEndpoint = root.dataset.availabilityEndpoint ?? "/reservas/disponibilidad";
 const flash = JSON.parse(root.dataset.flash || "null") as { message: string | null; type: "success" | "error" } | null;
 const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
+const pushPublicKey = root.dataset.pushPublicKey ?? "";
+const pushSubscriptionEndpoint = root.dataset.pushSubscriptionEndpoint ?? "/notificaciones/suscripcion";
 if (!currentUser) throw new Error("La vista de citas requiere una sesión activa.");
 
-createRoot(root).render(<StrictMode><MyAppointmentsPage currentUser={currentUser} appointments={appointments} bookingCatalog={bookingCatalog} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} flash={flash} /></StrictMode>);
+createRoot(root).render(<StrictMode><MyAppointmentsPage currentUser={currentUser} appointments={appointments} bookingCatalog={bookingCatalog} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} flash={flash} pushPublicKey={pushPublicKey} pushSubscriptionEndpoint={pushSubscriptionEndpoint} /></StrictMode>);

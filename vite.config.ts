@@ -10,6 +10,7 @@ export default defineConfig({
       input: [
         "resources/js/main.tsx",
         "resources/js/appointments.tsx",
+        "resources/js/admin-push.ts",
         "resources/css/filament/admin/theme.css",
       ],
       refresh: ["resources/views/**", "app/Http/**", "routes/**"],

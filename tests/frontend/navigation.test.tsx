@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MobileAccountPage } from "@/components/MobileAccountPage";
 import { Navbar } from "@/components/Navbar";
@@ -145,5 +145,12 @@ describe("MobileAccountPage", () => {
     const logoutButton = screen.getByRole("button", { name: "Cerrar sesión" });
     expect(logoutButton.closest("form")).toHaveAttribute("action", "/logout");
     expect(logoutButton.closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
+  });
+
+  it("explains when push notifications are not configured", async () => {
+    render(<MobileAccountPage currentUser={{ name: "Ana LÃ³pez", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
+
+    expect(screen.getByRole("heading", { name: "Avisos de tus citas" })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(/Instala la app y .*brela desde la pantalla de inicio/i)).toBeInTheDocument());
   });
 });

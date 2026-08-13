@@ -30,9 +30,11 @@ type AppProps = {
   initialMobileView: MobileView;
   authMessage: string | null;
   authMessageType: "success" | "error";
+  pushPublicKey?: string;
+  pushSubscriptionEndpoint?: string;
 };
 
-export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType }: AppProps) {
+export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppProps) {
   const phoneViewport = isPhoneViewport();
   const startsInMobileBooking = initialMobileView === "reservar" && phoneViewport;
   const [bookingOpen, setBookingOpen] = useState(startsInMobileBooking && currentUser !== null);
@@ -131,7 +133,7 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
           <BookingSection onBook={() => openBooking()} onViewHome={() => navigateMobileView("inicio")} />
         </div>}
         <div className={cn("mobile-app-screen md:hidden", mobileView === "cuenta" ? "mobile-app-screen--active" : "hidden")}>
-          <MobileAccountPage currentUser={currentUser} csrfToken={csrfToken} />
+          <MobileAccountPage currentUser={currentUser} csrfToken={csrfToken} pushPublicKey={pushPublicKey} pushSubscriptionEndpoint={pushSubscriptionEndpoint} />
         </div>
       </main>
       <div className="hidden md:block"><Footer /></div>
