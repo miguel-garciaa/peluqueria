@@ -28,7 +28,7 @@ const props = {
 describe("mobile app booking navigation", () => {
   it("opens the booking form immediately from the bottom navigation", () => {
     const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
-      matches: query === "(max-width: 47.999rem)",
+      matches: query === "(max-width: 47.999rem)" || query === "(display-mode: standalone)",
       media: query,
       onchange: null,
       addListener: () => {},
@@ -55,7 +55,7 @@ describe("mobile app booking navigation", () => {
 
   it("opens the form immediately when the installed app starts on /reservar", async () => {
     const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
-      matches: query === "(max-width: 47.999rem)",
+      matches: query === "(max-width: 47.999rem)" || query === "(display-mode: standalone)",
       media: query,
       onchange: null,
       addListener: () => {},
@@ -69,6 +69,27 @@ describe("mobile app booking navigation", () => {
 
     expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
     expect(screen.queryByText("Todo listo en cuatro pasos.")).not.toBeInTheDocument();
+    matchMedia.mockRestore();
+  });
+
+  it("keeps the complete website when opened in a mobile browser", () => {
+    const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: query === "(max-width: 47.999rem)",
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }));
+
+    render(<App {...props} initialMobileView="inicio" />);
+
+    expect(screen.queryByRole("navigation", { name: "Navegación móvil" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toBeInTheDocument();
+    expect(document.querySelector("#servicios")?.parentElement).not.toHaveClass("hidden");
+    expect(screen.getByRole("navigation", { name: "Navegación del pie" })).toBeInTheDocument();
     matchMedia.mockRestore();
   });
 });

@@ -10,6 +10,7 @@ use App\Models\ProfessionalCalendarEntry;
 use App\Models\Schedule;
 use App\Models\Service;
 use App\Models\User;
+use App\Notifications\AdminAppointmentDatabaseNotification;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -32,6 +33,7 @@ class AppointmentRequestTest extends TestCase
         Mail::fake();
         [$service, $professional] = $this->createCatalog();
         $user = User::factory()->create(['name' => 'María', 'phone' => null]);
+        $admin = User::factory()->create(['is_admin' => true]);
         $date = CarbonImmutable::now('Europe/Madrid')->next('Monday')->format('Y-m-d');
 
         $this->actingAs($user)->postJson(route('bookings.store'), [
@@ -54,6 +56,11 @@ class AppointmentRequestTest extends TestCase
             'payment_amount' => 35,
         ]);
         $this->assertSame('+34 600 12 34 56', $user->fresh()->phone);
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $admin->id,
+            'type' => AdminAppointmentDatabaseNotification::class,
+        ]);
         Mail::assertQueued(AppointmentConfirmed::class, fn (AppointmentConfirmed $mail) => $mail->appointment->service_id === $service->id
             && $mail->connection === 'redis'
             && $mail->queue === 'emails');

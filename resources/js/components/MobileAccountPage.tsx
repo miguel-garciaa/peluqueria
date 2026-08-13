@@ -52,7 +52,7 @@ export function MobileAccountPage({ currentUser, csrfToken, pushPublicKey = "", 
             <span className="grid size-14 place-items-center rounded-full bg-white/10 text-brass"><UserRound className="size-6" aria-hidden="true" /></span>
             <h2 className="mt-5 font-display text-2xl font-semibold">Tus citas, siempre a mano</h2>
             <p className="mt-2 max-w-md text-sm leading-6 text-white/65">Inicia sesión para reservar, consultar tus próximas citas y recibir las confirmaciones.</p>
-            <a href="/auth/google" className="mobile-account-action mt-5 bg-white text-ink hover:bg-brass"><LogIn aria-hidden="true" />Iniciar sesión o registrarme</a>
+            <a href="/auth/google" className="mobile-account-action mt-5 bg-white text-ink hover:bg-brass"><LogIn aria-hidden="true" />Iniciar sesión con Google</a>
           </div>
         )}
 

@@ -12,6 +12,8 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -34,6 +36,13 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(false)
             ->maxContentWidth(Width::Full)
             ->sidebarCollapsibleOnDesktop()
+            ->homeUrl('/')
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_END,
+                fn (): View => view('filament.components.back-to-site'),
+            )
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('10s')
             ->databaseTransactions()
             ->colors([
                 'primary' => Color::hex('#b7791f'),

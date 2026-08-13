@@ -55,6 +55,57 @@ html.fi,
     padding-bottom: 2rem;
 }
 
+.admin-home-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--bk-border-strong);
+    border-radius: 0.5rem;
+    color: var(--bk-ink);
+    font-size: 0.875rem;
+    font-weight: 680;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.admin-home-link:hover {
+    background: var(--bk-surface-muted);
+    border-color: var(--bk-brass);
+    color: var(--bk-brass-soft);
+}
+
+.admin-home-link:focus-visible {
+    outline: 2px solid var(--bk-brass);
+    outline-offset: 2px;
+}
+
+.admin-home-link .fi-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.admin-home-link__mobile-label {
+    display: none;
+}
+
+@media (max-width: 40rem) {
+    .admin-home-link {
+        padding-inline: 0.625rem;
+    }
+
+    .admin-home-link__desktop-label {
+        display: none;
+    }
+
+    .admin-home-link__mobile-label {
+        display: inline;
+    }
+}
+
 .fi-page {
     gap: 1.5rem;
 }

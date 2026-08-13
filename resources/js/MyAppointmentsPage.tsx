@@ -7,6 +7,7 @@ import { PwaStatus } from "@/components/PwaStatus";
 import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
+import { isMobileAppMode } from "@/lib/display-mode";
 
 const BookingModal = lazy(() => import("@/components/booking/BookingModal")
   .then((module) => ({ default: module.BookingModal })));
@@ -33,11 +34,12 @@ interface AppointmentsPageProps {
 export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppointmentsPageProps) {
   const [confirmingReference, setConfirmingReference] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const appMode = isMobileAppMode();
 
   return (
     <>
       <a className="skip-link" href="#appointments-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid activeMobileView="cuenta" showBookingAction={false} />
+      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid activeMobileView="cuenta" showBookingAction={false} appMode={appMode} />
       <main id="appointments-content" className="min-h-screen bg-porcelain pb-24 pt-32 text-ink lg:pt-40">
         <section className="container-shell">
           <div className="border-b border-ink/12 pb-10 lg:flex lg:items-end lg:justify-between">
@@ -138,7 +140,7 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
           )}
         </section>
       </main>
-      <Footer />
+      {!appMode && <Footer />}
       <CustomCursor />
       <PwaStatus />
       {bookingOpen && (

@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\RedirectResponse;
+use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
+use Mockery;
 use Tests\TestCase;
 
 class GoogleAuthTest extends TestCase
@@ -14,10 +17,21 @@ class GoogleAuthTest extends TestCase
 
     public function test_users_can_start_google_authentication(): void
     {
-        Socialite::fake('google');
+        $provider = Mockery::mock(Provider::class);
+        $provider->shouldReceive('with')
+            ->once()
+            ->with(['prompt' => 'select_account'])
+            ->andReturnSelf();
+        $provider->shouldReceive('redirect')
+            ->once()
+            ->andReturn(new RedirectResponse('https://accounts.google.com/o/oauth2/v2/auth'));
+        Socialite::shouldReceive('driver')
+            ->once()
+            ->with('google')
+            ->andReturn($provider);
 
         $this->get(route('google.redirect'))
-            ->assertRedirect('https://socialite.fake/google/authorize');
+            ->assertRedirect('https://accounts.google.com/o/oauth2/v2/auth');
     }
 
     public function test_verified_google_users_are_created_and_authenticated(): void

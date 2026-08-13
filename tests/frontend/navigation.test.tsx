@@ -1,25 +1,31 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MobileAccountPage } from "@/components/MobileAccountPage";
 import { Navbar } from "@/components/Navbar";
 
 describe("Navbar", () => {
   it("uses a full-width shell and keeps the compact menu through tablet widths", () => {
-    render(<Navbar />);
+    const { container } = render(<Navbar />);
 
     expect(screen.getByRole("navigation", { name: "Navegación principal" })).toHaveClass("navbar-shell");
-    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("hidden", "md:grid", "xl:hidden");
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("grid", "xl:hidden");
     expect(screen.getAllByRole("link", { name: "Inicio 01" })[0].parentElement).toHaveClass("xl:flex");
-    expect(screen.getByRole("navigation", { name: "Navegación móvil" })).toHaveClass("md:hidden");
-    const accountLink = screen.getAllByRole("link", { name: "Iniciar sesión con Google" })[0];
+    expect(screen.queryByRole("navigation", { name: "Navegación móvil" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Abrir menú" })).toHaveClass("grid");
+    expect(container.querySelector(".navbar-accent-line")).toHaveClass("hidden", "md:block");
+    expect(container.querySelector(".scroll-progress")).toHaveClass("hidden", "md:block");
+    const accountMenu = container.querySelector("details");
+    expect(accountMenu).not.toBeNull();
+    fireEvent.click(within(accountMenu as HTMLElement).getByText("Cuenta"));
+    const accountLink = within(accountMenu as HTMLElement).getByRole("link", { name: "Iniciar sesión con Google" });
     expect(accountLink).toHaveAttribute("href", "/auth/google");
     expect(accountLink.querySelector("svg")).toBeInTheDocument();
-    expect(accountLink).not.toHaveTextContent(/^GCuenta$/);
+    expect(accountMenu).toHaveAttribute("open");
   });
 
   it("uses an app-like six-item bottom navigation on phones", () => {
     const onMobileViewChange = vi.fn();
-    render(<Navbar onMobileViewChange={onMobileViewChange} />);
+    render(<Navbar onMobileViewChange={onMobileViewChange} appMode />);
 
     const mobileNavigation = screen.getByRole("navigation", { name: "Navegación móvil" });
     expect(mobileNavigation.getElementsByClassName("mobile-bottom-nav__item")).toHaveLength(6);
@@ -37,7 +43,7 @@ describe("Navbar", () => {
   });
 
   it("links the account tab to its own app page", () => {
-    render(<Navbar activeMobileView="cuenta" />);
+    render(<Navbar activeMobileView="cuenta" appMode />);
 
     expect(screen.getByRole("link", { name: "Cuenta" })).toHaveAttribute("href", "/cuenta");
     expect(screen.getByRole("link", { name: "Cuenta" })).toHaveAttribute("aria-current", "page");
@@ -137,6 +143,13 @@ describe("Navbar", () => {
 });
 
 describe("MobileAccountPage", () => {
+  it("shows Google sign-in as a separate action for guests", () => {
+    render(<MobileAccountPage currentUser={null} csrfToken="csrf-test" />);
+
+    expect(screen.getByRole("heading", { name: "Cuenta" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Iniciar sesión con Google" })).toHaveAttribute("href", "/auth/google");
+  });
+
   it("shows appointments and a secure logout form for the signed-in user", () => {
     render(<MobileAccountPage currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
 

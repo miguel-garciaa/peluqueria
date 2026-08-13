@@ -13,7 +13,7 @@
         content="Peluquería y barbería en tu ciudad: corte, color, barba, tratamientos y asesoramiento capilar personalizado."
     >
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=6">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
     <link rel="manifest" href="{{ route('pwa.manifest') }}">
 

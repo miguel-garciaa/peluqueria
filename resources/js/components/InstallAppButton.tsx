@@ -1,16 +1,10 @@
 import { Download, Share2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { isStandaloneDisplayMode } from "@/lib/display-mode";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-}
-
-type NavigatorWithStandalone = Navigator & { standalone?: boolean };
-
-function isStandaloneMode() {
-  return window.matchMedia("(display-mode: standalone)").matches
-    || (navigator as NavigatorWithStandalone).standalone === true;
 }
 
 function isIosDevice() {
@@ -21,13 +15,13 @@ function isIosDevice() {
 
 export function InstallAppButton() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isStandalone, setIsStandalone] = useState(isStandaloneMode);
+  const [isStandalone, setIsStandalone] = useState(isStandaloneDisplayMode);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const isIos = isIosDevice();
 
   useEffect(() => {
     const displayMode = window.matchMedia("(display-mode: standalone)");
-    const onDisplayModeChange = () => setIsStandalone(isStandaloneMode());
+    const onDisplayModeChange = () => setIsStandalone(isStandaloneDisplayMode());
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setInstallPrompt(event as BeforeInstallPromptEvent);

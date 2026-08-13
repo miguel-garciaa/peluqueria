@@ -14,12 +14,11 @@ import { Testimonials } from "@/components/Testimonials";
 import { Team } from "@/components/Team";
 import { TimedNotice } from "@/components/TimedNotice";
 import { mobileViewFromPath, mobileViewPaths, mobileViewTitles } from "@/lib/mobile-navigation";
+import { isMobileAppMode } from "@/lib/display-mode";
 import { cn } from "@/lib/utils";
 import type { BookingCatalog, CurrentUser, MobileView } from "@/types";
 
 export type { CurrentUser } from "@/types";
-
-const isPhoneViewport = () => window.matchMedia("(max-width: 47.999rem)").matches;
 
 type AppProps = {
   bookingEndpoint: string;
@@ -35,8 +34,8 @@ type AppProps = {
 };
 
 export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppProps) {
-  const phoneViewport = isPhoneViewport();
-  const startsInMobileBooking = initialMobileView === "reservar" && phoneViewport;
+  const appMode = isMobileAppMode();
+  const startsInMobileBooking = initialMobileView === "reservar" && appMode;
   const [bookingOpen, setBookingOpen] = useState(startsInMobileBooking && currentUser !== null);
   const [bookingIntent, setBookingIntent] = useState<{ serviceId?: string; professionalId?: string }>({});
   const [authNotice, setAuthNotice] = useState(startsInMobileBooking && currentUser === null);
@@ -58,6 +57,17 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
   }, []);
 
   const navigateMobileView = useCallback((view: MobileView) => {
+    if (!appMode) {
+      const sectionId = view === "reservar" ? "reservas" : view;
+      setMobileView(view);
+      window.history.pushState(null, "", `#${sectionId}`);
+      window.requestAnimationFrame(() => {
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      });
+      return;
+    }
+
     if (window.location.pathname !== mobileViewPaths[view]) {
       window.history.pushState({ mobileView: view }, "", mobileViewPaths[view]);
     }
@@ -65,38 +75,38 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
     if (view === "reservar") openBooking();
     else setBookingOpen(false);
     focusMobileScreen();
-  }, [focusMobileScreen, openBooking]);
+  }, [appMode, focusMobileScreen, openBooking]);
 
   const closeBooking = useCallback(() => {
     setBookingOpen(false);
-    if (!isPhoneViewport() || mobileView !== "reservar") return;
+    if (!appMode || mobileView !== "reservar") return;
 
     window.history.replaceState({ mobileView: "inicio" }, "", mobileViewPaths.inicio);
     setMobileView("inicio");
     focusMobileScreen();
-  }, [focusMobileScreen, mobileView]);
+  }, [appMode, focusMobileScreen, mobileView]);
 
   useEffect(() => {
     const onPopState = () => {
       const nextView = mobileViewFromPath(window.location.pathname);
       setMobileView(nextView);
-      if (isPhoneViewport() && nextView === "reservar") openBooking();
+      if (appMode && nextView === "reservar") openBooking();
       else setBookingOpen(false);
       focusMobileScreen();
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [focusMobileScreen, openBooking]);
+  }, [appMode, focusMobileScreen, openBooking]);
 
   useEffect(() => {
     document.title = mobileViewTitles[mobileView];
   }, [mobileView]);
 
   useEffect(() => {
-    if (initialMobileView === "inicio" || !window.matchMedia("(min-width: 48rem)").matches) return;
+    if (initialMobileView === "inicio" || appMode) return;
     const sectionId = initialMobileView === "reservar" ? "reservas" : initialMobileView;
     window.requestAnimationFrame(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "auto", block: "start" }));
-  }, [initialMobileView]);
+  }, [appMode, initialMobileView]);
 
   useEffect(() => {
     if (!authNotice) return;
@@ -107,36 +117,36 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
   return (
     <>
       <a className="skip-link" href="#main-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => openBooking()} activeMobileView={mobileView} onMobileViewChange={navigateMobileView} />
+      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => openBooking()} activeMobileView={mobileView} onMobileViewChange={navigateMobileView} appMode={appMode} />
       <TimedNotice
         message={authMessage}
         role={authMessageType === "error" ? "alert" : "status"}
         className={`fixed right-4 top-24 z-[60] max-w-sm rounded-2xl px-5 py-3 text-sm font-bold shadow-xl ${authMessageType === "error" ? "bg-red-700 text-white" : "bg-white text-ink"}`}
       />
-      {authNotice && <div role="alert" className="fixed inset-x-4 top-24 z-[90] ml-auto max-w-md rounded-2xl border border-white/10 bg-ink p-5 text-white shadow-2xl"><button type="button" onClick={() => setAuthNotice(false)} className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white" aria-label="Cerrar aviso">×</button><p className="font-display text-xl font-semibold">Inicia sesión para reservar</p><p className="mt-2 pr-5 text-sm leading-6 text-white/65">Tu cuenta nos permite guardar la cita y enviarte la confirmación.</p><a href="/auth/google" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión o registrarme</a></div>}
+      {authNotice && <div role="alert" className="fixed inset-x-4 top-24 z-[90] ml-auto max-w-md rounded-2xl border border-white/10 bg-ink p-5 text-white shadow-2xl"><button type="button" onClick={() => setAuthNotice(false)} className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white" aria-label="Cerrar aviso">×</button><p className="font-display text-xl font-semibold">Inicia sesión para reservar</p><p className="mt-2 pr-5 text-sm leading-6 text-white/65">Tu cuenta nos permite guardar la cita y enviarte la confirmación.</p><a href="/auth/google" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión con Google</a></div>}
       <main id="main-content">
-        <div className={cn("mobile-app-screen", mobileView === "inicio" ? "mobile-app-screen--active" : "hidden md:block")}>
+        <div className={cn("mobile-app-screen", appMode && (mobileView === "inicio" ? "mobile-app-screen--active" : "hidden"))}>
           <Hero onBook={() => openBooking()} onViewServices={() => navigateMobileView("servicios")} />
         </div>
-        <div className={cn("mobile-app-screen", mobileView === "servicios" ? "mobile-app-screen--active" : "hidden md:block")}>
+        <div className={cn("mobile-app-screen", appMode && (mobileView === "servicios" ? "mobile-app-screen--active" : "hidden"))}>
           <Services catalogServices={bookingCatalog.services} onBook={(serviceId) => openBooking({ serviceId })} />
         </div>
-        <div className={cn("mobile-app-screen", mobileView === "equipo" ? "mobile-app-screen--active" : "hidden md:block")}>
+        <div className={cn("mobile-app-screen", appMode && (mobileView === "equipo" ? "mobile-app-screen--active" : "hidden"))}>
           <Team catalogProfessionals={bookingCatalog.professionals} catalogServices={bookingCatalog.services} onBook={(professionalId) => openBooking({ professionalId })} />
         </div>
-        <div className={cn("mobile-app-screen", mobileView === "galeria" ? "mobile-app-screen--active" : "hidden md:block")}>
+        <div className={cn("mobile-app-screen", appMode && (mobileView === "galeria" ? "mobile-app-screen--active" : "hidden"))}>
           <Gallery />
           <BeforeAfter />
         </div>
-        <div className="hidden md:block"><Testimonials /></div>
-        {!phoneViewport && <div className={cn("mobile-app-screen", mobileView === "reservar" ? "mobile-app-screen--active" : "hidden md:block")}>
+        {!appMode && <Testimonials />}
+        {!appMode && <div className="mobile-app-screen">
           <BookingSection onBook={() => openBooking()} onViewHome={() => navigateMobileView("inicio")} />
         </div>}
-        <div className={cn("mobile-app-screen md:hidden", mobileView === "cuenta" ? "mobile-app-screen--active" : "hidden")}>
+        <div className={cn("mobile-app-screen", appMode && mobileView === "cuenta" ? "mobile-app-screen--active" : "hidden")}>
           <MobileAccountPage currentUser={currentUser} csrfToken={csrfToken} pushPublicKey={pushPublicKey} pushSubscriptionEndpoint={pushSubscriptionEndpoint} />
         </div>
       </main>
-      <div className="hidden md:block"><Footer /></div>
+      {!appMode && <Footer />}
       <CustomCursor />
       <PwaStatus />
       {currentUser && bookingOpen && (

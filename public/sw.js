@@ -1,4 +1,4 @@
-const CACHE_VERSION = "peluqueria-v2";
+const CACHE_VERSION = "peluqueria-v4";
 const PRECACHE = `${CACHE_VERSION}-precache`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;

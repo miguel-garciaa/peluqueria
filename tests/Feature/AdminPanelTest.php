@@ -49,6 +49,7 @@ class AdminPanelTest extends TestCase
         $this->assertSame('resources/css/filament/admin/theme.css', $panel->getViteTheme());
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
         $this->assertNull($panel->getGlobalSearchProvider());
+        $this->assertSame('/', $panel->getHomeUrl());
     }
 
     public function test_the_dashboard_theme_keeps_the_table_toolbar_compact(): void
@@ -119,6 +120,8 @@ class AdminPanelTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin')
             ->assertOk()
+            ->assertSee('Volver al inicio')
+            ->assertSee('href="'.route('landing').'"', false)
             ->assertSee('Reservas activas')
             ->assertSee('Clientes registrados');
     }

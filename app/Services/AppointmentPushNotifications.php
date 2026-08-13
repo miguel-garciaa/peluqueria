@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\User;
+use App\Notifications\AdminAppointmentDatabaseNotification;
 use App\Notifications\AppointmentPushNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -11,6 +12,8 @@ class AppointmentPushNotifications
 {
     public function booked(Appointment $appointment): void
     {
+        $this->notifyAdminPanel($appointment, AppointmentPushNotification::ADMIN_CREATED);
+
         if (! $this->configured()) {
             return;
         }
@@ -31,6 +34,8 @@ class AppointmentPushNotifications
 
     public function cancelled(Appointment $appointment): void
     {
+        $this->notifyAdminPanel($appointment, AppointmentPushNotification::ADMIN_CANCELLED);
+
         if (! $this->configured()) {
             return;
         }
@@ -71,5 +76,15 @@ class AppointmentPushNotifications
         }
 
         Notification::send($admins, new AppointmentPushNotification($appointment, $event));
+    }
+
+    private function notifyAdminPanel(Appointment $appointment, string $event): void
+    {
+        $admins = User::query()->admins()->get();
+        if ($admins->isEmpty()) {
+            return;
+        }
+
+        Notification::sendNow($admins, new AdminAppointmentDatabaseNotification($appointment, $event));
     }
 }

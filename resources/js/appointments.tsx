@@ -3,9 +3,11 @@ import { createRoot } from "react-dom/client";
 import { MyAppointmentsPage } from "@/MyAppointmentsPage";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 import { registerPwa } from "@/lib/pwa";
+import { applyDisplayModeClass } from "@/lib/display-mode";
 import "../css/app.css";
 
 registerPwa();
+applyDisplayModeClass();
 
 const root = document.getElementById("appointments-root");
 if (!root) throw new Error("No se encontró el contenedor de citas.");

@@ -4,6 +4,7 @@ import App from "./App";
 import { getHeroMotionMode, type HeroNavigationType } from "@/lib/hero-motion";
 import { isMobileView, mobileViewFromPath } from "@/lib/mobile-navigation";
 import { registerPwa } from "@/lib/pwa";
+import { applyDisplayModeClass } from "@/lib/display-mode";
 import "../css/app.css";
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
@@ -12,6 +13,7 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const documentElement = document.documentElement;
 
 registerPwa();
+applyDisplayModeClass();
 
 documentElement.dataset.heroMotion = getHeroMotionMode(navigationType, reducedMotion);
 if (documentElement.dataset.heroMotion === "play") {
