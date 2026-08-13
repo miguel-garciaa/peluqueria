@@ -92,7 +92,7 @@ export function Navbar({ currentUser = null, csrfToken = "", onBook, onMobileVie
 
   return (
     <>
-      <header className={cn("pwa-site-header fixed inset-x-0 top-0 z-50 text-white transition-all duration-300", solid || isScrolled || isMenuOpen ? "bg-ink/95 shadow-[0_1px_0_oklch(1_0_0/0.12)] backdrop-blur-md" : "bg-gradient-to-b from-black/45 to-transparent")}>
+      <header className={cn("pwa-site-header fixed inset-x-0 top-0 z-50 text-white transition-all duration-300", activeMobileView !== "inicio" && "is-mobile-internal", solid || isScrolled || isMenuOpen ? "bg-ink/95 shadow-[0_1px_0_oklch(1_0_0/0.12)] backdrop-blur-md" : "bg-gradient-to-b from-black/45 to-transparent")}>
         <span aria-hidden="true" className="navbar-accent-line" /><span aria-hidden="true" className="scroll-progress" />
         <nav className="navbar-shell grid h-20 grid-cols-[1fr_auto] items-center lg:h-24 xl:grid-cols-[minmax(13rem,1fr)_auto_minmax(13rem,1fr)]" aria-label="Navegación principal">
           <a href={solid ? "/#inicio" : "#inicio"} onClick={solid ? undefined : (event) => navigateToSection(event, "#inicio")} className="flex min-h-11 items-center gap-3 font-display text-[1.05rem] font-extrabold tracking-[-0.035em] sm:text-xl lg:text-2xl" aria-label={`${site.name}, inicio`}><BrandMark className="size-8 text-brass sm:size-9 lg:size-10" /><span className="leading-none uppercase">{site.name}<span className="mt-1 block text-[0.62em] font-normal normal-case tracking-[0.08em] text-white/60">{site.descriptor}</span></span></a>

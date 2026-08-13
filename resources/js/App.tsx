@@ -21,6 +21,8 @@ const BookingModal = lazy(() => import("@/components/booking/BookingModal")
 
 export type { CurrentUser } from "@/types";
 
+const isPhoneViewport = () => window.matchMedia("(max-width: 47.999rem)").matches;
+
 type AppProps = {
   bookingEndpoint: string;
   availabilityEndpoint: string;
@@ -33,10 +35,20 @@ type AppProps = {
 };
 
 export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType }: AppProps) {
-  const [bookingOpen, setBookingOpen] = useState(false);
+  const startsInMobileBooking = initialMobileView === "reservar" && isPhoneViewport();
+  const [bookingOpen, setBookingOpen] = useState(startsInMobileBooking && currentUser !== null);
   const [bookingIntent, setBookingIntent] = useState<{ serviceId?: string; professionalId?: string }>({});
-  const [authNotice, setAuthNotice] = useState(false);
+  const [authNotice, setAuthNotice] = useState(startsInMobileBooking && currentUser === null);
   const [mobileView, setMobileView] = useState<MobileView>(initialMobileView);
+
+  const openBooking = useCallback((intent: { serviceId?: string; professionalId?: string } = {}) => {
+    if (!currentUser) {
+      setAuthNotice(true);
+      return;
+    }
+    setBookingIntent(intent);
+    setBookingOpen(true);
+  }, [currentUser]);
 
   const focusMobileScreen = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -49,17 +61,22 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
       window.history.pushState({ mobileView: view }, "", mobileViewPaths[view]);
     }
     setMobileView(view);
+    if (view === "reservar") openBooking();
+    else setBookingOpen(false);
     focusMobileScreen();
-  }, [focusMobileScreen]);
+  }, [focusMobileScreen, openBooking]);
 
   useEffect(() => {
     const onPopState = () => {
-      setMobileView(mobileViewFromPath(window.location.pathname));
+      const nextView = mobileViewFromPath(window.location.pathname);
+      setMobileView(nextView);
+      if (isPhoneViewport() && nextView === "reservar") openBooking();
+      else setBookingOpen(false);
       focusMobileScreen();
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
-  }, [focusMobileScreen]);
+  }, [focusMobileScreen, openBooking]);
 
   useEffect(() => {
     document.title = mobileViewTitles[mobileView];
@@ -76,15 +93,6 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
     const timeout = window.setTimeout(() => setAuthNotice(false), 3000);
     return () => window.clearTimeout(timeout);
   }, [authNotice]);
-
-  const openBooking = (intent: { serviceId?: string; professionalId?: string } = {}) => {
-    if (!currentUser) {
-      setAuthNotice(true);
-      return;
-    }
-    setBookingIntent(intent);
-    setBookingOpen(true);
-  };
 
   return (
     <>
