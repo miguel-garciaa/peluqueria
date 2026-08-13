@@ -46,7 +46,7 @@ describe("Team", () => {
     fireEvent.click(next);
 
     expect(screen.getByRole("heading", { name: "Lucía Navarro" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Laura Baskuñana" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Laura Moreno" })).not.toBeInTheDocument();
     expect(previous).toBeEnabled();
     expect(next).toBeDisabled();
   });

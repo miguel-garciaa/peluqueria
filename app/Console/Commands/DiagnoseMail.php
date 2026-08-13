@@ -88,7 +88,7 @@ class DiagnoseMail extends Command
             }
 
             try {
-                Mail::raw('El envío de correo de Baskuñana Peluqueros funciona correctamente.', function (Message $message) use ($recipient): void {
+                Mail::raw('El envío de correo de la peluquería funciona correctamente.', function (Message $message) use ($recipient): void {
                     $message->to($recipient)->subject('Prueba de correo de reservas');
                 });
                 $this->info("Prueba enviada directamente a {$recipient} mediante {$mailer}.");

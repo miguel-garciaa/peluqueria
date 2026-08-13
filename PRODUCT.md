@@ -10,11 +10,11 @@ web
 
 ## Users
 
-People in Cartagena looking for a contemporary, premium but approachable salon experience on mobile or desktop.
+People in any city looking for a contemporary, premium but approachable hair salon or barbershop experience on mobile or desktop.
 
 ## Product Purpose
 
-Present Baskuñana Peluqueros' services and work, build confidence through transformations and reviews, and convert visits into appointment requests.
+Provide a reusable hair salon and barbershop template that presents services and work, builds confidence through transformations and reviews, and converts visits into appointment requests.
 
 ## Positioning
 

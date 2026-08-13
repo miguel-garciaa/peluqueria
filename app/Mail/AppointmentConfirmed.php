@@ -27,7 +27,7 @@ class AppointmentConfirmed extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Tu cita en Baskuñana Peluqueros está confirmada');
+        return new Envelope(subject: 'Tu cita en '.config('app.name').' está confirmada');
     }
 
     public function content(): Content

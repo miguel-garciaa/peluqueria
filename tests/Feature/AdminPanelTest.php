@@ -42,7 +42,7 @@ class AdminPanelTest extends TestCase
         $this->assertNotContains(AccountWidget::class, Filament::getPanel('admin')->getWidgets());
     }
 
-    public function test_the_control_panel_uses_the_baskunana_theme(): void
+    public function test_the_control_panel_uses_the_custom_theme(): void
     {
         $panel = Filament::getPanel('admin');
 

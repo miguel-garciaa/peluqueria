@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
         ));
 
         collect([
-            ['slug' => 'laura', 'name' => 'Laura Baskuñana', 'role' => 'Directora creativa'],
+            ['slug' => 'laura', 'name' => 'Laura Moreno', 'role' => 'Directora creativa'],
             ['slug' => 'dani', 'name' => 'Dani Ros', 'role' => 'Barbero y estilista'],
             ['slug' => 'marta', 'name' => 'Marta Soler', 'role' => 'Especialista en color'],
             ['slug' => 'alvaro', 'name' => 'Álvaro León', 'role' => 'Estilista y terapeuta capilar'],

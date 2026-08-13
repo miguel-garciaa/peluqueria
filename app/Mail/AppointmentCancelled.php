@@ -27,7 +27,7 @@ class AppointmentCancelled extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Tu cita en Baskuñana Peluqueros ha sido anulada');
+        return new Envelope(subject: 'Tu cita en '.config('app.name').' ha sido anulada');
     }
 
     public function content(): Content

@@ -13,7 +13,7 @@
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;border:1px solid #ded8cc;border-collapse:collapse;background:#ffffff">
                     <tr>
                         <td style="background:#211f1c;padding:28px;color:#ffffff">
-                            <p style="margin:0 0 8px;color:#d4ad65;font-size:13px;font-weight:700;line-height:1.4">BASKUÑANA PELUQUEROS · CARTAGENA</p>
+                            <p style="margin:0 0 8px;color:#d4ad65;font-size:13px;font-weight:700;line-height:1.4">{{ mb_strtoupper(config('app.name')) }} · PELUQUERÍA Y BARBERÍA</p>
                             <h1 style="margin:0;color:#ffffff;font-size:30px;line-height:1.1">Tu cita ha sido anulada</h1>
                         </td>
                     </tr>
@@ -31,7 +31,7 @@
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;border-collapse:collapse">
                                 <tr><td style="background:#211f1c"><a href="{{ url('/#reservas') }}" style="display:inline-block;padding:13px 20px;color:#ffffff;font-weight:700;text-decoration:none">Reservar otra cita</a></td></tr>
                             </table>
-                            <p style="margin:26px 0 0;color:#746e65;font-size:14px;line-height:1.6">Paseo Alfonso XIII, 28 · Cartagena<br>968 12 44 45</p>
+                            <p style="margin:26px 0 0;color:#746e65;font-size:14px;line-height:1.6">Calle Principal, 00 · Tu ciudad<br>600 00 00 00</p>
                         </td>
                     </tr>
                 </table>

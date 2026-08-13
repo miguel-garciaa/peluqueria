@@ -1,4 +1,4 @@
-# Baskuñana Peluqueros Design System
+# Peluquería Design System
 
 ## Direction
 

@@ -34,7 +34,7 @@ export function Services({ onBook, catalogServices }: ServicesProps) {
         imageSrc: current.imageUrl || presentation?.imageSrc || heroImage,
         imageAlt: current.imageUrl
           ? `Fotografía del servicio ${current.name}`
-          : presentation?.imageAlt ?? `Servicio ${current.name} en Baskuñana Peluqueros`,
+          : presentation?.imageAlt ?? `Servicio ${current.name} en la peluquería`,
         priceFrom: current.priceFrom,
         duration: `${current.durationMinutes} min`,
         icon: presentation?.icon ?? Sparkles,

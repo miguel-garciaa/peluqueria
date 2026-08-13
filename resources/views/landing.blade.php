@@ -7,14 +7,12 @@
     <meta name="theme-color" content="#171512">
     <meta
         name="description"
-        content="Baskuñana Peluqueros en Cartagena: corte, color, tratamientos y asesoramiento capilar personalizado."
+        content="Peluquería y barbería en tu ciudad: corte, color, barba, tratamientos y asesoramiento capilar personalizado."
     >
 
-    <link rel="icon" href="/favicon.ico?v=3" sizes="any">
-    <link rel="icon" type="image/png" href="/favicon.png?v=3">
-    <link rel="apple-touch-icon" href="/favicon.png?v=3">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
 
-    <title>Baskuñana Peluqueros — Cartagena</title>
+    <title>Peluquería y barbería — Tu ciudad</title>
 
     @viteReactRefresh
     @vite('resources/js/main.tsx')

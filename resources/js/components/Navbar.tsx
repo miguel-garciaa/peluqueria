@@ -1,6 +1,7 @@
 import { ArrowUpRight, CalendarDays, LayoutDashboard, LogOut, Menu, UserRound, X } from "lucide-react";
 import { type MouseEvent, useEffect, useState } from "react";
 import { BrandMark } from "@/components/BrandMark";
+import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
 import type { CurrentUser } from "@/types";
 
@@ -76,7 +77,7 @@ export function Navbar({ currentUser = null, csrfToken = "", onBook, solid = fal
     <header className={cn("fixed inset-x-0 top-0 z-50 text-white transition-all duration-300", solid || isScrolled || isMenuOpen ? "bg-ink/95 shadow-[0_1px_0_oklch(1_0_0/0.12)] backdrop-blur-md" : "bg-gradient-to-b from-black/45 to-transparent")}>
       <span aria-hidden="true" className="navbar-accent-line" /><span aria-hidden="true" className="scroll-progress" />
       <nav className="navbar-shell grid h-20 grid-cols-[1fr_auto] items-center lg:h-24 xl:grid-cols-[minmax(13rem,1fr)_auto_minmax(13rem,1fr)]" aria-label="Navegación principal">
-        <a href={solid ? "/#inicio" : "#inicio"} onClick={solid ? undefined : (event) => navigateToSection(event, "#inicio")} className="flex min-h-11 items-center gap-3 font-display text-[1.05rem] font-extrabold tracking-[-0.035em] sm:text-xl lg:text-2xl" aria-label="Baskuñana Peluqueros, inicio"><BrandMark className="size-8 sm:size-9 lg:size-10" /><span className="leading-none">BASKUÑANA<span className="ml-1 text-brass">*</span><span className="mt-1 block text-[0.62em] font-normal tracking-[0.08em] text-white/60">Peluqueros · Cartagena</span></span></a>
+        <a href={solid ? "/#inicio" : "#inicio"} onClick={solid ? undefined : (event) => navigateToSection(event, "#inicio")} className="flex min-h-11 items-center gap-3 font-display text-[1.05rem] font-extrabold tracking-[-0.035em] sm:text-xl lg:text-2xl" aria-label={`${site.name}, inicio`}><BrandMark className="size-8 text-brass sm:size-9 lg:size-10" /><span className="leading-none uppercase">{site.name}<span className="mt-1 block text-[0.62em] font-normal normal-case tracking-[0.08em] text-white/60">{site.descriptor}</span></span></a>
         <div className="hidden items-center justify-center gap-7 xl:flex">{links.map(([label, href, number]) => <a key={href} href={solid ? `/${href}` : href} aria-label={`${label} ${number}`} onClick={solid ? undefined : (event) => navigateToSection(event, href)} aria-current={!solid && activeHref === href ? "page" : undefined} className={cn("nav-link relative py-4 text-[0.95rem] font-bold transition-colors", !solid && activeHref === href ? "text-white" : "text-white/55 hover:text-white")}><span>{label}</span><sup>{number}</sup></a>)}</div>
         <div className="hidden items-center justify-self-end gap-3 xl:flex"><AccountControl currentUser={currentUser} csrfToken={csrfToken} />{showBookingAction && <PrimaryAction currentUser={currentUser} onBook={onBook} />}</div>
         <button type="button" onClick={() => setIsMenuOpen((value) => !value)} className="grid size-11 place-items-center rounded-full border border-current/20 xl:hidden" aria-expanded={isMenuOpen} aria-controls="mobile-menu" aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>{isMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button>

@@ -1,5 +1,6 @@
 import { Clock3, MapPin, Phone } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import { site } from "@/data/site";
 
 export function Footer() {
   return (
@@ -8,10 +9,10 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <a href="#inicio" className="flex items-center gap-3 font-display text-xl font-semibold">
-              <BrandMark className="size-8" />
-              BASKUÑANA <span className="font-normal text-white/55">Peluqueros</span>
+              <BrandMark className="size-8 text-brass" />
+              <span className="uppercase">{site.name}</span> <span className="font-normal text-white/55">&amp; Barbería</span>
             </a>
-            <p className="mt-4 max-w-xs text-sm leading-6 text-white/45">Corte, color y cuidado capilar con atención personalizada en Cartagena.</p>
+            <p className="mt-4 max-w-xs text-sm leading-6 text-white/45">Corte, color, barbería y cuidado capilar con atención personalizada en tu ciudad.</p>
           </div>
           <div>
             <h2 className="text-sm font-bold">Explora</h2>
@@ -25,8 +26,8 @@ export function Footer() {
           <div>
             <h2 className="text-sm font-bold">Visítanos</h2>
             <div className="mt-4 space-y-3 text-sm text-white/50">
-              <p className="flex gap-2"><MapPin className="size-4 shrink-0" />Paseo Alfonso XIII, 28 · Cartagena</p>
-              <a href="tel:+34968124445" className="flex gap-2 transition-colors hover:text-white"><Phone className="size-4 shrink-0" />968 12 44 45</a>
+              <p className="flex gap-2"><MapPin className="size-4 shrink-0" />{site.addressLine1} · {site.city}</p>
+              <a href={site.phoneHref} className="flex gap-2 transition-colors hover:text-white"><Phone className="size-4 shrink-0" />{site.phoneDisplay}</a>
             </div>
           </div>
           <div>
@@ -35,7 +36,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-10 flex flex-col justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row">
-          <p>© {new Date().getFullYear()} Baskuñana Peluqueros. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} {site.name}. Todos los derechos reservados.</p>
           <p>Privacidad · Cookies · Accesibilidad</p>
         </div>
       </div>

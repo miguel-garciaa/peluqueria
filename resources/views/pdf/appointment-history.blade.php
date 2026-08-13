@@ -32,11 +32,11 @@
 </head>
 <body>
     <footer class="footer">
-        Baskuñana Peluqueros - Documento generado el {{ $generatedAt->locale('es')->translatedFormat('d/m/Y H:i') }} - Página <span class="page-number"></span>
+        {{ config('app.name') }} - Documento generado el {{ $generatedAt->locale('es')->translatedFormat('d/m/Y H:i') }} - Página <span class="page-number"></span>
     </footer>
 
     <header>
-        <div class="brand">Baskuñana Peluqueros</div>
+        <div class="brand">{{ config('app.name') }}</div>
         <h1>Historial de citas completadas</h1>
         <div class="meta">{{ $period->label() }} · {{ $period->rangeLabel($generatedAt) }}</div>
         @if ($serviceName || $professionalName)

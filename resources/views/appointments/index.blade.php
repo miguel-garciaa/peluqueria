@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#171512">
-    <title>Mis citas — Baskuñana Peluqueros</title>
+    <title>Mis citas — {{ config('app.name') }}</title>
     @viteReactRefresh
     @vite('resources/js/appointments.tsx')
 </head>

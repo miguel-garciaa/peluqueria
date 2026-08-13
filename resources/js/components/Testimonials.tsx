@@ -6,7 +6,7 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const reviewMetrics = [
   { end: 4.7, value: "4,7", format: (value: number) => value.toFixed(1).replace(".", ","), label: "Valoración en Google", detail: "Una puntuación pública que refleja la experiencia de sus clientes" },
-  { end: 157, value: "157", format: (value: number) => Math.round(value).toString(), label: "Reseñas publicadas", detail: "Opiniones compartidas sobre el salón de Cartagena" },
+  { end: 157, value: "157", format: (value: number) => Math.round(value).toString(), label: "Reseñas publicadas", detail: "Opiniones compartidas sobre la experiencia en el salón" },
   { end: 6, value: "6 días", format: (value: number) => `${Math.round(value)} días`, label: "Abiertos cada semana", detail: "De lunes a sábado para adaptarnos a tu agenda" },
   { end: 1, value: "1 a 1", format: (value: number) => `${Math.round(value)} a ${Math.round(value)}`, label: "Asesoramiento personal", detail: "Cada servicio parte de tu cabello, tu estilo y tus objetivos" },
 ];

@@ -24,7 +24,7 @@ describe("Gallery", () => {
     expect(screen.getByRole("img", { name: /Corte bob pulido/i }).closest("figure")).toHaveClass("gallery-lightbox-figure");
     expect(screen.getByText("Bob recto con flequillo desfilado")).toBeInTheDocument();
     expect(screen.getByText("Sellado de puntas y acabado pulido")).toBeInTheDocument();
-    expect(screen.getByText("Laura Baskuñana")).toBeInTheDocument();
+    expect(screen.getByText("Laura Moreno")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cerrar fotografía" })).toHaveClass("hover:bg-ink", "hover:text-white");
 
     fireEvent.click(screen.getByRole("button", { name: "Siguiente fotografía" }));

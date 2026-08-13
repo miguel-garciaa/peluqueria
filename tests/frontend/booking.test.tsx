@@ -27,9 +27,9 @@ describe("BookingSection", () => {
   it("keeps the salon location available through Google Maps", () => {
     render(<BookingSection onBook={vi.fn()} />);
 
-    expect(screen.getByRole("link", { name: "Abrir Baskuñana Peluqueros en Google Maps" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Abrir Peluquería en Google Maps" })).toHaveAttribute(
       "href",
-      "https://www.google.com/maps/search/?api=1&query=Paseo+Alfonso+XIII+28+30201+Cartagena+Murcia",
+      "https://www.google.com/maps/search/?api=1&query=peluqueria+barberia",
     );
   });
 
