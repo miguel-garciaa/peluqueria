@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\PushTestNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -41,6 +43,22 @@ class PushSubscriptionController extends Controller
         $request->user()->deletePushSubscription($data['endpoint']);
 
         return response()->json(['message' => 'Notificaciones desactivadas.']);
+    }
+
+    public function test(Request $request): JsonResponse
+    {
+        abort_unless($this->isConfigured(), 503, 'Las notificaciones push todavía no están configuradas.');
+
+        $user = $request->user()->load('pushSubscriptions');
+        if ($user->pushSubscriptions->isEmpty()) {
+            return response()->json([
+                'message' => 'Activa primero las notificaciones en este dispositivo.',
+            ], 409);
+        }
+
+        Notification::sendNow($user, new PushTestNotification);
+
+        return response()->json(['message' => 'Notificación de prueba enviada.']);
     }
 
     private function isConfigured(): bool

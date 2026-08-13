@@ -61,7 +61,7 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
           />
 
           <div className="mt-6 max-w-2xl">
-            <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} tone="light" />
+            <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} tone="light" audience={currentUser.isAdmin ? "admin" : "customer"} />
           </div>
 
           {appointments.length === 0 ? (

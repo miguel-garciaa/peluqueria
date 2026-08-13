@@ -63,6 +63,13 @@ export async function inspectPushNotifications(config: PushNotificationConfig): 
   const subscription = await registration?.pushManager.getSubscription();
   if (!subscription) return "idle";
 
+  const applicationServerKey = decodePublicKey(config.publicKey);
+  if (!sameApplicationServerKey(subscription, applicationServerKey)) {
+    await sendSubscription(config, subscription, "DELETE").catch(() => undefined);
+    await subscription.unsubscribe();
+    return "idle";
+  }
+
   await sendSubscription(config, subscription, "POST");
   return "enabled";
 }
@@ -79,6 +86,7 @@ export async function enablePushNotifications(config: PushNotificationConfig) {
   const applicationServerKey = decodePublicKey(config.publicKey);
   let subscription = await registration.pushManager.getSubscription();
   if (subscription && !sameApplicationServerKey(subscription, applicationServerKey)) {
+    await sendSubscription(config, subscription, "DELETE").catch(() => undefined);
     await subscription.unsubscribe();
     subscription = null;
   }
@@ -97,4 +105,22 @@ export async function disablePushNotifications(config: PushNotificationConfig) {
 
   await sendSubscription(config, subscription, "DELETE");
   await subscription.unsubscribe();
+}
+
+export async function sendTestPushNotification(config: PushNotificationConfig) {
+  const response = await fetch(`${config.subscribeEndpoint}/prueba`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      Accept: "application/json",
+      "X-CSRF-TOKEN": config.csrfToken,
+    },
+  });
+
+  const payload = await response.json().catch(() => null) as { message?: string } | null;
+  if (!response.ok) {
+    throw new Error(payload?.message ?? "No se pudo enviar la notificación de prueba.");
+  }
+
+  return payload?.message ?? "Notificación de prueba enviada.";
 }

@@ -44,7 +44,7 @@ export function MobileAccountPage({ currentUser, csrfToken, pushPublicKey = "", 
               </form>
             </div>
             <div className="mt-5">
-              <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} />
+              <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} audience={isAdmin ? "admin" : "customer"} />
             </div>
           </div>
         ) : (

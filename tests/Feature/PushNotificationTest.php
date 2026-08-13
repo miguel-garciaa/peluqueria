@@ -7,6 +7,7 @@ use App\Models\Professional;
 use App\Models\Service;
 use App\Models\User;
 use App\Notifications\AppointmentPushNotification;
+use App\Notifications\PushTestNotification;
 use App\Services\AppointmentPushNotifications;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -50,6 +51,28 @@ class PushNotificationTest extends TestCase
             ->assertOk();
 
         $this->assertDatabaseCount('push_subscriptions', 0);
+    }
+
+    public function test_an_authenticated_user_can_send_a_push_test_to_their_subscribed_device(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create(['is_admin' => true]);
+        $user->updatePushSubscription(...$this->subscriptionArguments('test-device'));
+
+        $this->actingAs($user)
+            ->postJson(route('push-subscriptions.test'))
+            ->assertOk()
+            ->assertJsonPath('message', 'Notificación de prueba enviada.');
+
+        Notification::assertSentTo($user, PushTestNotification::class);
+    }
+
+    public function test_push_test_requires_a_subscription_on_the_current_device(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->postJson(route('push-subscriptions.test'))
+            ->assertConflict()
+            ->assertJsonPath('message', 'Activa primero las notificaciones en este dispositivo.');
     }
 
     public function test_push_subscription_endpoints_are_authenticated_and_restricted_to_known_providers(): void

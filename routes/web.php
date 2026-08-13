@@ -38,6 +38,9 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/notificaciones/suscripcion', [PushSubscriptionController::class, 'destroy'])
         ->middleware('throttle:push-subscriptions')
         ->name('push-subscriptions.destroy');
+    Route::post('/notificaciones/suscripcion/prueba', [PushSubscriptionController::class, 'test'])
+        ->middleware('throttle:push-subscriptions')
+        ->name('push-subscriptions.test');
     Route::get('/mis-citas', [AppointmentController::class, 'index'])->name('appointments.index');
     Route::patch('/mis-citas/{reference}/anular', [AppointmentController::class, 'cancel'])
         ->middleware('throttle:cancellation')

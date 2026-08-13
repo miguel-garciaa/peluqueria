@@ -64,6 +64,8 @@ La segunda orden realiza primero las comprobaciones y después intenta un envío
 
 La PWA permite activar o desactivar los avisos por dispositivo desde **Cuenta** y **Mis citas**. Los clientes reciben confirmaciones, cambios, cancelaciones y un recordatorio durante las 24 horas anteriores. Los administradores suscritos reciben cada nueva reserva y cancelación como una notificación push del sistema, aunque el panel esté cerrado; estos avisos administrativos se envían de inmediato y no dependen del worker de colas.
 
+Después de activarlas, **Enviar prueba al móvil** comprueba el mismo canal que utilizan las reservas. Si las claves VAPID cambian, la aplicación descarta la suscripción incompatible y solicita activarla de nuevo. Los rechazos del proveedor quedan registrados como `Web Push rejected by provider.` sin guardar el endpoint completo.
+
 Genera las claves VAPID una sola vez por entorno y consérvalas entre despliegues:
 
 ```bash

@@ -5,8 +5,11 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use NotificationChannels\WebPush\Events\NotificationFailed as WebPushFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +27,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        Event::listen(WebPushFailed::class, function (WebPushFailed $event): void {
+            Log::warning('Web Push rejected by provider.', [
+                'subscription_id' => $event->subscription->getKey(),
+                'subscribable_id' => $event->subscription->subscribable_id,
+                'endpoint_host' => parse_url($event->report->getEndpoint(), PHP_URL_HOST),
+                'status' => $event->report->getResponse()?->getStatusCode(),
+                'reason' => $event->report->getReason(),
+            ]);
+        });
 
         RateLimiter::for('landing', function (Request $request): array {
             $key = 'landing:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'unknown');
