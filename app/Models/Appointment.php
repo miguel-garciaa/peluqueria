@@ -33,7 +33,6 @@ class Appointment extends Model
             'ends_at' => 'immutable_datetime',
             'cancelled_at' => 'immutable_datetime',
             'completed_at' => 'immutable_datetime',
-            'push_reminder_sent_at' => 'immutable_datetime',
             'payment_amount' => 'decimal:2',
         ];
     }

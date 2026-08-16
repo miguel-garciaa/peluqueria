@@ -15,13 +15,6 @@ return [
 
     'name' => env('APP_NAME', 'Peluquería'),
 
-    'short_name' => env('APP_SHORT_NAME', env('APP_NAME', 'Peluquería')),
-
-    'description' => env(
-        'APP_DESCRIPTION',
-        'Peluquería y barbería contemporánea con reserva de citas online.',
-    ),
-
     /*
     |--------------------------------------------------------------------------
     | Application Environment

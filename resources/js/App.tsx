@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BeforeAfter } from "@/components/BeforeAfter";
 import { BookingModal } from "@/components/booking/BookingModal";
 import { BookingSection } from "@/components/BookingSection";
@@ -6,17 +6,12 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Gallery } from "@/components/Gallery";
 import { Hero } from "@/components/Hero";
-import { MobileAccountPage } from "@/components/MobileAccountPage";
 import { Navbar } from "@/components/Navbar";
-import { PwaStatus } from "@/components/PwaStatus";
 import { Services } from "@/components/Services";
 import { Testimonials } from "@/components/Testimonials";
 import { Team } from "@/components/Team";
 import { TimedNotice } from "@/components/TimedNotice";
-import { mobileViewFromPath, mobileViewPaths, mobileViewTitles } from "@/lib/mobile-navigation";
-import { isMobileAppMode } from "@/lib/display-mode";
-import { cn } from "@/lib/utils";
-import type { BookingCatalog, CurrentUser, MobileView } from "@/types";
+import type { BookingCatalog, CurrentUser } from "@/types";
 
 export type { CurrentUser } from "@/types";
 
@@ -26,90 +21,28 @@ type AppProps = {
   bookingCatalog: BookingCatalog;
   csrfToken: string;
   currentUser: CurrentUser | null;
-  initialMobileView: MobileView;
   authMessage: string | null;
   authMessageType: "success" | "error";
-  pushPublicKey?: string;
-  pushSubscriptionEndpoint?: string;
 };
 
-export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, initialMobileView, authMessage, authMessageType, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppProps) {
-  const appMode = isMobileAppMode();
-  const startsInMobileBooking = initialMobileView === "reservar" && appMode;
-  const [bookingOpen, setBookingOpen] = useState(startsInMobileBooking && currentUser !== null);
+export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, authMessage, authMessageType }: AppProps) {
+  const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingIntent, setBookingIntent] = useState<{ serviceId?: string; professionalId?: string }>({});
-  const [authNotice, setAuthNotice] = useState(startsInMobileBooking && currentUser === null);
-  const [mobileView, setMobileView] = useState<MobileView>(initialMobileView);
+  const [authNotice, setAuthNotice] = useState(false);
 
-  const openBooking = useCallback((intent: { serviceId?: string; professionalId?: string } = {}) => {
+  const openBooking = (intent: { serviceId?: string; professionalId?: string } = {}) => {
     if (!currentUser) {
       setAuthNotice(true);
       return;
     }
+
     setBookingIntent(intent);
     setBookingOpen(true);
-  }, [currentUser]);
-
-  const focusMobileScreen = useCallback(() => {
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>(".mobile-app-screen--active")?.scrollIntoView({ behavior: "auto", block: "start" });
-    });
-  }, []);
-
-  const navigateMobileView = useCallback((view: MobileView) => {
-    if (!appMode) {
-      const sectionId = view === "reservar" ? "reservas" : view;
-      setMobileView(view);
-      window.history.pushState(null, "", `#${sectionId}`);
-      window.requestAnimationFrame(() => {
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      });
-      return;
-    }
-
-    if (window.location.pathname !== mobileViewPaths[view]) {
-      window.history.pushState({ mobileView: view }, "", mobileViewPaths[view]);
-    }
-    setMobileView(view);
-    if (view === "reservar") openBooking();
-    else setBookingOpen(false);
-    focusMobileScreen();
-  }, [appMode, focusMobileScreen, openBooking]);
-
-  const closeBooking = useCallback(() => {
-    setBookingOpen(false);
-    if (!appMode || mobileView !== "reservar") return;
-
-    window.history.replaceState({ mobileView: "inicio" }, "", mobileViewPaths.inicio);
-    setMobileView("inicio");
-    focusMobileScreen();
-  }, [appMode, focusMobileScreen, mobileView]);
-
-  useEffect(() => {
-    const onPopState = () => {
-      const nextView = mobileViewFromPath(window.location.pathname);
-      setMobileView(nextView);
-      if (appMode && nextView === "reservar") openBooking();
-      else setBookingOpen(false);
-      focusMobileScreen();
-    };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, [appMode, focusMobileScreen, openBooking]);
-
-  useEffect(() => {
-    document.title = mobileViewTitles[mobileView];
-  }, [mobileView]);
-
-  useEffect(() => {
-    if (initialMobileView === "inicio" || appMode) return;
-    const sectionId = initialMobileView === "reservar" ? "reservas" : initialMobileView;
-    window.requestAnimationFrame(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "auto", block: "start" }));
-  }, [appMode, initialMobileView]);
+  };
 
   useEffect(() => {
     if (!authNotice) return;
+
     const timeout = window.setTimeout(() => setAuthNotice(false), 3000);
     return () => window.clearTimeout(timeout);
   }, [authNotice]);
@@ -117,7 +50,7 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
   return (
     <>
       <a className="skip-link" href="#main-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => openBooking()} activeMobileView={mobileView} onMobileViewChange={navigateMobileView} appMode={appMode} />
+      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => openBooking()} />
       <TimedNotice
         message={authMessage}
         role={authMessageType === "error" ? "alert" : "status"}
@@ -125,32 +58,18 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
       />
       {authNotice && <div role="alert" className="fixed inset-x-4 top-24 z-[90] ml-auto max-w-md rounded-2xl border border-white/10 bg-ink p-5 text-white shadow-2xl"><button type="button" onClick={() => setAuthNotice(false)} className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white" aria-label="Cerrar aviso">×</button><p className="font-display text-xl font-semibold">Inicia sesión para reservar</p><p className="mt-2 pr-5 text-sm leading-6 text-white/65">Tu cuenta nos permite guardar la cita y enviarte la confirmación.</p><a href="/auth/google" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión con Google</a></div>}
       <main id="main-content">
-        <div className={cn("mobile-app-screen", appMode && (mobileView === "inicio" ? "mobile-app-screen--active" : "hidden"))}>
-          <Hero onBook={() => openBooking()} onViewServices={() => navigateMobileView("servicios")} />
-        </div>
-        <div className={cn("mobile-app-screen", appMode && (mobileView === "servicios" ? "mobile-app-screen--active" : "hidden"))}>
-          <Services catalogServices={bookingCatalog.services} onBook={(serviceId) => openBooking({ serviceId })} />
-        </div>
-        <div className={cn("mobile-app-screen", appMode && (mobileView === "equipo" ? "mobile-app-screen--active" : "hidden"))}>
-          <Team catalogProfessionals={bookingCatalog.professionals} catalogServices={bookingCatalog.services} onBook={(professionalId) => openBooking({ professionalId })} />
-        </div>
-        <div className={cn("mobile-app-screen", appMode && (mobileView === "galeria" ? "mobile-app-screen--active" : "hidden"))}>
-          <Gallery />
-          <BeforeAfter />
-        </div>
-        {!appMode && <Testimonials />}
-        {!appMode && <div className="mobile-app-screen">
-          <BookingSection onBook={() => openBooking()} onViewHome={() => navigateMobileView("inicio")} />
-        </div>}
-        <div className={cn("mobile-app-screen", appMode && mobileView === "cuenta" ? "mobile-app-screen--active" : "hidden")}>
-          <MobileAccountPage currentUser={currentUser} csrfToken={csrfToken} pushPublicKey={pushPublicKey} pushSubscriptionEndpoint={pushSubscriptionEndpoint} />
-        </div>
+        <Hero onBook={() => openBooking()} />
+        <Services catalogServices={bookingCatalog.services} onBook={(serviceId) => openBooking({ serviceId })} />
+        <Team catalogProfessionals={bookingCatalog.professionals} catalogServices={bookingCatalog.services} onBook={(professionalId) => openBooking({ professionalId })} />
+        <Gallery />
+        <BeforeAfter />
+        <Testimonials />
+        <BookingSection onBook={() => openBooking()} />
       </main>
-      {!appMode && <Footer />}
+      <Footer />
       <CustomCursor />
-      <PwaStatus />
       {currentUser && bookingOpen && (
-        <BookingModal open onClose={closeBooking} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
+        <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={bookingIntent} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
       )}
     </>
   );

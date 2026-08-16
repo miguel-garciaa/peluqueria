@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { MyAppointmentsPage } from "@/MyAppointmentsPage";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
 
@@ -43,23 +43,6 @@ describe("MyAppointmentsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nueva cita" }));
 
     expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
-  });
-
-  it("links the persistent mobile navigation to the booking page", () => {
-    const matchMedia = vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
-      matches: query === "(max-width: 47.999rem)" || query === "(display-mode: standalone)",
-      media: query,
-      onchange: null,
-      addListener: () => {},
-      removeListener: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      dispatchEvent: () => false,
-    }));
-    renderPage();
-
-    expect(screen.getByRole("link", { name: "Reservar" })).toHaveAttribute("href", "/reservar");
-    matchMedia.mockRestore();
   });
 
   it("asks for inline confirmation before submitting a cancellation", () => {

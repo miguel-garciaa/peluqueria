@@ -77,7 +77,7 @@ class EditAppointment extends EditRecord
 
         if (in_array($this->record->status, ['pending', 'confirmed'], true)
             && ($this->originalStatus === 'cancelled' || $this->originalSchedule !== $currentSchedule)) {
-            app(ManageAppointment::class)->sendConfirmation($this->record, updated: true);
+            app(ManageAppointment::class)->sendConfirmation($this->record);
         }
     }
 }

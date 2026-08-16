@@ -22,17 +22,6 @@ class LandingPageTest extends TestCase
             ->assertSee('data-booking-endpoint="/reservas"', false);
     }
 
-    public function test_each_mobile_app_screen_has_its_own_url(): void
-    {
-        $this->withoutVite();
-
-        foreach (['servicios', 'equipo', 'reservar', 'galeria', 'cuenta'] as $view) {
-            $this->get("/{$view}")
-                ->assertOk()
-                ->assertSee("data-mobile-view=\"{$view}\"", false);
-        }
-    }
-
     public function test_the_authenticated_google_user_is_exposed_to_the_frontend(): void
     {
         $this->withoutVite();

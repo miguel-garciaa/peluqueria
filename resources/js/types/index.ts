@@ -25,7 +25,6 @@ export interface Professional {
 
 export type GalleryCategory = "Todos" | "Cortes" | "Color" | "Tratamientos";
 export type GalleryItemCategory = Exclude<GalleryCategory, "Todos">;
-export type MobileView = "inicio" | "servicios" | "equipo" | "reservar" | "galeria" | "cuenta";
 
 export interface GalleryItem {
   id: string;

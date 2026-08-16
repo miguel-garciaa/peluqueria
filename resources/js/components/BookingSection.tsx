@@ -3,7 +3,7 @@ import { RevealTitle } from "@/components/ui/reveal-title";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { site } from "@/data/site";
 
-export function BookingSection({ onBook, onViewHome }: { onBook: () => void; onViewHome?: () => void }) {
+export function BookingSection({ onBook }: { onBook: () => void }) {
   return (
     <section id="reservas" className="section-space bg-ink text-white">
       <div className="container-shell">
@@ -39,7 +39,7 @@ export function BookingSection({ onBook, onViewHome }: { onBook: () => void; onV
           </div>
         </ScrollReveal>
         <div className="mt-8 flex justify-end">
-          <a href="/" onClick={(event) => { if (!onViewHome || !window.matchMedia("(max-width: 47.999rem)").matches) return; event.preventDefault(); onViewHome(); }} className="group inline-flex min-h-11 items-center gap-3 rounded-full border border-white/20 px-3 py-2 pr-5 text-sm font-bold text-white/80 outline-none transition-[background-color,color,border-color,transform] hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-ink focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4 focus-visible:ring-offset-ink">
+          <a href="#inicio" className="group inline-flex min-h-11 items-center gap-3 rounded-full border border-white/20 px-3 py-2 pr-5 text-sm font-bold text-white/80 outline-none transition-[background-color,color,border-color,transform] hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-ink focus-visible:ring-2 focus-visible:ring-brass focus-visible:ring-offset-4 focus-visible:ring-offset-ink">
             <span className="grid size-8 place-items-center rounded-full bg-brass text-ink"><ArrowUp aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5" /></span>
             Volver al inicio
           </a>

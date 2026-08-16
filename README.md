@@ -60,20 +60,6 @@ php artisan mail:diagnose --send-to=tu-correo@example.com
 
 La segunda orden realiza primero las comprobaciones y después intenta un envío directo mediante el proveedor configurado. Si funciona pero las confirmaciones permanecen pendientes, el problema está en el worker de la cola `emails`.
 
-## Notificaciones push de citas
-
-La PWA permite activar o desactivar los avisos por dispositivo desde **Cuenta** y **Mis citas**. Los clientes reciben confirmaciones, cambios, cancelaciones y un recordatorio durante las 24 horas anteriores. Los administradores suscritos reciben cada nueva reserva y cancelación como una notificación push del sistema, aunque el panel esté cerrado; estos avisos administrativos se envían de inmediato y no dependen del worker de colas.
-
-Después de activarlas, **Enviar prueba al móvil** comprueba el mismo canal que utilizan las reservas. Si las claves VAPID cambian, la aplicación descarta la suscripción incompatible y solicita activarla de nuevo. Los rechazos del proveedor quedan registrados como `Web Push rejected by provider.` sin guardar el endpoint completo.
-
-Genera las claves VAPID una sola vez por entorno y consérvalas entre despliegues:
-
-```bash
-php artisan webpush:vapid
-```
-
-Configura también un contacto válido en `VAPID_SUBJECT`, por ejemplo `mailto:reservas@peluqueria.es`, y ejecuta las migraciones. Web Push requiere HTTPS en producción; en iPhone/iPad el usuario debe instalar primero la PWA desde Safari y abrirla desde la pantalla de inicio. La cola `default` entrega los avisos y el planificador ejecuta `appointments:send-push-reminders` cada cinco minutos, por lo que ambos procesos deben permanecer activos.
-
 ## Comprobaciones
 
 ```bash

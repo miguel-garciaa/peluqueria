@@ -3,11 +3,8 @@ import { ArrowUpRight, CalendarDays, CheckCircle2, Clock3, Scissors, XCircle } f
 import { CustomCursor } from "@/components/CustomCursor";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { PwaStatus } from "@/components/PwaStatus";
-import { PushNotificationSettings } from "@/components/PushNotificationSettings";
 import { TimedNotice } from "@/components/TimedNotice";
 import type { BookingCatalog, CurrentUser, UserAppointment } from "@/types";
-import { isMobileAppMode } from "@/lib/display-mode";
 
 const BookingModal = lazy(() => import("@/components/booking/BookingModal")
   .then((module) => ({ default: module.BookingModal })));
@@ -27,19 +24,16 @@ interface AppointmentsPageProps {
   availabilityEndpoint: string;
   csrfToken: string;
   flash: { message: string | null; type: "success" | "error" } | null;
-  pushPublicKey?: string;
-  pushSubscriptionEndpoint?: string;
 }
 
-export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash, pushPublicKey = "", pushSubscriptionEndpoint = "/notificaciones/suscripcion" }: AppointmentsPageProps) {
+export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash }: AppointmentsPageProps) {
   const [confirmingReference, setConfirmingReference] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
-  const appMode = isMobileAppMode();
 
   return (
     <>
       <a className="skip-link" href="#appointments-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid activeMobileView="cuenta" showBookingAction={false} appMode={appMode} />
+      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid showBookingAction={false} />
       <main id="appointments-content" className="min-h-screen bg-porcelain pb-24 pt-32 text-ink lg:pt-40">
         <section className="container-shell">
           <div className="border-b border-ink/12 pb-10 lg:flex lg:items-end lg:justify-between">
@@ -59,10 +53,6 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
             role={flash?.type === "error" ? "alert" : "status"}
             className={`mt-6 rounded-xl px-4 py-3 text-sm font-semibold ${flash?.type === "error" ? "bg-danger/10 text-danger" : "bg-brass/25 text-espresso"}`}
           />
-
-          <div className="mt-6 max-w-2xl">
-            <PushNotificationSettings publicKey={pushPublicKey} subscribeEndpoint={pushSubscriptionEndpoint} csrfToken={csrfToken} tone="light" audience={currentUser.isAdmin ? "admin" : "customer"} />
-          </div>
 
           {appointments.length === 0 ? (
             <div className="mt-10 grid min-h-80 place-items-center rounded-2xl border border-dashed border-ink/20 bg-white p-8 text-center">
@@ -140,9 +130,8 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
           )}
         </section>
       </main>
-      {!appMode && <Footer />}
+      <Footer />
       <CustomCursor />
-      <PwaStatus />
       {bookingOpen && (
         <Suspense fallback={null}>
           <BookingModal open onClose={() => setBookingOpen(false)} currentUser={currentUser} catalog={bookingCatalog} intent={{}} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} />
