@@ -1,0 +1,35 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import { getHeroMotionMode, type HeroNavigationType } from "@/lib/hero-motion";
+import { removeLegacyBrowserApp } from "@/lib/remove-legacy-browser-app";
+import "../css/app.css";
+
+const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+const navigationType = (navigationEntry?.type ?? "navigate") as HeroNavigationType;
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const documentElement = document.documentElement;
+
+void removeLegacyBrowserApp();
+
+documentElement.dataset.heroMotion = getHeroMotionMode(navigationType, reducedMotion);
+if (documentElement.dataset.heroMotion === "play") {
+  window.setTimeout(() => { documentElement.dataset.heroMotion = "settled"; }, 1400);
+}
+
+const appRoot = document.getElementById("root");
+if (!appRoot) throw new Error("No se encontró el contenedor principal de la aplicación.");
+
+const bookingEndpoint = appRoot.dataset.bookingEndpoint ?? "/reservas";
+const availabilityEndpoint = appRoot.dataset.availabilityEndpoint ?? "/reservas/disponibilidad";
+const bookingCatalog = JSON.parse(appRoot.dataset.bookingCatalog || '{"services":[],"professionals":[]}');
+const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
+const currentUser = JSON.parse(appRoot.dataset.currentUser || "null");
+const authMessage = appRoot.dataset.authMessage || null;
+const authMessageType = appRoot.dataset.authMessageType === "error" ? "error" : "success";
+
+createRoot(appRoot).render(
+  <StrictMode>
+    <App bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} bookingCatalog={bookingCatalog} csrfToken={csrfToken} currentUser={currentUser} authMessage={authMessage} authMessageType={authMessageType} />
+  </StrictMode>,
+);
