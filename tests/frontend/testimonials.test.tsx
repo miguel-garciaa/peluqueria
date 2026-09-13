@@ -10,6 +10,21 @@ describe("StaggerTestimonials", () => {
     fireEvent.click(screen.getByRole("button", { name: "Valoración siguiente" }));
     expect(screen.getByText(/Valoración activa: Corte impecable/)).toBeInTheDocument();
   });
+
+  it("supports keyboard, card selection and swipe navigation", () => {
+    render(<StaggerTestimonials />);
+    const carousel = screen.getByRole("region", { name: "Valoraciones de clientes" });
+
+    fireEvent.keyDown(carousel, { key: "ArrowRight" });
+    expect(screen.getByText(/Valoración activa: Corte impecable/)).toBeInTheDocument();
+    fireEvent.keyDown(carousel, { key: "ArrowLeft" });
+    expect(screen.getByText(/Valoración activa: Entendieron exactamente/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Mostrar valoración de Marta P." }));
+    expect(screen.getByText(/Valoración activa: Mi pelo volvió/)).toBeInTheDocument();
+    fireEvent.pointerDown(carousel, { clientX: 200 });
+    fireEvent.pointerUp(carousel, { clientX: 100 });
+    expect(screen.getByText(/Valoración activa: Salí sintiéndome/)).toBeInTheDocument();
+  });
 });
 
 describe("Testimonials metrics", () => {

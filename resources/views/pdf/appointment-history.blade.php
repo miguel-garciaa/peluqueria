@@ -9,6 +9,8 @@
         body { color: #181510; font-family: "DejaVu Sans", sans-serif; font-size: 9px; margin: 0; }
         header { border-bottom: 2px solid #b7791f; margin-bottom: 15px; padding-bottom: 10px; }
         .brand { color: #181510; font-size: 18px; font-weight: bold; }
+        .brand-icon { height: 32px; margin-right: 7px; vertical-align: middle; width: 32px; }
+        .brand-name { vertical-align: middle; }
         h1 { font-size: 24px; line-height: 1.15; margin: 5px 0 3px; }
         .meta { color: #665d54; font-size: 9px; }
         .filters { margin-top: 5px; }
@@ -36,7 +38,7 @@
     </footer>
 
     <header>
-        <div class="brand">{{ config('app.name') }}</div>
+        <div class="brand"><img class="brand-icon" src="{{ $brandIcon }}" alt=""><span class="brand-name">{{ config('app.name') }}</span></div>
         <h1>Historial de citas completadas</h1>
         <div class="meta">{{ $period->label() }} · {{ $period->rangeLabel($generatedAt) }}</div>
         @if ($serviceName || $professionalName)

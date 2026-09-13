@@ -281,6 +281,7 @@ class AppointmentRequestTest extends TestCase
         $response = $this->actingAs($user)->get(route('appointments.index'))->assertOk();
         $response->assertSee(Appointment::query()->where('user_id', $user->id)->value('reference'));
         $response->assertDontSee(Appointment::query()->where('user_id', $otherUser->id)->value('reference'));
+        $response->assertSee('href="/peluqueria-icon.svg?v=1"', false);
         $response->assertSee('data-booking-endpoint="/reservas"', false);
         $response->assertSee('data-availability-endpoint="/reservas/disponibilidad"', false);
         $response->assertSee('data-booking-catalog=', false);
@@ -360,6 +361,8 @@ class AppointmentRequestTest extends TestCase
         foreach ([$html, (new AppointmentConfirmed($appointment))->render()] as $mailHtml) {
             $this->assertStringContainsString('width="620"', $mailHtml);
             $this->assertStringContainsString('border-collapse:collapse', $mailHtml);
+            $this->assertStringContainsString('/peluqueria-icon.png', $mailHtml);
+            $this->assertStringContainsString('width="46" height="46"', $mailHtml);
             $this->assertStringNotContainsString('border-radius:20px 20px 0 0', $mailHtml);
             $this->assertStringNotContainsString('border-radius:0 0 20px 20px', $mailHtml);
         }

@@ -31,6 +31,8 @@ class Agenda extends Page
 
     public string $selectedDate = '';
 
+    public string $calendarView = 'week';
+
     public string $professionalFilter = 'all';
 
     public string $statusFilter = 'active';
@@ -64,6 +66,7 @@ class Agenda extends Page
                     ->label('Profesional')
                     ->options(fn (): array => ['all' => 'Todos'] + $this->professionals()->pluck('name', 'id')->all())
                     ->native(false)
+                    ->selectablePlaceholder(false)
                     ->live(),
                 Select::make('statusFilter')
                     ->label('Estado')
@@ -75,6 +78,7 @@ class Agenda extends Page
                         'cancelled' => 'Canceladas',
                     ])
                     ->native(false)
+                    ->selectablePlaceholder(false)
                     ->live(),
             ])
             ->columns(2);
@@ -90,6 +94,31 @@ class Agenda extends Page
         $this->selectedDate = $this->weekStart()->addWeek()->format('Y-m-d');
     }
 
+    public function setCalendarView(string $view): void
+    {
+        if (in_array($view, ['week', 'month'], true)) {
+            $this->calendarView = $view;
+        }
+    }
+
+    public function previousPeriod(): void
+    {
+        $date = $this->selectedDate();
+
+        $this->selectedDate = ($this->calendarView === 'month'
+            ? $date->subMonthNoOverflow()
+            : $date->subWeek())->format('Y-m-d');
+    }
+
+    public function nextPeriod(): void
+    {
+        $date = $this->selectedDate();
+
+        $this->selectedDate = ($this->calendarView === 'month'
+            ? $date->addMonthNoOverflow()
+            : $date->addWeek())->format('Y-m-d');
+    }
+
     public function goToToday(): void
     {
         $this->selectedDate = CarbonImmutable::now(config('app.business_timezone'))->format('Y-m-d');
@@ -101,12 +130,42 @@ class Agenda extends Page
         return Professional::query()->select(['id', 'name'])->orderBy('name')->get();
     }
 
-    /** @return array<int, array{date: CarbonImmutable, is_today: bool, appointments: Collection<int, Appointment>}> */
+    /** @return array<int, array{date: CarbonImmutable, is_today: bool, is_current_month: bool, appointments: Collection<int, Appointment>}> */
     public function week(): array
     {
-        $timezone = config('app.business_timezone');
         $start = $this->weekStart();
-        $end = $start->addWeek();
+
+        return $this->daysForRange($start, $start->addWeek());
+    }
+
+    /** @return array<int, array{date: CarbonImmutable, is_today: bool, is_current_month: bool, appointments: Collection<int, Appointment>}> */
+    public function calendarDays(): array
+    {
+        if ($this->calendarView === 'month') {
+            $month = $this->selectedDate()->startOfMonth();
+            $start = $month->startOfWeek();
+            $end = $month->endOfMonth()->endOfWeek()->addDay()->startOfDay();
+
+            return $this->daysForRange($start, $end, $month);
+        }
+
+        return $this->week();
+    }
+
+    public function periodLabel(): string
+    {
+        if ($this->calendarView === 'month') {
+            return ucfirst($this->selectedDate()->locale('es')->translatedFormat('F Y'));
+        }
+
+        return $this->weekLabel();
+    }
+
+    /** @return array<int, array{date: CarbonImmutable, is_today: bool, is_current_month: bool, appointments: Collection<int, Appointment>}> */
+    private function daysForRange(CarbonImmutable $start, CarbonImmutable $end, ?CarbonImmutable $month = null): array
+    {
+        $timezone = config('app.business_timezone');
+        $professionalId = $this->selectedProfessionalId();
 
         $appointments = Appointment::query()
             ->select([
@@ -119,19 +178,22 @@ class Agenda extends Page
             ])
             ->where('starts_at', '<', $end->utc())
             ->where('ends_at', '>', $start->utc())
-            ->when($this->professionalFilter !== 'all', fn (Builder $query) => $query->where('professional_id', $this->professionalFilter))
+            ->when($professionalId !== null, fn (Builder $query) => $query->where('professional_id', $professionalId))
             ->when($this->statusFilter === 'active', fn (Builder $query) => $query->whereIn('status', ['pending', 'confirmed']))
             ->when(! in_array($this->statusFilter, ['all', 'active'], true), fn (Builder $query) => $query->where('status', $this->statusFilter))
             ->orderBy('starts_at')
             ->get()
             ->groupBy(fn (Appointment $appointment): string => $appointment->starts_at->timezone($timezone)->format('Y-m-d'));
 
-        return collect(range(0, 6))->map(function (int $offset) use ($appointments, $start, $timezone): array {
+        $dayCount = (int) $start->diffInDays($end);
+
+        return collect(range(0, $dayCount - 1))->map(function (int $offset) use ($appointments, $start, $timezone, $month): array {
             $date = $start->addDays($offset);
 
             return [
                 'date' => $date,
                 'is_today' => $date->isSameDay(CarbonImmutable::now($timezone)),
+                'is_current_month' => $month === null || $date->isSameMonth($month),
                 'appointments' => $appointments->get($date->format('Y-m-d'), collect()),
             ];
         })->all();
@@ -147,7 +209,18 @@ class Agenda extends Page
 
     private function weekStart(): CarbonImmutable
     {
-        return CarbonImmutable::parse($this->selectedDate ?: 'today', config('app.business_timezone'))
-            ->startOfWeek();
+        return $this->selectedDate()->startOfWeek();
+    }
+
+    private function selectedDate(): CarbonImmutable
+    {
+        return CarbonImmutable::parse($this->selectedDate ?: 'today', config('app.business_timezone'));
+    }
+
+    private function selectedProfessionalId(): ?int
+    {
+        $professionalId = filter_var($this->professionalFilter, FILTER_VALIDATE_INT);
+
+        return $professionalId !== false && $professionalId > 0 ? $professionalId : null;
     }
 }

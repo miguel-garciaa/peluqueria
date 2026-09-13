@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#171512">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=6">
+    <link rel="icon" type="image/svg+xml" href="/peluqueria-icon.svg?v=1">
+    <link rel="alternate icon" type="image/png" href="/peluqueria-icon.png?v=1">
+    <link rel="apple-touch-icon" href="/peluqueria-icon.png?v=1">
     <title>Mis citas — {{ config('app.name') }}</title>
     @viteReactRefresh
     @vite('resources/js/appointments.tsx')

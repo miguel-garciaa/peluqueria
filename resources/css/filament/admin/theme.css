@@ -138,6 +138,19 @@ html.fi,
     letter-spacing: -0.025em;
 }
 
+.admin-brand-logo {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.65rem;
+    height: 100%;
+    white-space: nowrap;
+}
+
+.admin-brand-logo img {
+    height: 2rem;
+    width: 2rem;
+}
+
 .fi-sidebar-nav {
     gap: 1.5rem;
     padding: 1.5rem 1rem;
@@ -387,6 +400,46 @@ html.fi,
     justify-content: space-between;
 }
 
+.agenda-toolbar-main {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.agenda-view-toggle {
+    align-items: center;
+    background: var(--bk-surface);
+    border: 1px solid var(--bk-border);
+    border-radius: 0.55rem;
+    display: inline-grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0.2rem;
+    width: fit-content;
+}
+
+.agenda-view-toggle button {
+    border-radius: 0.38rem;
+    color: var(--bk-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    min-width: 5.5rem;
+    padding: 0.45rem 0.8rem;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.agenda-view-toggle button:hover {
+    color: var(--bk-ink);
+}
+
+.agenda-view-toggle button.is-active {
+    background: var(--bk-surface-muted);
+    color: var(--bk-brass-soft);
+}
+
+.agenda-view-toggle button:focus-visible {
+    outline: 2px solid var(--bk-brass);
+    outline-offset: 1px;
+}
+
 .agenda-navigation {
     align-items: center;
     display: flex;
@@ -476,7 +529,7 @@ html.fi,
     width: 0.5rem;
 }
 
-.agenda-week {
+.agenda-calendar {
     background: var(--bk-border);
     border: 1px solid var(--bk-border);
     border-radius: 0.75rem;
@@ -484,6 +537,33 @@ html.fi,
     gap: 1px;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     overflow-x: auto;
+}
+
+.agenda-calendar.is-month .agenda-day {
+    min-height: 10rem;
+    min-width: 8.5rem;
+}
+
+.agenda-calendar.is-month .agenda-day > header {
+    padding: 0.6rem 0.7rem;
+}
+
+.agenda-calendar.is-month .agenda-day > header strong {
+    font-size: 1.05rem;
+}
+
+.agenda-calendar.is-month .agenda-events {
+    gap: 0.4rem;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.4rem;
+}
+
+.agenda-calendar.is-month .agenda-event {
+    padding: 0.55rem;
+}
+
+.agenda-day.is-outside-month {
+    opacity: 0.45;
 }
 
 .agenda-day {
@@ -745,13 +825,23 @@ html.fi,
         width: 100%;
     }
 
-    .agenda-week {
+    .agenda-calendar.is-week {
         background: transparent;
         border: 0;
         display: grid;
         gap: 0.75rem;
         grid-template-columns: 1fr;
         overflow: visible;
+    }
+
+    .agenda-calendar.is-month {
+        grid-template-columns: repeat(7, minmax(8.5rem, 1fr));
+        overflow-x: auto;
+    }
+
+    .agenda-calendar.is-month .agenda-day {
+        border: 0;
+        border-radius: 0;
     }
 
     .agenda-day {
@@ -811,6 +901,11 @@ html.fi,
     .agenda-navigation strong {
         flex-basis: 100%;
         margin: 0.25rem 0 0;
+    }
+
+    .agenda-view-toggle,
+    .agenda-view-toggle button {
+        width: 100%;
     }
 
     .agenda-filters {

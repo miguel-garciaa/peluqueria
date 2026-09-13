@@ -62,4 +62,42 @@ describe("MyAppointmentsPage", () => {
 
     expect(screen.queryByRole("button", { name: "Anular cita" })).not.toBeInTheDocument();
   });
+
+  it("allows backing out of cancellation without submitting", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Anular cita" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mantener cita" }));
+
+    expect(screen.queryByText("¿Seguro que quieres anular esta cita?")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Anular cita" })).toBeInTheDocument();
+  });
+
+  it("renders an empty state and opens the first-booking flow", async () => {
+    renderPage([]);
+    expect(screen.getByRole("heading", { name: "Todavía no tienes citas" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Reservar mi primera cita" }));
+    expect(await screen.findByRole("dialog", { name: "Tu próxima cita" })).toBeInTheDocument();
+  });
+
+  it("shows flash severity, custom details and every supported status label", () => {
+    render(
+      <MyAppointmentsPage
+        currentUser={user}
+        appointments={[
+          { ...appointment, reference: "PENDING", status: "pending", customDetails: "Sin perfume", canCancel: false },
+          { ...appointment, reference: "COMPLETED", status: "completed", canCancel: false },
+        ]}
+        bookingCatalog={catalog}
+        bookingEndpoint="/reservas"
+        availabilityEndpoint="/reservas/disponibilidad"
+        csrfToken="csrf-test"
+        flash={{ message: "No se pudo anular", type: "error" }}
+      />,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("No se pudo anular");
+    expect(screen.getByText("Sin perfume")).toBeInTheDocument();
+    expect(screen.getByText("Pendiente")).toBeInTheDocument();
+    expect(screen.getByText("Completada")).toBeInTheDocument();
+  });
 });

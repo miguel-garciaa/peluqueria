@@ -15,9 +15,9 @@ class MockIntersectionObserver implements IntersectionObserver {
   unobserve() {}
 }
 
-Object.defineProperty(window, "IntersectionObserver", { writable: true, value: MockIntersectionObserver });
-Object.defineProperty(window, "ResizeObserver", { writable: true, value: class { observe() {} unobserve() {} disconnect() {} } });
-Object.defineProperty(window, "matchMedia", { writable: true, value: (query: string) => ({ matches: query.includes("prefers-reduced-motion"), media: query, onchange: null, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false }) });
+Object.defineProperty(window, "IntersectionObserver", { configurable: true, writable: true, value: MockIntersectionObserver });
+Object.defineProperty(window, "ResizeObserver", { configurable: true, writable: true, value: class { observe() {} unobserve() {} disconnect() {} } });
+Object.defineProperty(window, "matchMedia", { configurable: true, writable: true, value: (query: string) => ({ matches: query.includes("prefers-reduced-motion"), media: query, onchange: null, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false }) });
 Object.defineProperty(window.HTMLElement.prototype, "scrollIntoView", { writable: true, value: () => {} });
 Object.defineProperty(window.HTMLDialogElement.prototype, "showModal", { writable: true, value: function showModal(this: HTMLDialogElement) { this.open = true; } });
 Object.defineProperty(window.HTMLDialogElement.prototype, "close", { writable: true, value: function close(this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event("close")); } });

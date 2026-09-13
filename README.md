@@ -63,11 +63,23 @@ La segunda orden realiza primero las comprobaciones y después intenta un envío
 ## Comprobaciones
 
 ```bash
-php artisan test
+composer quality
+```
+
+`composer quality` es la puerta de calidad obligatoria antes de integrar cambios. Ejecuta auditorías de dependencias, formato PHP, toda la suite backend con un mínimo del 90 % de cobertura, la suite frontend con umbrales de sentencias/ramas/funciones/líneas, ESLint y el build de producción. Para generar cobertura PHP hace falta Xdebug o PCOV; las pruebas usan también la extensión SQLite de PHP.
+
+Durante el desarrollo se pueden ejecutar comprobaciones concretas:
+
+```bash
+composer test
+composer test:coverage
 npm run test:frontend
+npm run test:frontend:coverage
 npm run lint
 npm run build
 ```
+
+El workflow `.github/workflows/quality.yml` ejecuta la misma puerta en cada `push` y `pull_request`; una regresión funcional, de seguridad, rendimiento, cobertura, formato o compilación bloquea la integración.
 
 ## Despliegue en la máquina virtual
 

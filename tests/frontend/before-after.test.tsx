@@ -56,4 +56,50 @@ describe("BeforeAfter", () => {
     expect(screen.getByRole("slider").parentElement).toHaveStyle({ left: "75.5%" });
     Object.defineProperty(window, "PointerEvent", { writable: true, value: originalPointerEvent });
   });
+
+  it("supports the full keyboard contract and clamps values", () => {
+    const onPositionChange = vi.fn();
+    render(<CompareReveal before={{ src: "/before.jpg", alt: "Antes" }} after={{ src: "/after.jpg", alt: "Después" }} defaultPosition={150} onPositionChange={onPositionChange} />);
+    const slider = screen.getByRole("slider");
+
+    expect(slider).toHaveAttribute("aria-valuenow", "100");
+    fireEvent.keyDown(slider, { key: "Home" });
+    expect(slider).toHaveAttribute("aria-valuenow", "0");
+    fireEvent.keyDown(slider, { key: "ArrowLeft" });
+    expect(slider).toHaveAttribute("aria-valuenow", "0");
+    fireEvent.keyDown(slider, { key: "ArrowRight", shiftKey: true });
+    expect(slider).toHaveAttribute("aria-valuenow", "10");
+    fireEvent.keyDown(slider, { key: "End" });
+    expect(slider).toHaveAttribute("aria-valuenow", "100");
+    expect(onPositionChange).toHaveBeenLastCalledWith(100);
+  });
+
+  it("ignores non-primary mouse buttons and resets on double click", () => {
+    const originalPointerEvent = window.PointerEvent;
+    class TestPointerEvent extends MouseEvent {
+      pointerType: string;
+      pointerId: number;
+
+      constructor(type: string, init: PointerEventInit = {}) {
+        super(type, init);
+        this.pointerType = init.pointerType ?? "";
+        this.pointerId = init.pointerId ?? 0;
+      }
+    }
+    Object.defineProperty(window, "PointerEvent", { writable: true, value: TestPointerEvent });
+    try {
+      render(<CompareReveal before={{ src: "/before.jpg", alt: "Antes" }} after={{ src: "/after.jpg", alt: "Después" }} defaultPosition={20} />);
+      const comparison = screen.getByRole("group", { name: /Comparación:/ });
+      Object.defineProperty(comparison, "getBoundingClientRect", {
+        value: () => ({ left: 0, right: 100, top: 0, bottom: 100, width: 100, height: 100, x: 0, y: 0, toJSON: () => ({}) }),
+      });
+      Object.defineProperty(comparison, "setPointerCapture", { value: vi.fn() });
+      fireEvent.pointerDown(comparison, { pointerType: "mouse", button: 2, clientX: 80 });
+      expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "20");
+      fireEvent.doubleClick(comparison);
+      expect(screen.getByRole("slider")).toHaveAttribute("aria-valuenow", "50");
+    } finally {
+      Object.defineProperty(window, "PointerEvent", { writable: true, value: originalPointerEvent });
+    }
+  });
 });

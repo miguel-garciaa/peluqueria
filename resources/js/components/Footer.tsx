@@ -1,6 +1,14 @@
-import { Clock3, MapPin, Phone } from "lucide-react";
+import { Clock3, Facebook, Instagram, MapPin, MessageCircle, Music2, Phone, X } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { site } from "@/data/site";
+
+const socialLinks = [
+  { label: "Instagram", href: site.social.instagram, icon: Instagram },
+  { label: "X", href: site.social.x, icon: X },
+  { label: "Facebook", href: site.social.facebook, icon: Facebook },
+  { label: "TikTok", href: site.social.tiktok, icon: Music2 },
+  { label: "WhatsApp", href: site.social.whatsapp, icon: MessageCircle },
+] as const;
 
 export function Footer() {
   return (
@@ -13,6 +21,21 @@ export function Footer() {
               <span className="uppercase">{site.name}</span> <span className="font-normal text-white/55">&amp; Barbería</span>
             </a>
             <p className="mt-4 max-w-xs text-sm leading-6 text-white/45">Corte, color, barbería y cuidado capilar con atención personalizada en tu ciudad.</p>
+            <nav className="mt-6 flex flex-wrap gap-2" aria-label="Redes sociales">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={label}
+                  title={label}
+                  className="grid size-10 place-items-center rounded-full border border-white/15 text-white/55 transition-all duration-200 hover:-translate-y-0.5 hover:border-brass/70 hover:bg-brass hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brass"
+                >
+                  <Icon aria-hidden="true" className="size-[1.1rem]" strokeWidth={1.8} />
+                </a>
+              ))}
+            </nav>
           </div>
           <div>
             <h2 className="text-sm font-bold">Explora</h2>

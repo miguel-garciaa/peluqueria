@@ -10,7 +10,9 @@
         content="Peluquería y barbería en tu ciudad: corte, color, barba, tratamientos y asesoramiento capilar personalizado."
     >
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=6">
+    <link rel="icon" type="image/svg+xml" href="/peluqueria-icon.svg?v=1">
+    <link rel="alternate icon" type="image/png" href="/peluqueria-icon.png?v=1">
+    <link rel="apple-touch-icon" href="/peluqueria-icon.png?v=1">
 
     <title>Peluquería y barbería — Tu ciudad</title>
 

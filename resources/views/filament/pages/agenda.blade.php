@@ -1,15 +1,32 @@
 <x-filament-panels::page>
     <div class="agenda-shell" wire:poll.5s>
         <div class="agenda-toolbar">
-            <div class="agenda-navigation" aria-label="Navegación por semanas">
-                <button type="button" wire:click="previousWeek" class="agenda-icon-button" title="Semana anterior" aria-label="Semana anterior">
-                    <x-filament::icon icon="heroicon-o-chevron-left" />
-                </button>
-                <button type="button" wire:click="goToToday" class="agenda-today">Hoy</button>
-                <button type="button" wire:click="nextWeek" class="agenda-icon-button" title="Semana siguiente" aria-label="Semana siguiente">
-                    <x-filament::icon icon="heroicon-o-chevron-right" />
-                </button>
-                <strong>{{ $this->weekLabel() }}</strong>
+            <div class="agenda-toolbar-main">
+                <div class="agenda-view-toggle" role="group" aria-label="Vista del calendario">
+                    <button
+                        type="button"
+                        wire:click="setCalendarView('week')"
+                        class="{{ $calendarView === 'week' ? 'is-active' : '' }}"
+                        aria-pressed="{{ $calendarView === 'week' ? 'true' : 'false' }}"
+                    >Semana</button>
+                    <button
+                        type="button"
+                        wire:click="setCalendarView('month')"
+                        class="{{ $calendarView === 'month' ? 'is-active' : '' }}"
+                        aria-pressed="{{ $calendarView === 'month' ? 'true' : 'false' }}"
+                    >Mes</button>
+                </div>
+
+                <div class="agenda-navigation" aria-label="Navegación del calendario">
+                    <button type="button" wire:click="previousPeriod" class="agenda-icon-button" title="Periodo anterior" aria-label="Periodo anterior">
+                        <x-filament::icon icon="heroicon-o-chevron-left" />
+                    </button>
+                    <button type="button" wire:click="goToToday" class="agenda-today">Hoy</button>
+                    <button type="button" wire:click="nextPeriod" class="agenda-icon-button" title="Periodo siguiente" aria-label="Periodo siguiente">
+                        <x-filament::icon icon="heroicon-o-chevron-right" />
+                    </button>
+                    <strong>{{ $this->periodLabel() }}</strong>
+                </div>
             </div>
 
             <div class="agenda-filters">
@@ -21,9 +38,12 @@
             <span></span> Actualización automática cada 5 segundos
         </div>
 
-        <div class="agenda-week">
-            @foreach ($this->week() as $day)
-                <section class="agenda-day {{ $day['is_today'] ? 'is-today' : '' }}">
+        <div class="agenda-calendar is-{{ $calendarView }}">
+            @foreach ($this->calendarDays() as $day)
+                <section
+                    wire:key="agenda-day-{{ $day['date']->format('Y-m-d') }}"
+                    class="agenda-day {{ $day['is_today'] ? 'is-today' : '' }} {{ $day['is_current_month'] ? '' : 'is-outside-month' }}"
+                >
                     <header>
                         <span>{{ ucfirst($day['date']->locale('es')->translatedFormat('D')) }}</span>
                         <strong>{{ $day['date']->format('d') }}</strong>

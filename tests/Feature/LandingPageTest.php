@@ -19,7 +19,9 @@ class LandingPageTest extends TestCase
         $this->get(route('landing'))
             ->assertOk()
             ->assertSee('id="root"', false)
-            ->assertSee('data-booking-endpoint="/reservas"', false);
+            ->assertSee('data-booking-endpoint="/reservas"', false)
+            ->assertSee('href="/peluqueria-icon.svg?v=1"', false)
+            ->assertSee('href="/peluqueria-icon.png?v=1"', false);
     }
 
     public function test_the_authenticated_google_user_is_exposed_to_the_frontend(): void

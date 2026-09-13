@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\Agenda;
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
 use App\Filament\Resources\ProfessionalCalendarEntries\Pages\ListProfessionalCalendarEntries;
 use App\Filament\Resources\Professionals\Pages\CreateProfessional;
@@ -23,6 +24,7 @@ use App\Services\ManageAppointment;
 use Carbon\CarbonImmutable;
 use Filament\Enums\ThemeMode;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -56,6 +58,8 @@ class AdminPanelTest extends TestCase
         $panel = Filament::getPanel('admin');
 
         $this->assertSame('resources/css/filament/admin/theme.css', $panel->getViteTheme());
+        $this->assertStringEndsWith('/peluqueria-icon.svg?v=1', $panel->getFavicon());
+        $this->assertStringContainsString('peluqueria-icon.svg?v=1', (string) $panel->getBrandLogo());
         $this->assertSame(ThemeMode::Dark, $panel->getDefaultThemeMode());
         $this->assertNull($panel->getGlobalSearchProvider());
         $this->assertSame('/', $panel->getHomeUrl());
@@ -230,6 +234,85 @@ class AdminPanelTest extends TestCase
             ->get('/admin/appointments')
             ->assertOk()
             ->assertSee('Anular cita');
+    }
+
+    public function test_the_agenda_filters_by_professional_and_treats_an_empty_filter_as_all(): void
+    {
+        [$user, $service, $professional] = $this->catalog();
+        $otherProfessional = Professional::query()->create([
+            'slug' => 'otro-profesional-admin',
+            'name' => 'Mario Admin',
+            'is_active' => true,
+        ]);
+        $startsAt = CarbonImmutable::now(config('app.business_timezone'))->addDay()->startOfHour();
+
+        foreach ([$professional, $otherProfessional] as $index => $appointmentProfessional) {
+            Appointment::query()->forceCreate([
+                'user_id' => $user->id,
+                'service_id' => $service->id,
+                'professional_id' => $appointmentProfessional->id,
+                'customer_name' => "Cliente Agenda {$index}",
+                'customer_phone' => '600 111 222',
+                'starts_at' => $startsAt->addHours($index)->utc(),
+                'ends_at' => $startsAt->addHours($index)->addMinutes(45)->utc(),
+                'status' => 'confirmed',
+            ]);
+        }
+
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        $agenda = Livewire::test(Agenda::class);
+        $professionalFilter = $agenda->instance()->getSchema('filters')?->getComponent('professionalFilter');
+        $statusFilter = $agenda->instance()->getSchema('filters')?->getComponent('statusFilter');
+
+        $this->assertInstanceOf(Select::class, $professionalFilter);
+        $this->assertFalse($professionalFilter->canSelectPlaceholder());
+        $this->assertInstanceOf(Select::class, $statusFilter);
+        $this->assertFalse($statusFilter->canSelectPlaceholder());
+
+        $agenda
+            ->set('selectedDate', $startsAt->format('Y-m-d'))
+            ->set('professionalFilter', (string) $professional->id)
+            ->assertSee('Cliente Agenda 0')
+            ->assertDontSee('Cliente Agenda 1')
+            ->set('professionalFilter', '')
+            ->assertSee('Cliente Agenda 0')
+            ->assertSee('Cliente Agenda 1');
+    }
+
+    public function test_the_agenda_switches_between_weekly_and_monthly_views_and_navigates_each_period(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        $agenda = Livewire::test(Agenda::class)
+            ->set('selectedDate', '2026-09-10')
+            ->assertSet('calendarView', 'week')
+            ->assertSee('Semana')
+            ->assertSee('Mes')
+            ->call('setCalendarView', 'month')
+            ->assertSet('calendarView', 'month')
+            ->assertSee('Septiembre 2026');
+
+        $monthDays = $agenda->instance()->calendarDays();
+
+        $this->assertCount(35, $monthDays);
+        $this->assertSame('2026-08-31', $monthDays[0]['date']->format('Y-m-d'));
+        $this->assertSame('2026-10-04', $monthDays[34]['date']->format('Y-m-d'));
+
+        $agenda
+            ->call('nextPeriod')
+            ->assertSet('selectedDate', '2026-10-10')
+            ->assertSee('Octubre 2026')
+            ->call('previousPeriod')
+            ->assertSet('selectedDate', '2026-09-10')
+            ->call('setCalendarView', 'week')
+            ->call('nextPeriod')
+            ->assertSet('selectedDate', '2026-09-17')
+            ->assertSee('14 sep. – 20 sep. 2026');
     }
 
     public function test_an_administrator_can_cancel_a_client_appointment_once(): void

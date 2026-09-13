@@ -53,6 +53,19 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "test:coverage": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test --coverage --min=90"
+        ],
+        "quality": [
+            "composer audit --locked",
+            "@php vendor/bin/pint --test",
+            "@test:coverage",
+            "npm audit --audit-level=high",
+            "npm run test:frontend:coverage",
+            "npm run lint",
+            "npm run build"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",

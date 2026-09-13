@@ -32,6 +32,7 @@ class AppointmentHistoryPdf
             'generatedAt' => $generatedAt,
             'serviceName' => $serviceName,
             'professionalName' => $professionalName,
+            'brandIcon' => 'data:image/png;base64,'.base64_encode((string) file_get_contents(public_path('peluqueria-icon.png'))),
             'uniqueCustomers' => $appointments->pluck('user_id')->filter()->unique()->count(),
             'totalMinutes' => $appointments->sum(
                 fn ($appointment): int => (int) $appointment->starts_at->diffInMinutes($appointment->ends_at),

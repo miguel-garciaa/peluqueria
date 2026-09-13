@@ -69,6 +69,7 @@ class ManageAppointment
             ? ($except?->cancelled_at ?? now())
             : null;
         $data['completed_at'] = $status === 'completed' ? $endsAt->utc() : null;
+
         return $data;
     }
 

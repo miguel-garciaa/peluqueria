@@ -13,7 +13,7 @@
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;border:1px solid #ded8cc;border-collapse:collapse;background:#ffffff">
                     <tr>
                         <td style="background:#211f1c;padding:28px;color:#ffffff">
-                            <p style="margin:0 0 8px;color:#d4ad65;font-size:13px;font-weight:700;line-height:1.4">{{ mb_strtoupper(config('app.name')) }} · PELUQUERÍA Y BARBERÍA</p>
+                            @include('mail.partials.brand')
                             <h1 style="margin:0;color:#ffffff;font-size:30px;line-height:1.1">Tu cita ha sido anulada</h1>
                         </td>
                     </tr>

@@ -1,0 +1,59 @@
+name: Quality gate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP 8.3 with coverage
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, dom, curl, sqlite3, pdo_sqlite
+          coverage: xdebug
+
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Dependency security audit
+        run: |
+          composer audit --locked
+          npm audit --audit-level=high
+
+      - name: PHP formatting
+        run: vendor/bin/pint --test
+
+      - name: Backend tests and coverage threshold
+        run: php artisan test --coverage --min=90
+
+      - name: Frontend tests and coverage thresholds
+        run: npm run test:frontend:coverage
+
+      - name: Static frontend checks
+        run: |
+          npm run lint
+          npm run build

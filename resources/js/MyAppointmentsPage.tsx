@@ -42,7 +42,7 @@ export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, 
               <h1 className="mt-3 font-display text-5xl font-semibold tracking-[-0.04em] sm:text-7xl">Mis citas<span className="text-brass-deep">*</span></h1>
               <p className="mt-4 max-w-xl leading-7 text-taupe">Consulta aquí cada reserva y los detalles necesarios para llegar con todo claro.</p>
             </div>
-            <button type="button" onClick={() => setBookingOpen(true)} className="group mt-7 inline-flex min-h-14 items-center gap-3 rounded-md bg-ink p-2 pr-6 font-bold text-white transition-transform hover:-translate-y-0.5 lg:mt-0">
+            <button type="button" onClick={() => setBookingOpen(true)} className="group mt-7 inline-flex min-h-14 items-center gap-3 rounded-full bg-ink p-2 pr-6 font-bold text-white transition-transform hover:-translate-y-0.5 lg:mt-0">
               <span className="grid size-10 place-items-center rounded-full bg-brass text-ink"><ArrowUpRight className="size-4" /></span>
               Nueva cita
             </button>
