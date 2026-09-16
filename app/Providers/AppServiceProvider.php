@@ -15,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
     }
 
     /**
@@ -33,9 +32,6 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perHour(600)->by($key.':hour'),
             ];
         });
-
-        RateLimiter::for('oauth', fn (Request $request): Limit => Limit::perMinute(10)
-            ->by('oauth:'.($request->ip() ?? 'unknown')));
 
         RateLimiter::for('availability', fn (Request $request): Limit => Limit::perMinute(90)
             ->by('availability:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'unknown')));

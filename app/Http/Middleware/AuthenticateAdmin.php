@@ -13,6 +13,6 @@ class AuthenticateAdmin extends Authenticate
             $request->session()->put('url.intended', $request->fullUrl());
         }
 
-        return route('google.redirect');
+        return route('login');
     }
 }

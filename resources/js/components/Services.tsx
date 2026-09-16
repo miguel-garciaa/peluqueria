@@ -17,7 +17,7 @@ const priceLabel = (price: number | null) => price === null
 export function Services({ onBook, catalogServices }: ServicesProps) {
   const [activeService, setActiveService] = useState<Service | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const displayedServices: Service[] = catalogServices === undefined
+  const displayedServices: Service[] = catalogServices === undefined || catalogServices.length === 0
     ? services
     : catalogServices.map((current) => {
       const presentation = services.find((service) => service.id === current.id);

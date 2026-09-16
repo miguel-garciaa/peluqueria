@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Str;
 
-#[Fillable(['google_id', 'name', 'email', 'phone', 'email_verified_at', 'avatar_url', 'password'])]
+#[Fillable(['google_id', 'name', 'email', 'phone', 'email_verified_at', 'avatar_url', 'is_admin', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {

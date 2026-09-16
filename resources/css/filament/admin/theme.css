@@ -296,9 +296,48 @@ html.fi,
     width: 100%;
 }
 
-.fi-wi-table,
-.fi-wi-table > .fi-ta-ctn {
+.fi-wi-widget {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+}
+
+.fi-wi-widget > * {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+}
+
+.fi-wi-chart,
+.fi-wi-table {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.fi-wi-chart > .fi-section,
+.fi-wi-table > .fi-ta-ctn {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 26rem;
+}
+
+.fi-wi-table .fi-ta-content-ctn {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.fi-wi-table .fi-ta-empty-state {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 2.5rem;
 }
 
 .fi-ta-row {

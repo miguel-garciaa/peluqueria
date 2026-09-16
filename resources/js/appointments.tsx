@@ -19,4 +19,8 @@ const flash = JSON.parse(root.dataset.flash || "null") as { message: string | nu
 const csrfToken = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? "";
 if (!currentUser) throw new Error("La vista de citas requiere una sesión activa.");
 
-createRoot(root).render(<StrictMode><MyAppointmentsPage currentUser={currentUser} appointments={appointments} bookingCatalog={bookingCatalog} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} flash={flash} /></StrictMode>);
+createRoot(root).render(
+  <StrictMode>
+    <MyAppointmentsPage currentUser={currentUser} appointments={appointments} bookingCatalog={bookingCatalog} bookingEndpoint={bookingEndpoint} availabilityEndpoint={availabilityEndpoint} csrfToken={csrfToken} flash={flash} />
+  </StrictMode>,
+);

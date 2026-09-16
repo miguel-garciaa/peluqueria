@@ -17,7 +17,7 @@ class GrantAdminAccess extends Command
         $user = User::query()->whereRaw('LOWER(email) = ?', [$email])->first();
 
         if (! $user) {
-            $this->error('No existe un usuario registrado con ese correo. Inicia sesión con Google primero.');
+            $this->error('No existe un usuario registrado con ese correo.');
 
             return self::FAILURE;
         }

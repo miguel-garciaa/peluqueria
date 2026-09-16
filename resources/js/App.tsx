@@ -15,7 +15,7 @@ import type { BookingCatalog, CurrentUser } from "@/types";
 
 export type { CurrentUser } from "@/types";
 
-type AppProps = {
+export type AppProps = {
   bookingEndpoint: string;
   availabilityEndpoint: string;
   bookingCatalog: BookingCatalog;
@@ -23,9 +23,12 @@ type AppProps = {
   currentUser: CurrentUser | null;
   authMessage: string | null;
   authMessageType: "success" | "error";
+  onSignIn?: () => void;
+  onSignOut?: () => void;
+  onManageAccount?: () => void;
 };
 
-export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, authMessage, authMessageType }: AppProps) {
+export default function App({ bookingEndpoint, availabilityEndpoint, bookingCatalog, csrfToken, currentUser, authMessage, authMessageType, onSignIn, onSignOut, onManageAccount }: AppProps) {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingIntent, setBookingIntent] = useState<{ serviceId?: string; professionalId?: string }>({});
   const [authNotice, setAuthNotice] = useState(false);
@@ -47,16 +50,22 @@ export default function App({ bookingEndpoint, availabilityEndpoint, bookingCata
     return () => window.clearTimeout(timeout);
   }, [authNotice]);
 
+  useEffect(() => {
+    if (!currentUser || !authNotice) return;
+    setAuthNotice(false);
+    setBookingOpen(true);
+  }, [authNotice, currentUser]);
+
   return (
     <>
       <a className="skip-link" href="#main-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} onBook={() => openBooking()} />
+      <Navbar currentUser={currentUser} onBook={() => openBooking()} onSignIn={onSignIn} onSignOut={onSignOut} onManageAccount={onManageAccount} />
       <TimedNotice
         message={authMessage}
         role={authMessageType === "error" ? "alert" : "status"}
         className={`fixed right-4 top-24 z-[60] max-w-sm rounded-2xl px-5 py-3 text-sm font-bold shadow-xl ${authMessageType === "error" ? "bg-red-700 text-white" : "bg-white text-ink"}`}
       />
-      {authNotice && <div role="alert" className="fixed inset-x-4 top-24 z-[90] ml-auto max-w-md rounded-2xl border border-white/10 bg-ink p-5 text-white shadow-2xl"><button type="button" onClick={() => setAuthNotice(false)} className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white" aria-label="Cerrar aviso">×</button><p className="font-display text-xl font-semibold">Inicia sesión para reservar</p><p className="mt-2 pr-5 text-sm leading-6 text-white/65">Tu cuenta nos permite guardar la cita y enviarte la confirmación.</p><a href="/auth/google" className="mt-4 inline-flex min-h-11 items-center rounded-md bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión con Google</a></div>}
+      {authNotice && <div role="alert" className="fixed inset-x-4 top-24 z-[90] ml-auto max-w-md rounded-2xl border border-white/10 bg-ink p-5 text-white shadow-2xl"><button type="button" onClick={() => setAuthNotice(false)} className="absolute right-3 top-3 grid size-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white" aria-label="Cerrar aviso">×</button><p className="font-display text-xl font-semibold">Inicia sesión para reservar</p><p className="mt-2 pr-5 text-sm leading-6 text-white/65">Tu cuenta nos permite guardar la cita y enviarte la confirmación.</p>{onSignIn ? <button type="button" onClick={onSignIn} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión</button> : <a href="/login" className="mt-4 inline-flex min-h-11 items-center rounded-md bg-brass px-5 text-sm font-bold text-ink">Iniciar sesión</a>}</div>}
       <main id="main-content">
         <Hero onBook={() => openBooking()} />
         <Services catalogServices={bookingCatalog.services} onBook={(serviceId) => openBooking({ serviceId })} />

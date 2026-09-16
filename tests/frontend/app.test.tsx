@@ -29,7 +29,7 @@ describe("App", () => {
 
     const alert = screen.getByRole("alert");
     expect(alert).toHaveTextContent("Inicia sesión para reservar");
-    expect(within(alert).getByRole("link", { name: "Iniciar sesión con Google" })).toHaveAttribute("href", "/auth/google");
+    expect(within(alert).getByRole("link", { name: "Iniciar sesión" })).toHaveAttribute("href", "/login");
     fireEvent.click(screen.getByRole("button", { name: "Cerrar aviso" }));
     expect(screen.queryByText("Inicia sesión para reservar")).not.toBeInTheDocument();
   });

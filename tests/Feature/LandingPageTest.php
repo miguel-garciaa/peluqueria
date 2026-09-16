@@ -24,7 +24,7 @@ class LandingPageTest extends TestCase
             ->assertSee('href="/peluqueria-icon.png?v=1"', false);
     }
 
-    public function test_the_authenticated_google_user_is_exposed_to_the_frontend(): void
+    public function test_the_authenticated_user_is_exposed_to_the_frontend(): void
     {
         $this->withoutVite();
         $user = User::factory()->create([

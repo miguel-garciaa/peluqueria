@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\AuthenticateAdmin;
-use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -45,9 +44,6 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn (): View => view('filament.components.back-to-site'),
             )
-            ->userMenuItems([
-                'logout' => fn (Action $action): Action => $action->hidden(),
-            ])
             ->databaseTransactions()
             ->colors([
                 'primary' => Color::hex('#b7791f'),

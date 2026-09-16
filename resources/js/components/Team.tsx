@@ -12,7 +12,7 @@ interface TeamProps {
 
 export function Team({ onBook, catalogProfessionals, catalogServices }: TeamProps) {
   const [firstVisibleIndex, setFirstVisibleIndex] = useState(0);
-  const displayedProfessionals = catalogProfessionals === undefined
+  const displayedProfessionals = catalogProfessionals === undefined || catalogProfessionals.length === 0
     ? professionals
     : catalogProfessionals.map((current) => {
       const presentation = professionals.find((professional) => professional.id === current.id);

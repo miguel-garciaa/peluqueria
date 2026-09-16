@@ -44,15 +44,6 @@ class AdminPanelTest extends TestCase
         $this->assertNotContains(AccountWidget::class, Filament::getPanel('admin')->getWidgets());
     }
 
-    public function test_the_filament_user_menu_does_not_offer_logout(): void
-    {
-        $admin = User::factory()->create(['is_admin' => true]);
-        $this->actingAs($admin);
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
-
-        $this->assertArrayNotHasKey('logout', Filament::getPanel('admin')->getUserMenuItems());
-    }
-
     public function test_the_control_panel_uses_the_custom_theme(): void
     {
         $panel = Filament::getPanel('admin');
@@ -119,7 +110,7 @@ class AdminPanelTest extends TestCase
 
     public function test_only_administrators_can_access_the_control_panel(): void
     {
-        $this->get('/admin')->assertRedirect(route('google.redirect'));
+        $this->get('/admin')->assertRedirect(route('login'));
 
         $customer = User::factory()->create();
         $this->actingAs($customer)->get('/admin')->assertForbidden();

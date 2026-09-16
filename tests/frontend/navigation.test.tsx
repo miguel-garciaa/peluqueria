@@ -13,24 +13,25 @@ describe("Navbar", () => {
     expect(screen.queryByText("Instalar app")).not.toBeInTheDocument();
   });
 
-  it("offers Google sign-in from the account menu", () => {
+  it("offers sign-in from the account menu", () => {
     const { container } = render(<Navbar />);
     const accountMenu = container.querySelector("details");
 
     expect(accountMenu).not.toBeNull();
     fireEvent.click(within(accountMenu as HTMLElement).getByText("Cuenta"));
-    expect(within(accountMenu as HTMLElement).getByRole("link", { name: "Iniciar sesión con Google" })).toHaveAttribute("href", "/auth/google");
+    expect(within(accountMenu as HTMLElement).getByRole("link", { name: "Iniciar sesión" })).toHaveAttribute("href", "/login");
     expect(accountMenu).toHaveAttribute("open");
   });
 
-  it("shows the authenticated account and a secure logout form", () => {
-    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} csrfToken="csrf-test" />);
+  it("shows the authenticated account and handles sign-out", () => {
+    const onSignOut = vi.fn();
+    render(<Navbar currentUser={{ name: "Ana López", email: "ana@example.com", phone: null, avatarUrl: null }} onSignOut={onSignOut} />);
 
     expect(screen.getAllByText("ana@example.com")[0]).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Mis citas" })[0]).toHaveAttribute("href", "/mis-citas");
     const logoutButton = screen.getAllByRole("button", { name: "Cerrar sesión" })[0];
-    expect(logoutButton.closest("form")).toHaveAttribute("action", "/logout");
-    expect(logoutButton.closest("form")?.querySelector('input[name="_token"]')).toHaveValue("csrf-test");
+    fireEvent.click(logoutButton);
+    expect(onSignOut).toHaveBeenCalledOnce();
   });
 
   it("replaces booking with the control panel action for administrators", () => {

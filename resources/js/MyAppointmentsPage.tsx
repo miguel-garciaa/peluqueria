@@ -24,16 +24,18 @@ interface AppointmentsPageProps {
   availabilityEndpoint: string;
   csrfToken: string;
   flash: { message: string | null; type: "success" | "error" } | null;
+  onSignOut?: () => void;
+  onManageAccount?: () => void;
 }
 
-export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash }: AppointmentsPageProps) {
+export function MyAppointmentsPage({ currentUser, appointments, bookingCatalog, bookingEndpoint, availabilityEndpoint, csrfToken, flash, onSignOut, onManageAccount }: AppointmentsPageProps) {
   const [confirmingReference, setConfirmingReference] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
 
   return (
     <>
       <a className="skip-link" href="#appointments-content">Saltar al contenido</a>
-      <Navbar currentUser={currentUser} csrfToken={csrfToken} solid showBookingAction={false} />
+      <Navbar currentUser={currentUser} solid showBookingAction={false} onSignOut={onSignOut} onManageAccount={onManageAccount} />
       <main id="appointments-content" className="min-h-screen bg-porcelain pb-24 pt-32 text-ink lg:pt-40">
         <section className="container-shell">
           <div className="border-b border-ink/12 pb-10 lg:flex lg:items-end lg:justify-between">

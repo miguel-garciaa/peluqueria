@@ -1,11 +1,11 @@
 # Plantilla de peluquería y barbería
 
-Plantilla genérica para peluquerías y barberías, integrada en Laravel 13 con React, TypeScript, Vite y Tailwind CSS. Incluye autenticación con Google, reserva de citas en tiempo real, correo de confirmación en cola y el área privada “Mis Citas”.
+Plantilla genérica para peluquerías y barberías, integrada en Laravel 13 con React, TypeScript, Vite y Tailwind CSS. Incluye reserva de citas en tiempo real, correo de confirmación en cola y el área privada “Mis Citas”.
 
 ## Personalización de la plantilla
 
 - Cambia el nombre público, descriptor, ciudad, dirección, teléfono y enlace de Google Maps en `resources/js/data/site.ts`.
-- Configura `APP_NAME`, el remitente de correo y las credenciales de Google en `.env`.
+- Configura `APP_NAME` y el remitente de correo en `.env`.
 - Sustituye las imágenes y los datos de ejemplo en `resources/js/data/content.ts` y `database/seeders/DatabaseSeeder.php`.
 - El logotipo genérico de tijeras está definido en `resources/js/components/BrandMark.tsx` y el icono del navegador en `public/favicon.svg`.
 
@@ -33,7 +33,7 @@ php artisan migrate --seed
 composer run dev
 ```
 
-Configura en `.env` las credenciales de PostgreSQL, Redis, Google y la API de Resend. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
+Configura en `.env` las credenciales de PostgreSQL, Redis y la API de Resend. `composer run dev` inicia Laravel, Vite, logs y el worker `emails,default` de Redis. Para usar SQLite durante desarrollo puedes sobrescribir `DB_CONNECTION=sqlite` y crear `database/database.sqlite`.
 
 `MAIL_MAILER=log` no entrega correos: solo los escribe en `storage/logs/laravel.log`. En producción utiliza `MAIL_MAILER=resend`, una `RESEND_API_KEY` secreta y un remitente perteneciente al dominio verificado. Después de cambiar correo o Redis, limpia la configuración y reinicia tanto Octane como el worker de colas.
 
@@ -169,7 +169,6 @@ En Cloudflare, crea una regla de caché para `/build/assets/*` con Edge TTL y Br
 ## Rutas
 
 - `GET /` — landing page.
-- `GET /login` — inicia el acceso con Google.
 - `GET /reservas/disponibilidad` — devuelve huecos reales para fecha, servicio y profesional (autenticada).
 - `POST /reservas` — crea y confirma una cita (autenticada).
 - `GET /mis-citas` — área privada con las citas del usuario.

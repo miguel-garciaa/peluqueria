@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\AuthenticateAdmin;
 use App\Models\Appointment;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -50,8 +51,6 @@ class SecurityHardeningTest extends TestCase
     public function test_sensitive_routes_have_specific_rate_limiters(): void
     {
         $this->assertContains('throttle:landing', Route::getRoutes()->getByName('landing')->gatherMiddleware());
-        $this->assertContains('throttle:oauth', Route::getRoutes()->getByName('google.redirect')->gatherMiddleware());
-        $this->assertContains('throttle:oauth', Route::getRoutes()->getByName('google.callback')->gatherMiddleware());
         $this->assertContains('throttle:availability', Route::getRoutes()->getByName('bookings.availability')->gatherMiddleware());
         $this->assertContains('throttle:booking', Route::getRoutes()->getByName('bookings.store')->gatherMiddleware());
         $this->assertContains('throttle:cancellation', Route::getRoutes()->getByName('appointments.cancel')->gatherMiddleware());
