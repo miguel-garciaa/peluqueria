@@ -1,9 +1,22 @@
+import * as Sentry from "@sentry/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { getHeroMotionMode, type HeroNavigationType } from "@/lib/hero-motion";
 import { removeLegacyBrowserApp } from "@/lib/remove-legacy-browser-app";
 import "../css/app.css";
+
+// Inicialización de Sentry (debe ejecutarse antes de montar la app)
+Sentry.init({
+  dsn: "https://841538438472e48ba7f1fb25c3072ec1@o4512090607190016.ingest.de.sentry.io/4512096322781264",
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0,
+  replaysSessionSampleRate: 0.1,
+});
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
 const navigationType = (navigationEntry?.type ?? "navigate") as HeroNavigationType;
