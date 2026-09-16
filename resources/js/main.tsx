@@ -13,9 +13,9 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
-  tracesSampleRate: 1.0,
+  tracesSampleRate: 0.02,
   replaysOnErrorSampleRate: 1.0,
-  replaysSessionSampleRate: 0.1,
+  replaysSessionSampleRate: 0.0,
 });
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
